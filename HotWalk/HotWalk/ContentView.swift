@@ -129,23 +129,33 @@ struct ContentView: View {
                 
                 // Milestone Card Overlay
                 if showingMilestoneCard, let milestone = currentMilestone {
-                    Color.black.opacity(0.4)
-                        .edgesIgnoringSafeArea(.all)
-                        .transition(.opacity)
-                    
-                    MilestoneCardView(
-                        milestone: milestone,
-                        onDismiss: {
-                            withAnimation {
-                                showingMilestoneCard = false
-                                currentMilestone = nil
+                    ZStack {
+                        Color.black.opacity(0.4)
+                            .edgesIgnoringSafeArea(.all)
+                            .transition(.opacity)
+                            .onTapGesture {
+                                withAnimation {
+                                    showingMilestoneCard = false
+                                }
                             }
-                        },
-                        onShare: {
-                            // Share functionality will be implemented later
-                        }
-                    )
-                    .transition(.scale)
+                        
+                        MilestoneCardView(
+                            milestone: milestone,
+                            onDismiss: {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                    showingMilestoneCard = false
+                                }
+                            },
+                            onShare: {
+                                // Share functionality will be implemented later
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                    showingMilestoneCard = false
+                                }
+                            }
+                        )
+                        .transition(.scale(scale: 0.8).combined(with: .opacity))
+                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: showingMilestoneCard)
+                    }
                 }
             }
             .navigationTitle("Hot Walk")

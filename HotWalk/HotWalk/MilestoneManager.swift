@@ -12,15 +12,15 @@ enum MilestoneType: String, CaseIterable {
     var message: String {
         switch self {
         case .threeDayStreak:
-            return "🔥 3-Day Streak! Just warming up."
+            return "Okayyy consistency queen 👑 You've walked hot 3 days in a row."
         case .sevenDayStreak:
-            return "👑 7 Days of Hotness in a Row!"
+            return "You just earned 7 days of main character energy. Keep slaying."
         case .oneHundredTwentyFivePercent:
-            return "✨ I didn't walk. I WERKED (125%)"
+            return "You didn't walk. You WERKED. 125% hotness achieved."
         case .oneHundredFiftyPercent:
-            return "🔥 Hotter Than the Algorithm (150%)"
+            return "The sidewalk is jealous. 150% slay complete."
         case .twoHundredPercent:
-            return "🚀 Walked so hard I broke gravity (200%)"
+            return "NASA called. You walked straight into orbit 💫"
         }
     }
     
