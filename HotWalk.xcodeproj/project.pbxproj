@@ -12,6 +12,7 @@
 		1A1A1A1A1A1A1A1A1A1A1A1E /* HealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1A1A1A1A1A1A1A1A1A1A1F /* HealthManager.swift */; };
 		1A1A1A1A1A1A1A1A1A1A1A20 /* HotWalkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1A1A1A1A1A1A1A1A1A1A21 /* HotWalkViewModel.swift */; };
 		744928C62DA55C18008E5010 /* MotivationalMessageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928C52DA55C18008E5010 /* MotivationalMessageManager.swift */; };
+		744928C82DA55E60008E5010 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928C72DA55E60008E5010 /* StreakManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +24,7 @@
 		1A1A1A1A1A1A1A1A1A1A1A23 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1A1A1A1A1A1A1A1A1A1A1A32 /* HotWalk.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HotWalk.entitlements; sourceTree = "<group>"; };
 		744928C52DA55C18008E5010 /* MotivationalMessageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotivationalMessageManager.swift; sourceTree = "<group>"; };
+		744928C72DA55E60008E5010 /* StreakManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +70,7 @@
 				1A1A1A1A1A1A1A1A1A1A1A1D /* ContentView.swift */,
 				1A1A1A1A1A1A1A1A1A1A1A1F /* HealthManager.swift */,
 				1A1A1A1A1A1A1A1A1A1A1A21 /* HotWalkViewModel.swift */,
+				744928C72DA55E60008E5010 /* StreakManager.swift */,
 				1A1A1A1A1A1A1A1A1A1A1A23 /* Info.plist */,
 				1A1A1A1A1A1A1A1A1A1A1A32 /* HotWalk.entitlements */,
 			);
@@ -147,6 +150,7 @@
 				1A1A1A1A1A1A1A1A1A1A1A1E /* HealthManager.swift in Sources */,
 				1A1A1A1A1A1A1A1A1A1A1A20 /* HotWalkViewModel.swift in Sources */,
 				1A1A1A1A1A1A1A1A1A1A1A1A /* HotWalkApp.swift in Sources */,
+				744928C82DA55E60008E5010 /* StreakManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

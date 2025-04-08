@@ -23,6 +23,12 @@ struct ContentView: View {
                     Text("steps today")
                         .font(.title2)
                         .foregroundColor(.gray)
+                    
+                    // Streak Display
+                    Text(viewModel.streakText)
+                        .font(.title3)
+                        .foregroundColor(.purple)
+                        .padding(.top, 5)
                 }
                 .padding(.top, 50)
                 
@@ -54,7 +60,7 @@ struct ContentView: View {
                 
                 // Motivational Message
                 VStack(spacing: 10) {
-                    Text(viewModel.getMotivationalMessage(progress: viewModel.calculateProgress(steps: healthManager.steps)))
+                    Text(viewModel.currentMessage)
                         .font(.title2)
                         .multilineTextAlignment(.center)
                         .foregroundColor(.purple)
@@ -67,7 +73,7 @@ struct ContentView: View {
                         .padding(.horizontal)
                 }
                 .transition(.opacity)
-                .animation(.easeInOut, value: healthManager.steps)
+                .animation(.easeInOut, value: viewModel.currentMessage)
                 
                 Spacer()
             }
