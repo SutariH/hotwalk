@@ -17,6 +17,7 @@
 		744928CC2DA567AA008E5010 /* HotGirlPassManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928CB2DA567AA008E5010 /* HotGirlPassManager.swift */; };
 		744928CF2DA5709D008E5010 /* MilestoneManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928CE2DA5709D008E5010 /* MilestoneManager.swift */; };
 		744928D02DA5709D008E5010 /* MilestoneCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928CD2DA5709D008E5010 /* MilestoneCardView.swift */; };
+		744928D22DA59E17008E5010 /* AnimatedProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928D12DA59E17008E5010 /* AnimatedProgressView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,7 @@
 		744928CB2DA567AA008E5010 /* HotGirlPassManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotGirlPassManager.swift; sourceTree = "<group>"; };
 		744928CD2DA5709D008E5010 /* MilestoneCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneCardView.swift; sourceTree = "<group>"; };
 		744928CE2DA5709D008E5010 /* MilestoneManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneManager.swift; sourceTree = "<group>"; };
+		744928D12DA59E17008E5010 /* AnimatedProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedProgressView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +75,7 @@
 		1A1A1A1A1A1A1A1A1A1A1A33 /* HotWalk */ = {
 			isa = PBXGroup;
 			children = (
+				744928D12DA59E17008E5010 /* AnimatedProgressView.swift */,
 				744928C52DA55C18008E5010 /* MotivationalMessageManager.swift */,
 				1A1A1A1A1A1A1A1A1A1A1A1B /* HotWalkApp.swift */,
 				1A1A1A1A1A1A1A1A1A1A1A1D /* ContentView.swift */,
@@ -167,6 +170,7 @@
 				744928CF2DA5709D008E5010 /* MilestoneManager.swift in Sources */,
 				744928D02DA5709D008E5010 /* MilestoneCardView.swift in Sources */,
 				744928C82DA55E60008E5010 /* StreakManager.swift in Sources */,
+				744928D22DA59E17008E5010 /* AnimatedProgressView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

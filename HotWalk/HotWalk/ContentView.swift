@@ -12,182 +12,135 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                LinearGradient(gradient: Gradient(colors: [Color.pink.opacity(0.3), Color.purple.opacity(0.3)]),
-                              startPoint: .topLeading,
-                              endPoint: .bottomTrailing)
-                    .ignoresSafeArea()
+                // Background gradient
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.black, Color.purple.opacity(0.3)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .edgesIgnoringSafeArea(.all)
                 
                 VStack(spacing: 30) {
-                    // Step Count
-                    VStack {
-                        Text("\(healthManager.steps)")
-                            .font(.system(size: 72, weight: .bold))
-                            .foregroundColor(.purple)
-                        
-                        Text("steps today")
-                            .font(.title2)
-                            .foregroundColor(.gray)
-                        
-                        // Streak Display
-                        Text(viewModel.streakText)
-                            .font(.title3)
-                            .foregroundColor(.purple)
-                            .padding(.top, 5)
-                    }
-                    .padding(.top, 50)
+                    // Step count
+                    Text("\(healthManager.steps)")
+                        .font(.system(size: 60, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
                     
-                    // Progress Bar
-                    ZStack {
-                        Circle()
-                            .stroke(lineWidth: 20)
-                            .opacity(0.3)
-                            .foregroundColor(.gray)
-                        
-                        Circle()
-                            .trim(from: 0.0, to: viewModel.calculateProgress(steps: healthManager.steps))
-                            .stroke(style: StrokeStyle(lineWidth: 20, lineCap: .round, lineJoin: .round))
-                            .foregroundColor(.purple)
-                            .rotationEffect(Angle(degrees: 270.0))
-                            .animation(.linear, value: healthManager.steps)
-                        
-                        VStack {
-                            Text("Goal: \(viewModel.dailyGoal)")
-                                .font(.headline)
-                            Button("Edit Goal") {
-                                tempGoal = String(viewModel.dailyGoal)
-                                showingGoalEditor = true
-                            }
-                            .foregroundColor(.purple)
-                        }
-                    }
-                    .frame(width: 250, height: 250)
+                    // Animated progress ring
+                    AnimatedProgressRing(
+                        progress: viewModel.calculateProgress(steps: healthManager.steps),
+                        lineWidth: 25,
+                        size: 250
+                    )
                     
-                    // Hot Girl Pass Message
-                    if !viewModel.hotGirlPassMessage.isEmpty {
-                        Text(viewModel.hotGirlPassMessage)
-                            .font(.title3)
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.purple)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 15)
-                                    .fill(Color.white.opacity(0.8))
-                                    .shadow(radius: 5)
-                            )
-                            .padding(.horizontal)
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                            .onAppear {
-                                showHotGirlPassMessage = true
-                                // Clear the message after 3 seconds
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                                    withAnimation {
-                                        showHotGirlPassMessage = false
-                                        viewModel.hotGirlPassMessage = ""
-                                    }
-                                }
-                            }
-                    }
+                    // Motivational message
+                    Text(viewModel.currentMessage)
+                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
                     
-                    // Motivational Message
-                    VStack(spacing: 10) {
-                        Text(viewModel.currentMessage)
-                            .font(.title2)
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.purple)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 15)
-                                    .fill(Color.white.opacity(0.8))
-                                    .shadow(radius: 5)
-                            )
-                            .padding(.horizontal)
-                    }
-                    .transition(.opacity)
-                    .animation(.easeInOut, value: viewModel.currentMessage)
+                    // Streak text
+                    Text(viewModel.streakText)
+                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                        .foregroundColor(.white.opacity(0.6))
                     
-                    // Calendar Navigation Button
+                    Spacer()
+                    
+                    // Calendar navigation button
                     NavigationLink(destination: CalendarView()) {
                         HStack {
                             Image(systemName: "calendar")
-                                .font(.title2)
-                            Text("View Streak Calendar")
-                                .font(.headline)
+                            Text("View History")
                         }
+                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .foregroundColor(.white)
                         .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(Color.purple.opacity(0.2))
-                                .shadow(radius: 3)
-                        )
-                        .foregroundColor(.purple)
+                        .background(Color.purple.opacity(0.3))
+                        .cornerRadius(15)
                     }
-                    .padding(.top, 10)
-                    
-                    Spacer()
+                    .padding(.bottom, 30)
                 }
                 .padding()
                 
-                // Milestone Card Overlay
-                if showingMilestoneCard, let milestone = currentMilestone {
-                    ZStack {
-                        Color.black.opacity(0.4)
-                            .edgesIgnoringSafeArea(.all)
-                            .transition(.opacity)
-                            .onTapGesture {
-                                withAnimation {
-                                    showingMilestoneCard = false
-                                }
-                            }
+                // Goal editor overlay
+                if showingGoalEditor {
+                    Color.black.opacity(0.5)
+                        .edgesIgnoringSafeArea(.all)
+                        .onTapGesture {
+                            showingGoalEditor = false
+                        }
+                    
+                    VStack(spacing: 20) {
+                        Text("Set Daily Goal")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
                         
-                        MilestoneCardView(
-                            milestone: milestone,
-                            onDismiss: {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                                    showingMilestoneCard = false
-                                }
-                            },
-                            onShare: {
-                                // Share functionality will be implemented later
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                                    showingMilestoneCard = false
+                        TextField("Steps", text: $tempGoal)
+                            .keyboardType(.numberPad)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .frame(width: 200)
+                        
+                        HStack(spacing: 20) {
+                            Button("Cancel") {
+                                showingGoalEditor = false
+                            }
+                            .foregroundColor(.white)
+                            
+                            Button("Save") {
+                                if let newGoal = Int(tempGoal) {
+                                    viewModel.dailyGoal = newGoal
+                                    showingGoalEditor = false
                                 }
                             }
-                        )
-                        .transition(.scale(scale: 0.8).combined(with: .opacity))
-                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: showingMilestoneCard)
-                    }
-                }
-            }
-            .navigationTitle("Hot Walk")
-            .sheet(isPresented: $showingGoalEditor) {
-                NavigationView {
-                    Form {
-                        Section(header: Text("Set Daily Step Goal")) {
-                            TextField("Steps", text: $tempGoal)
-                                .keyboardType(.numberPad)
+                            .foregroundColor(.white)
                         }
                     }
-                    .navigationTitle("Edit Goal")
-                    .navigationBarItems(
-                        leading: Button("Cancel") {
-                            showingGoalEditor = false
+                    .padding()
+                    .background(Color.purple.opacity(0.8))
+                    .cornerRadius(15)
+                }
+                
+                // Milestone card overlay
+                if showingMilestoneCard {
+                    Color.black.opacity(0.5)
+                        .edgesIgnoringSafeArea(.all)
+                        .onTapGesture {
+                            showingMilestoneCard = false
+                        }
+                    
+                    MilestoneCardView(
+                        milestone: currentMilestone ?? .threeDayStreak,
+                        onDismiss: {
+                            showingMilestoneCard = false
                         },
-                        trailing: Button("Save") {
-                            if let newGoal = Int(tempGoal) {
-                                viewModel.dailyGoal = newGoal
-                            }
-                            showingGoalEditor = false
+                        onShare: {
+                            shareMilestone()
                         }
                     )
                 }
             }
-            .onAppear {
-                // Start a timer to update steps every minute
-                Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
-                    healthManager.fetchTodaySteps()
-                    checkForMilestones()
-                }
+            .navigationBarItems(trailing: Button(action: {
+                tempGoal = String(viewModel.dailyGoal)
+                showingGoalEditor = true
+            }) {
+                Image(systemName: "gear")
+                    .foregroundColor(.white)
+            })
+        }
+        .onAppear {
+            // Initial step fetch
+            healthManager.fetchTodaySteps()
+            
+            // Set up timer to update steps every minute
+            Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
+                healthManager.fetchTodaySteps()
+                checkForMilestones()
             }
+        }
+        .onChange(of: healthManager.steps) { newSteps in
+            viewModel.steps = newSteps
         }
     }
     
@@ -201,6 +154,10 @@ struct ContentView: View {
                 showingMilestoneCard = true
             }
         }
+    }
+    
+    private func shareMilestone() {
+        // Implementation of shareMilestone function
     }
 }
 

@@ -8,6 +8,7 @@ class HotWalkViewModel: ObservableObject {
         }
     }
     
+    @Published var steps: Int = 0
     @Published var streakText: String = ""
     @Published var currentMessage: String = ""
     @Published var hotGirlPassMessage: String = ""

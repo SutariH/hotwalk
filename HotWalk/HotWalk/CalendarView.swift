@@ -100,10 +100,11 @@ struct CalendarView: View {
                     Text("Calendar Legend")
                         .font(.headline)
                         .foregroundColor(.purple)
+                        .accessibilityAddTraits(.isHeader)
                     
                     HStack(spacing: 20) {
                         // Goal met with flame
-                        HStack {
+                        HStack(spacing: 8) {
                             Circle()
                                 .fill(Color.purple.opacity(0.3))
                                 .overlay(
@@ -115,9 +116,11 @@ struct CalendarView: View {
                                 .font(.caption)
                                 .foregroundColor(.purple)
                         }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("Goal met, indicated by a flame icon")
                         
                         // Hot Girl Pass used
-                        HStack {
+                        HStack(spacing: 8) {
                             Circle()
                                 .fill(Color.pink.opacity(0.3))
                                 .overlay(
@@ -129,9 +132,11 @@ struct CalendarView: View {
                                 .font(.caption)
                                 .foregroundColor(.purple)
                         }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("Hot Girl Pass used, indicated by an envelope icon")
                         
                         // Missed day
-                        HStack {
+                        HStack(spacing: 8) {
                             Circle()
                                 .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
                                 .frame(width: 24, height: 24)
@@ -139,16 +144,21 @@ struct CalendarView: View {
                                 .font(.caption)
                                 .foregroundColor(.purple)
                         }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("Missed day, indicated by an empty circle")
                     }
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.top)
-                .padding(.bottom, 10)
+                .padding(.vertical, 15)
+                .padding(.horizontal, 20)
                 .background(
                     RoundedRectangle(cornerRadius: 15)
                         .fill(Color.white.opacity(0.7))
                         .shadow(radius: 3)
                 )
                 .padding(.horizontal)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Calendar Legend: Goal met, Pass used, and Missed day indicators")
                 
                 Spacer()
             }
