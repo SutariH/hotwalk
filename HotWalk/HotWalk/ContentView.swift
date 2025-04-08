@@ -26,19 +26,18 @@ struct ContentView: View {
                         .font(.system(size: 60, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                     
-                    // Animated progress ring
-                    AnimatedProgressRing(
-                        progress: viewModel.calculateProgress(steps: healthManager.steps),
-                        lineWidth: 25,
-                        size: 250
-                    )
+                    // Progress ring
+                    AnimatedProgressRing(progress: viewModel.calculateProgress(steps: healthManager.steps))
+                        .frame(width: 300, height: 300)
+                        .padding(.top, 20)
                     
                     // Motivational message
                     Text(viewModel.currentMessage)
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
-                        .foregroundColor(.white.opacity(0.8))
+                        .font(.body)
                         .multilineTextAlignment(.center)
+                        .foregroundColor(.white)
                         .padding(.horizontal)
+                        .padding(.top, 10)
                     
                     // Streak text
                     Text(viewModel.streakText)

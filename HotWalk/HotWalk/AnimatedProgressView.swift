@@ -23,6 +23,7 @@ struct SparkleView: View {
     let size: CGFloat
     let opacity: Double
     let rotation: Double
+    let animationSpeed: Double
     
     var body: some View {
         Image(systemName: "sparkle")
@@ -31,55 +32,45 @@ struct SparkleView: View {
             .opacity(opacity)
             .position(position)
             .rotationEffect(.degrees(rotation))
+            .animation(
+                .easeInOut(duration: animationSpeed)
+                .repeatForever(autoreverses: true),
+                value: rotation
+            )
     }
 }
 
 // MARK: - Animated Progress Ring
 struct AnimatedProgressRing: View {
     let progress: Double
-    let lineWidth: CGFloat
-    let size: CGFloat
-    
     @State private var sparkles: [(id: UUID, position: CGPoint, size: CGFloat, opacity: Double, rotation: Double)] = []
-    @State private var ringGlowOpacity: Double = 0.0
-    @State private var hasCompletedAnimation: Bool = false
+    @State private var showCelebration = false
+    @State private var hasCelebratedToday = false
     
-    private let animationState: ProgressAnimationState
-    
-    init(progress: Double, lineWidth: CGFloat = 20, size: CGFloat = 300) {
-        self.progress = progress
-        self.lineWidth = lineWidth
-        self.size = size
-        self.animationState = ProgressAnimationState.fromProgress(progress)
-    }
+    private let userDefaults = UserDefaults.standard
+    private let celebrationKey = "lastCelebrationDate"
     
     var body: some View {
         ZStack {
-            // Background ring
+            // Progress ring background
             Circle()
-                .stroke(Color.gray.opacity(0.3), lineWidth: lineWidth)
+                .stroke(Color.white.opacity(0.2), lineWidth: 20)
+                .frame(width: 200, height: 200)
             
             // Progress ring
             Circle()
                 .trim(from: 0, to: min(progress, 1.0))
                 .stroke(
                     LinearGradient(
-                        gradient: Gradient(colors: [Color.pink, Color.purple]),
+                        gradient: Gradient(colors: [.pink, .purple]),
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
-                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                    style: StrokeStyle(lineWidth: 20, lineCap: .round)
                 )
+                .frame(width: 200, height: 200)
                 .rotationEffect(.degrees(-90))
                 .animation(.easeInOut(duration: 0.5), value: progress)
-            
-            // Glow effect for nearing completion
-            if case .nearing = animationState {
-                Circle()
-                    .stroke(Color.pink.opacity(0.3), lineWidth: lineWidth + 10)
-                    .blur(radius: 10)
-                    .opacity(ringGlowOpacity)
-            }
             
             // Sparkles
             ForEach(sparkles, id: \.id) { sparkle in
@@ -87,106 +78,103 @@ struct AnimatedProgressRing: View {
                     position: sparkle.position,
                     size: sparkle.size,
                     opacity: sparkle.opacity,
-                    rotation: sparkle.rotation
+                    rotation: sparkle.rotation,
+                    animationSpeed: getAnimationSpeed()
                 )
             }
         }
-        .frame(width: size, height: size)
         .onChange(of: progress) { newProgress in
             updateAnimationState(for: newProgress)
         }
-        .onAppear {
-            updateAnimationState(for: progress)
-        }
-    }
-    
-    private func updateAnimationState(for progress: Double) {
-        let newState = ProgressAnimationState.fromProgress(progress)
-        
-        // Clear existing sparkles
-        sparkles.removeAll()
-        
-        switch newState {
-        case .early:
-            // Early stage: few, slow-moving sparkles
-            addSparkles(count: 3, speed: 10, size: 15, opacity: 0.4)
-            
-        case .nearing:
-            // Nearing completion: more active sparkles with pulsing
-            addSparkles(count: 6, speed: 8, size: 20, opacity: 0.6)
-            withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
-                ringGlowOpacity = 0.5
-            }
-            
-        case .completed:
-            // Completion: celebration animation (only once)
-            if !hasCompletedAnimation {
-                hasCompletedAnimation = true
-                celebrateCompletion()
-            }
-        }
-    }
-    
-    private func addSparkles(count: Int, speed: Double, size: CGFloat, opacity: Double) {
-        for _ in 0..<count {
-            let angle = Double.random(in: 0..<360)
-            let radius = self.size / 2 - lineWidth
-            let x = cos(angle * .pi / 180) * radius + self.size / 2
-            let y = sin(angle * .pi / 180) * radius + self.size / 2
-            
-            let sparkle = (
-                id: UUID(),
-                position: CGPoint(x: x, y: y),
-                size: size,
-                opacity: opacity,
-                rotation: Double.random(in: 0..<360)
-            )
-            
-            sparkles.append(sparkle)
-            
-            // Animate the sparkle
-            withAnimation(
-                .linear(duration: speed)
-                .repeatForever(autoreverses: true)
-            ) {
-                // Update the sparkle's position in a circular motion
-                let newAngle = angle + 30
-                let newX = cos(newAngle * .pi / 180) * radius + self.size / 2
-                let newY = sin(newAngle * .pi / 180) * radius + self.size / 2
-                
-                if let index = sparkles.firstIndex(where: { $0.id == sparkle.id }) {
-                    sparkles[index].position = CGPoint(x: newX, y: newY)
-                    sparkles[index].rotation += 180
+        .overlay {
+            if showCelebration {
+                CelebrationView {
+                    showCelebration = false
                 }
             }
         }
     }
     
-    private func celebrateCompletion() {
-        // Add burst of sparkles
-        addSparkles(count: 12, speed: 5, size: 25, opacity: 0.8)
-        
-        // Add glowing effect
-        withAnimation(.easeInOut(duration: 1.0)) {
-            ringGlowOpacity = 0.7
+    private func getAnimationSpeed() -> Double {
+        switch ProgressAnimationState.fromProgress(progress) {
+        case .early:
+            return 2.0
+        case .nearing:
+            return 1.0
+        case .completed:
+            return 0.5
         }
+    }
+    
+    private func updateAnimationState(for progress: Double) {
+        let state = ProgressAnimationState.fromProgress(progress)
         
-        // Reset glow after celebration
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            withAnimation(.easeInOut(duration: 1.0)) {
-                ringGlowOpacity = 0.0
+        // Clear existing sparkles
+        sparkles.removeAll()
+        
+        switch state {
+        case .early:
+            // Few, slow sparkles
+            addSparkles(count: 3, speed: 2.0)
+            
+        case .nearing:
+            // More, faster sparkles
+            addSparkles(count: 6, speed: 1.0)
+            
+        case .completed:
+            // Many, fast sparkles
+            addSparkles(count: 9, speed: 0.5)
+            
+            // Check if we should show celebration
+            if !hasCelebratedToday {
+                checkAndShowCelebration()
             }
         }
     }
+    
+    private func addSparkles(count: Int, speed: Double) {
+        for _ in 0..<count {
+            let angle = Double.random(in: 0...360)
+            let radius: CGFloat = 100
+            let x = cos(angle) * radius
+            let y = sin(angle) * radius
+            
+            sparkles.append((
+                id: UUID(),
+                position: CGPoint(x: x + 100, y: y + 100),
+                size: CGFloat.random(in: 10...20),
+                opacity: Double.random(in: 0.3...0.7),
+                rotation: Double.random(in: 0...360)
+            ))
+        }
+    }
+    
+    private func checkAndShowCelebration() {
+        let today = Calendar.current.startOfDay(for: Date())
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let todayString = dateFormatter.string(from: today)
+        
+        if let lastCelebration = userDefaults.string(forKey: celebrationKey),
+           lastCelebration == todayString {
+            hasCelebratedToday = true
+            return
+        }
+        
+        // Show celebration and update last celebration date
+        showCelebration = true
+        userDefaults.set(todayString, forKey: celebrationKey)
+        hasCelebratedToday = true
+    }
 }
 
-// MARK: - Preview
+// Preview provider
 struct AnimatedProgressRing_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.black.edgesIgnoringSafeArea(.all)
             
-            VStack(spacing: 30) {
+            VStack(spacing: 20) {
                 AnimatedProgressRing(progress: 0.3)
                 AnimatedProgressRing(progress: 0.8)
                 AnimatedProgressRing(progress: 1.0)
