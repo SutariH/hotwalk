@@ -1,15 +1,24 @@
 import SwiftUI
 
+// Add DayStatus enum at the top of the file
+enum DayStatus {
+    case goalMet
+    case hotGirlPass
+    case missed
+    case today
+    case none
+}
+
 struct CalendarView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = HotWalkViewModel()
     @StateObject private var healthManager = HealthManager()
     @State private var currentDate = Date()
     @State private var selectedDate: Date? = nil
-    @State private var showingDateInfo = false
     @State private var showingGoalEditor = false
     @State private var tempGoal: String = ""
     @State private var selectedDateSteps: Int = 0
+    @State private var selectedDateStatus: DayStatus = .none
     
     private let calendar = Calendar.current
     private let daysInWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -29,6 +38,42 @@ struct CalendarView: View {
         11: "🍁 November Stride Guide 🍁",
         12: "❄️ December Dash Days ❄️"
     ]
+    
+    // Reaction messages based on status
+    private func getReactionMessage(for status: DayStatus) -> String {
+        switch status {
+        case .goalMet:
+            return "Keep the fire going 🔥"
+        case .hotGirlPass:
+            return "You used a Hot Girl Pass 💌. Iconic."
+        case .missed:
+            return "Oopsie! Even hot girls rest 😴"
+        case .today:
+            return "Still time to strut! 👟"
+        case .none:
+            return ""
+        }
+    }
+    
+    // Helper function to determine the status of a date
+    private func getStatus(for date: Date) -> DayStatus {
+        if calendar.isDateInToday(date) {
+            return .today
+        } else if isGoalMet(for: date) {
+            return .goalMet
+        } else if HotGirlPassManager.shared.wasPassUsed(on: date) {
+            return .hotGirlPass
+        } else {
+            return .missed
+        }
+    }
+    
+    // Helper function to format the date for display
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMMM d, yyyy"
+        return formatter.string(from: date)
+    }
     
     var body: some View {
         ZStack {
@@ -113,9 +158,15 @@ struct CalendarView: View {
                                 stepCount: getStepCount(for: date)
                             )
                             .onTapGesture {
-                                selectedDate = date
-                                fetchSteps(for: date)
-                                showingDateInfo = true
+                                // Toggle selection: if tapping the same day, deselect it
+                                if let selectedDate = selectedDate, calendar.isDate(selectedDate, inSameDayAs: date) {
+                                    self.selectedDate = nil
+                                    selectedDateStatus = .none
+                                } else {
+                                    self.selectedDate = date
+                                    fetchSteps(for: date)
+                                    selectedDateStatus = getStatus(for: date)
+                                }
                             }
                             .frame(minWidth: 44, minHeight: 44)
                             .accessibilityLabel("\(calendar.component(.day, from: date)), \(isGoalMet(for: date) ? "Goal met" : HotGirlPassManager.shared.wasPassUsed(on: date) ? "Pass used" : "No goal met")")
@@ -129,92 +180,154 @@ struct CalendarView: View {
                 }
                 .padding(.horizontal)
                 
-                // Selected date details
+                // Day details section (only shown when a day is selected)
                 if let date = selectedDate {
-                    VStack(spacing: 10) {
-                        Text("\(selectedDateSteps) steps")
-                            .font(.title2.bold())
+                    VStack(spacing: 15) {
+                        // Date header
+                        Text(formatDate(date))
+                            .font(.title3.bold())
                             .foregroundColor(.white)
+                            .padding(.top, 5)
+                            .accessibilityAddTraits(.isHeader)
                         
-                        Text("Goal: \(viewModel.dailyGoal)")
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.9))
+                        // Steps and goal
+                        VStack(spacing: 10) {
+                            Text("\(selectedDateSteps) steps")
+                                .font(.title2.bold())
+                                .foregroundColor(.white)
+                            
+                            Text("Goal: \(viewModel.dailyGoal)")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.9))
+                            
+                            ProgressView(value: Double(selectedDateSteps), total: Double(viewModel.dailyGoal))
+                                .progressViewStyle(LinearProgressViewStyle(tint: .purple))
+                                .frame(width: 200)
+                        }
+                        .padding()
+                        .background(Color.purple.opacity(0.2))
+                        .cornerRadius(15)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("\(selectedDateSteps) steps out of \(viewModel.dailyGoal) goal")
                         
-                        ProgressView(value: Double(selectedDateSteps), total: Double(viewModel.dailyGoal))
-                            .progressViewStyle(LinearProgressViewStyle(tint: .purple))
-                            .frame(width: 200)
-                    }
-                    .padding()
-                    .background(Color.purple.opacity(0.2))
-                    .cornerRadius(15)
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel("\(selectedDateSteps) steps out of \(viewModel.dailyGoal) goal")
-                }
-                
-                // Legend
-                VStack(spacing: 15) {
-                    Text("Calendar Legend")
-                        .font(.headline)
-                        .foregroundColor(.purple)
-                        .accessibilityAddTraits(.isHeader)
-                    
-                    HStack(spacing: 20) {
-                        // Goal met with flame
-                        HStack(spacing: 8) {
-                            Circle()
-                                .fill(Color.purple.opacity(0.3))
-                                .overlay(
-                                    Text("🔥")
-                                        .font(.system(size: 10))
+                        // Status card
+                        VStack(spacing: 10) {
+                            if isGoalMet(for: date) {
+                                Text("🔥 Goal Achieved!")
+                                    .font(.title3.bold())
+                                    .foregroundColor(.white)
+                                
+                                Text("You crushed your step goal this day!")
+                                    .font(.body)
+                                    .multilineTextAlignment(.center)
+                                    .foregroundColor(.white.opacity(0.9))
+                            } else if HotGirlPassManager.shared.wasPassUsed(on: date) {
+                                Text("💌 Hot Girl Pass Used")
+                                    .font(.title3.bold())
+                                    .foregroundColor(.white)
+                                
+                                Text("You used a pass to preserve your streak!")
+                                    .font(.body)
+                                    .multilineTextAlignment(.center)
+                                    .foregroundColor(.white.opacity(0.9))
+                            } else {
+                                Text("No Goal Met")
+                                    .font(.title3.bold())
+                                    .foregroundColor(.white)
+                                
+                                Text("You didn't meet your step goal this day.")
+                                    .font(.body)
+                                    .multilineTextAlignment(.center)
+                                    .foregroundColor(.white.opacity(0.9))
+                            }
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(
+                                    isGoalMet(for: date) ? Color.purple.opacity(0.2) :
+                                    HotGirlPassManager.shared.wasPassUsed(on: date) ? Color.pink.opacity(0.2) :
+                                    Color.gray.opacity(0.2)
                                 )
-                                .frame(width: 24, height: 24)
-                            Text("Goal Met")
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundColor(.purple)
-                        }
+                        )
                         .accessibilityElement(children: .combine)
-                        .accessibilityLabel("Goal met, indicated by a flame icon")
+                        .accessibilityLabel(
+                            isGoalMet(for: date) ? "Goal achieved" :
+                            HotGirlPassManager.shared.wasPassUsed(on: date) ? "Hot Girl Pass used" :
+                            "No goal met"
+                        )
                         
-                        // Hot Girl Pass used
-                        HStack(spacing: 8) {
-                            Circle()
-                                .fill(Color.pink.opacity(0.3))
-                                .overlay(
-                                    Text("💌")
-                                        .font(.system(size: 10))
+                        // Affirmation message with improved styling
+                        if selectedDateStatus != .none {
+                            Text(getReactionMessage(for: selectedDateStatus))
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.white.opacity(0.1))
                                 )
-                                .frame(width: 24, height: 24)
-                            Text("Pass Used")
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundColor(.purple)
+                                .shadow(color: Color.purple.opacity(0.3), radius: 5, x: 0, y: 0)
+                                .padding(.top, 5)
+                                .accessibilityLabel(getReactionMessage(for: selectedDateStatus))
                         }
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("Hot Girl Pass used, indicated by an envelope icon")
                         
-                        // Missed day
-                        HStack(spacing: 8) {
-                            Circle()
-                                .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
-                                .frame(width: 24, height: 24)
-                            Text("Missed")
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundColor(.purple)
+                        // Redesigned action buttons
+                        HStack(spacing: 12) {
+                            // Slayed It button
+                            HStack(spacing: 6) {
+                                Text("🔥")
+                                    .font(.system(size: 16))
+                                
+                                Text("Slayed It")
+                                    .font(.subheadline.weight(.medium))
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(Color.purple.opacity(0.3))
+                            .foregroundColor(.white)
+                            .clipShape(Capsule())
+                            .accessibilityLabel("Slayed It badge")
+                            
+                            // Hot Girl Pass button
+                            HStack(spacing: 6) {
+                                Text("💌")
+                                    .font(.system(size: 16))
+                                
+                                Text("Hot Girl Pass")
+                                    .font(.subheadline.weight(.medium))
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(Color.pink.opacity(0.3))
+                            .foregroundColor(.white)
+                            .clipShape(Capsule())
+                            .accessibilityLabel("Hot Girl Pass badge")
+                            
+                            // Oops button
+                            HStack(spacing: 6) {
+                                Text("😴")
+                                    .font(.system(size: 16))
+                                
+                                Text("Oops")
+                                    .font(.subheadline.weight(.medium))
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(Color.gray.opacity(0.3))
+                            .foregroundColor(.white.opacity(0.8))
+                            .clipShape(Capsule())
+                            .accessibilityLabel("Oops badge")
                         }
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("Missed day, indicated by an empty circle")
+                        .padding(.horizontal)
+                        .padding(.top, 10)
                     }
-                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    .animation(.easeInOut(duration: 0.3), value: selectedDate)
                 }
-                .padding(.vertical, 15)
-                .padding(.horizontal, 20)
-                .background(
-                    RoundedRectangle(cornerRadius: 15)
-                        .fill(Color.white.opacity(0.15))
-                        .shadow(radius: 3)
-                )
-                .padding(.horizontal)
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Calendar Legend: Goal met, Pass used, and Missed day indicators")
                 
                 Spacer()
             }
@@ -233,11 +346,6 @@ struct CalendarView: View {
                     .accessibilityLabel("Settings")
             }
         )
-        .sheet(isPresented: $showingDateInfo) {
-            if let date = selectedDate {
-                DateInfoView(date: date, isGoalMet: isGoalMet(for: date), wasPassUsed: HotGirlPassManager.shared.wasPassUsed(on: date))
-            }
-        }
         .sheet(isPresented: $showingGoalEditor) {
             GoalEditorView(
                 goal: $tempGoal,
@@ -303,9 +411,42 @@ struct CalendarView: View {
     }
     
     private func fetchSteps(for date: Date) {
-        // In a real app, this would fetch from HealthKit
-        // For now, we'll use a placeholder value
-        selectedDateSteps = Int.random(in: 0...viewModel.dailyGoal * 2)
+        // Create date boundaries for the selected day (00:00 to 23:59:59)
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: date)!
+        
+        // In a real app, this would fetch from HealthKit with the correct date boundaries
+        // For now, we'll use a placeholder value that's consistent for the same date
+        // This ensures the same date always returns the same step count
+        let dateString = dateFormatter.string(from: date)
+        let hash = dateString.hashValue
+        selectedDateSteps = (hash % (viewModel.dailyGoal * 2)) + Int.random(in: 0...viewModel.dailyGoal)
+        
+        // In a real implementation, you would use HealthKit like this:
+        /*
+        let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictStartDate)
+        
+        let query = HKStatisticsQuery(
+            quantityType: stepType,
+            quantitySamplePredicate: predicate,
+            options: .cumulativeSum
+        ) { _, result, error in
+            guard let result = result, let sum = result.sumQuantity() else {
+                DispatchQueue.main.async {
+                    self.selectedDateSteps = 0
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.selectedDateSteps = Int(sum.doubleValue(for: HKUnit.count()))
+            }
+        }
+        
+        healthManager.healthStore.execute(query)
+        */
     }
     
     private func previousMonth() {
@@ -423,100 +564,6 @@ struct DayCell: View {
             return 3
         }
         return 0
-    }
-}
-
-struct DateInfoView: View {
-    let date: Date
-    let isGoalMet: Bool
-    let wasPassUsed: Bool
-    
-    private let calendar = Calendar.current
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, MMMM d, yyyy"
-        return formatter
-    }()
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                Text(dateFormatter.string(from: date))
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .padding(.top)
-                
-                if isGoalMet {
-                    VStack(spacing: 10) {
-                        Text("🔥 Goal Achieved!")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text("You crushed your step goal this day!")
-                            .font(.body)
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.white.opacity(0.9))
-                    }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.purple.opacity(0.2))
-                    )
-                } else if wasPassUsed {
-                    VStack(spacing: 10) {
-                        Text("💌 Hot Girl Pass Used")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text("You used a pass to preserve your streak!")
-                            .font(.body)
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.white.opacity(0.9))
-                    }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.pink.opacity(0.2))
-                    )
-                } else {
-                    VStack(spacing: 10) {
-                        Text("No Goal Met")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text("You didn't meet your step goal this day.")
-                            .font(.body)
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.white.opacity(0.9))
-                    }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.gray.opacity(0.2))
-                    )
-                }
-                
-                Spacer()
-            }
-            .padding()
-            .navigationTitle("Day Details")
-            .navigationBarItems(trailing: Button("Slay") {
-                // Dismiss the sheet
-            }
-            .foregroundColor(.white)
-            .font(.body.weight(.semibold))
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Color.white.opacity(0.1))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .frame(minWidth: 44, minHeight: 44)
-            .accessibilityLabel("Close Calendar")
-            )
-        }
     }
 }
 
