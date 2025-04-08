@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CalendarView: View {
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = HotWalkViewModel()
     @State private var currentDate = Date()
     @State private var selectedDate: Date? = nil
@@ -9,21 +10,56 @@ struct CalendarView: View {
     private let calendar = Calendar.current
     private let daysInWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     
+    // Month subheadings dictionary with shorter, one-line versions
+    private let monthSubheadings: [Int: String] = [
+        1: "New Year, Hot You 💥",
+        2: "Hot Girl, Full Heart 💘",
+        3: "March & Slay 💃",
+        4: "Bloom Mode: ON 🌸",
+        5: "Main Char May ☀️",
+        6: "Hot Girl Summer 🔥",
+        7: "Sun's Out, Slay's Out 😎",
+        8: "Peak Hotness 📈👣",
+        9: "Boss Mode: Slaytember 💼",
+        10: "Spooky. Sexy. Stepping. 🧙‍♀️",
+        11: "Thankful & Thriving ✨🦃",
+        12: "Sleigh the Month 🎄💅"
+    ]
+    
     var body: some View {
-        ZStack {
-            // Background gradient
-            LinearGradient(gradient: Gradient(colors: [Color.pink.opacity(0.3), Color.purple.opacity(0.3)]),
-                          startPoint: .topLeading,
-                          endPoint: .bottomTrailing)
-                .ignoresSafeArea()
-            
+        NavigationView {
             VStack(spacing: 20) {
-                // Month header with fun text
-                Text(monthHeaderText)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.purple)
-                    .padding(.top)
+                // Month navigation
+                HStack {
+                    Button(action: previousMonth) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.white)
+                    }
+                    
+                    Spacer()
+                    
+                    // Month title with subheading
+                    VStack(spacing: 4) {
+                        Text(getMonthSubheading())
+                            .font(.title3.bold())
+                            .foregroundColor(.purple)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                            .frame(maxWidth: .infinity)
+                        
+                        Text(monthYearString(from: currentDate))
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: nextMonth) {
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.white)
+                    }
+                }
+                .padding(.horizontal)
                 
                 // Streak and Pass Count Display
                 HStack {
@@ -41,40 +77,7 @@ struct CalendarView: View {
                 }
                 .padding(.top, 5)
                 
-                // Month and Year
-                HStack {
-                    Button(action: previousMonth) {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(.purple)
-                            .font(.title3)
-                    }
-                    
-                    Text(monthYearString(from: currentDate))
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(.purple)
-                        .frame(maxWidth: .infinity)
-                    
-                    Button(action: nextMonth) {
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.purple)
-                            .font(.title3)
-                    }
-                }
-                .padding(.horizontal)
-                
-                // Days of Week Header
-                HStack {
-                    ForEach(daysInWeek, id: \.self) { day in
-                        Text(day)
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(.purple)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                
-                // Calendar Grid
+                // Calendar grid
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 10) {
                     ForEach(daysInMonth(), id: \.self) { date in
                         if let date = date {
@@ -162,7 +165,17 @@ struct CalendarView: View {
                 
                 Spacer()
             }
-            .padding()
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.black, Color.purple.opacity(0.3)]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .edgesIgnoringSafeArea(.all)
+            )
+            .navigationBarItems(trailing: Button("Done") {
+                dismiss()
+            })
         }
         .navigationTitle("Hot Walk Calendar")
         .sheet(isPresented: $showingDateInfo) {
@@ -172,11 +185,9 @@ struct CalendarView: View {
         }
     }
     
-    private var monthHeaderText: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM"
-        let month = formatter.string(from: currentDate)
-        return "Your \(month) Slay Summary 💅"
+    private func getMonthSubheading() -> String {
+        let month = calendar.component(.month, from: currentDate)
+        return monthSubheadings[month] ?? ""
     }
     
     private func monthYearString(from date: Date) -> String {
