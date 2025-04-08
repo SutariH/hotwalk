@@ -3,53 +3,74 @@ import SwiftUI
 struct CalendarView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = HotWalkViewModel()
+    @StateObject private var healthManager = HealthManager()
     @State private var currentDate = Date()
     @State private var selectedDate: Date? = nil
     @State private var showingDateInfo = false
+    @State private var showingGoalEditor = false
+    @State private var tempGoal: String = ""
+    @State private var selectedDateSteps: Int = 0
     
     private let calendar = Calendar.current
     private let daysInWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     
-    // Month subheadings dictionary with shorter, one-line versions
+    // Month subheadings dictionary
     private let monthSubheadings: [Int: String] = [
-        1: "New Year, Hot You 💥",
-        2: "Hot Girl, Full Heart 💘",
-        3: "March & Slay 💃",
-        4: "Bloom Mode: ON 🌸",
-        5: "Main Char May ☀️",
-        6: "Hot Girl Summer 🔥",
-        7: "Sun's Out, Slay's Out 😎",
-        8: "Peak Hotness 📈👣",
-        9: "Boss Mode: Slaytember 💼",
-        10: "Spooky. Sexy. Stepping. 🧙‍♀️",
-        11: "Thankful & Thriving ✨🦃",
-        12: "Sleigh the Month 🎄💅"
+        1: "✨ New Year, New Steps ✨",
+        2: "💝 Love Your Daily Walks 💝",
+        3: "🌸 Spring into Action 🌸",
+        4: "🌺 Bloom with Every Step 🌺",
+        5: "🌼 May Your Steps Flourish 🌼",
+        6: "☀️ Summer Stride Season ☀️",
+        7: "🌞 Sunshine Step Challenge 🌞",
+        8: "🌅 August Adventure Awaits 🌅",
+        9: "🍂 Fall into Fitness 🍂",
+        10: "🎃 Spooky Step Season 🎃",
+        11: "🍁 November Stride Guide 🍁",
+        12: "❄️ December Dash Days ❄️"
     ]
     
     var body: some View {
-        NavigationView {
+        ZStack {
+            // Updated background gradient to match main screen
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 44/255, green: 8/255, blue: 52/255), // Rich plum
+                    Color.black,
+                    Color.purple.opacity(0.3)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .edgesIgnoringSafeArea(.all)
+            
             VStack(spacing: 20) {
                 // Month navigation
                 HStack {
                     Button(action: previousMonth) {
                         Image(systemName: "chevron.left")
                             .foregroundColor(.white)
+                            .frame(minWidth: 44, minHeight: 44)
+                            .accessibilityLabel("Previous month")
                     }
                     
                     Spacer()
                     
-                    // Month title with subheading
                     VStack(spacing: 4) {
+                        // Seasonal subheading
                         Text(getMonthSubheading())
                             .font(.title3.bold())
-                            .foregroundColor(.purple)
+                            .foregroundColor(.white)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                             .frame(maxWidth: .infinity)
+                            .accessibilityAddTraits(.isHeader)
                         
+                        // Month and year
                         Text(monthYearString(from: currentDate))
-                            .font(.title2.bold())
+                            .font(.title.bold())
                             .foregroundColor(.white)
+                            .accessibilityAddTraits(.isHeader)
                     }
                     
                     Spacer()
@@ -57,6 +78,8 @@ struct CalendarView: View {
                     Button(action: nextMonth) {
                         Image(systemName: "chevron.right")
                             .foregroundColor(.white)
+                            .frame(minWidth: 44, minHeight: 44)
+                            .accessibilityLabel("Next month")
                     }
                 }
                 .padding(.horizontal)
@@ -64,18 +87,20 @@ struct CalendarView: View {
                 // Streak and Pass Count Display
                 HStack {
                     Text(viewModel.streakText)
-                        .font(.title3)
-                        .foregroundColor(.purple)
+                        .font(.body)
+                        .foregroundColor(Color.purple.opacity(0.9))
                     
                     Text("·")
-                        .font(.title3)
-                        .foregroundColor(.purple)
+                        .font(.body)
+                        .foregroundColor(Color.purple.opacity(0.9))
                     
                     Text("💌 \(HotGirlPassManager.shared.currentPassCount) Hot Girl Passes")
-                        .font(.title3)
-                        .foregroundColor(.purple)
+                        .font(.body)
+                        .foregroundColor(Color.purple.opacity(0.9))
                 }
                 .padding(.top, 5)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(viewModel.streakText) and \(HotGirlPassManager.shared.currentPassCount) Hot Girl Passes")
                 
                 // Calendar grid
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 10) {
@@ -84,19 +109,47 @@ struct CalendarView: View {
                             DayCell(
                                 date: date,
                                 isGoalMet: isGoalMet(for: date),
-                                wasPassUsed: HotGirlPassManager.shared.wasPassUsed(on: date)
+                                wasPassUsed: HotGirlPassManager.shared.wasPassUsed(on: date),
+                                stepCount: getStepCount(for: date)
                             )
                             .onTapGesture {
                                 selectedDate = date
+                                fetchSteps(for: date)
                                 showingDateInfo = true
                             }
+                            .frame(minWidth: 44, minHeight: 44)
+                            .accessibilityLabel("\(calendar.component(.day, from: date)), \(isGoalMet(for: date) ? "Goal met" : HotGirlPassManager.shared.wasPassUsed(on: date) ? "Pass used" : "No goal met")")
+                            .accessibilityAddTraits(isGoalMet(for: date) ? [.isSelected, .isButton] : .isButton)
                         } else {
                             Color.clear
                                 .aspectRatio(1, contentMode: .fill)
+                                .frame(minWidth: 44, minHeight: 44)
                         }
                     }
                 }
                 .padding(.horizontal)
+                
+                // Selected date details
+                if let date = selectedDate {
+                    VStack(spacing: 10) {
+                        Text("\(selectedDateSteps) steps")
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                        
+                        Text("Goal: \(viewModel.dailyGoal)")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.9))
+                        
+                        ProgressView(value: Double(selectedDateSteps), total: Double(viewModel.dailyGoal))
+                            .progressViewStyle(LinearProgressViewStyle(tint: .purple))
+                            .frame(width: 200)
+                    }
+                    .padding()
+                    .background(Color.purple.opacity(0.2))
+                    .cornerRadius(15)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("\(selectedDateSteps) steps out of \(viewModel.dailyGoal) goal")
+                }
                 
                 // Legend
                 VStack(spacing: 15) {
@@ -116,7 +169,7 @@ struct CalendarView: View {
                                 )
                                 .frame(width: 24, height: 24)
                             Text("Goal Met")
-                                .font(.caption)
+                                .font(.subheadline.weight(.semibold))
                                 .foregroundColor(.purple)
                         }
                         .accessibilityElement(children: .combine)
@@ -132,7 +185,7 @@ struct CalendarView: View {
                                 )
                                 .frame(width: 24, height: 24)
                             Text("Pass Used")
-                                .font(.caption)
+                                .font(.subheadline.weight(.semibold))
                                 .foregroundColor(.purple)
                         }
                         .accessibilityElement(children: .combine)
@@ -144,7 +197,7 @@ struct CalendarView: View {
                                 .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
                                 .frame(width: 24, height: 24)
                             Text("Missed")
-                                .font(.caption)
+                                .font(.subheadline.weight(.semibold))
                                 .foregroundColor(.purple)
                         }
                         .accessibilityElement(children: .combine)
@@ -156,7 +209,7 @@ struct CalendarView: View {
                 .padding(.horizontal, 20)
                 .background(
                     RoundedRectangle(cornerRadius: 15)
-                        .fill(Color.white.opacity(0.7))
+                        .fill(Color.white.opacity(0.15))
                         .shadow(radius: 3)
                 )
                 .padding(.horizontal)
@@ -165,23 +218,40 @@ struct CalendarView: View {
                 
                 Spacer()
             }
-            .background(
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.black, Color.purple.opacity(0.3)]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .edgesIgnoringSafeArea(.all)
-            )
-            .navigationBarItems(trailing: Button("Done") {
-                dismiss()
-            })
+            .padding(.top)
         }
-        .navigationTitle("Hot Walk Calendar")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarItems(
+            leading: EmptyView(),
+            trailing: Button(action: {
+                tempGoal = String(viewModel.dailyGoal)
+                showingGoalEditor = true
+            }) {
+                Image(systemName: "gear")
+                    .foregroundColor(.white)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .accessibilityLabel("Settings")
+            }
+        )
         .sheet(isPresented: $showingDateInfo) {
             if let date = selectedDate {
                 DateInfoView(date: date, isGoalMet: isGoalMet(for: date), wasPassUsed: HotGirlPassManager.shared.wasPassUsed(on: date))
             }
+        }
+        .sheet(isPresented: $showingGoalEditor) {
+            GoalEditorView(
+                goal: $tempGoal,
+                onSave: { newGoal in
+                    if let goal = Int(newGoal) {
+                        viewModel.dailyGoal = goal
+                        showingGoalEditor = false
+                    }
+                },
+                onCancel: { showingGoalEditor = false }
+            )
+        }
+        .onAppear {
+            fetchSteps(for: currentDate)
         }
     }
     
@@ -226,6 +296,18 @@ struct CalendarView: View {
         return UserDefaults.standard.bool(forKey: "goal_completed_\(dateString)")
     }
     
+    private func getStepCount(for date: Date) -> Int {
+        // In a real app, this would fetch from HealthKit
+        // For now, we'll use a placeholder value
+        return 0
+    }
+    
+    private func fetchSteps(for date: Date) {
+        // In a real app, this would fetch from HealthKit
+        // For now, we'll use a placeholder value
+        selectedDateSteps = Int.random(in: 0...viewModel.dailyGoal * 2)
+    }
+    
     private func previousMonth() {
         if let newDate = calendar.date(byAdding: .month, value: -1, to: currentDate) {
             currentDate = newDate
@@ -249,6 +331,7 @@ struct DayCell: View {
     let date: Date
     let isGoalMet: Bool
     let wasPassUsed: Bool
+    let stepCount: Int
     
     private let calendar = Calendar.current
     
@@ -273,10 +356,12 @@ struct DayCell: View {
                 Text("🔥")
                     .font(.system(size: 14))
                     .offset(x: 8, y: -8)
+                    .accessibilityHidden(true)
             } else if wasPassUsed {
                 Text("💌")
                     .font(.system(size: 14))
                     .offset(x: 8, y: -8)
+                    .accessibilityHidden(true)
             }
         }
         .aspectRatio(1, contentMode: .fill)
@@ -310,11 +395,11 @@ struct DayCell: View {
     
     private var textColor: Color {
         if isGoalMet {
-            return Color.purple
+            return Color.white
         } else if wasPassUsed {
-            return Color.pink
+            return Color.white
         }
-        return Color.primary
+        return Color.white
     }
     
     private var textWeight: Font.Weight {
@@ -359,7 +444,7 @@ struct DateInfoView: View {
                 Text(dateFormatter.string(from: date))
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundColor(.purple)
+                    .foregroundColor(.white)
                     .padding(.top)
                 
                 if isGoalMet {
@@ -367,51 +452,51 @@ struct DateInfoView: View {
                         Text("🔥 Goal Achieved!")
                             .font(.title3)
                             .fontWeight(.bold)
-                            .foregroundColor(.purple)
+                            .foregroundColor(.white)
                         
                         Text("You crushed your step goal this day!")
                             .font(.body)
                             .multilineTextAlignment(.center)
-                            .foregroundColor(.purple)
+                            .foregroundColor(.white.opacity(0.9))
                     }
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.purple.opacity(0.1))
+                            .fill(Color.purple.opacity(0.2))
                     )
                 } else if wasPassUsed {
                     VStack(spacing: 10) {
                         Text("💌 Hot Girl Pass Used")
                             .font(.title3)
                             .fontWeight(.bold)
-                            .foregroundColor(.pink)
+                            .foregroundColor(.white)
                         
                         Text("You used a pass to preserve your streak!")
                             .font(.body)
                             .multilineTextAlignment(.center)
-                            .foregroundColor(.pink)
+                            .foregroundColor(.white.opacity(0.9))
                     }
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.pink.opacity(0.1))
+                            .fill(Color.pink.opacity(0.2))
                     )
                 } else {
                     VStack(spacing: 10) {
                         Text("No Goal Met")
                             .font(.title3)
                             .fontWeight(.bold)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white)
                         
                         Text("You didn't meet your step goal this day.")
                             .font(.body)
                             .multilineTextAlignment(.center)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.white.opacity(0.9))
                     }
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.gray.opacity(0.1))
+                            .fill(Color.gray.opacity(0.2))
                     )
                 }
                 
@@ -419,9 +504,62 @@ struct DateInfoView: View {
             }
             .padding()
             .navigationTitle("Day Details")
-            .navigationBarItems(trailing: Button("Done") {
+            .navigationBarItems(trailing: Button("Slay") {
                 // Dismiss the sheet
-            })
+            }
+            .foregroundColor(.white)
+            .font(.body.weight(.semibold))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Color.white.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .frame(minWidth: 44, minHeight: 44)
+            .accessibilityLabel("Close Calendar")
+            )
+        }
+    }
+}
+
+struct GoalEditorView: View {
+    @Binding var goal: String
+    let onSave: (String) -> Void
+    let onCancel: () -> Void
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 20) {
+                Text("Set Daily Goal")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                TextField("Steps", text: $goal)
+                    .keyboardType(.numberPad)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(width: 200)
+                    .foregroundColor(.white)
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(8)
+                
+                HStack(spacing: 20) {
+                    Button("Cancel") {
+                        onCancel()
+                    }
+                    .foregroundColor(.white)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .accessibilityLabel("Cancel goal editing")
+                    
+                    Button("Save") {
+                        onSave(goal)
+                    }
+                    .foregroundColor(.white)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .accessibilityLabel("Save new goal")
+                }
+            }
+            .padding()
+            .background(Color.purple.opacity(0.8))
+            .cornerRadius(15)
         }
     }
 }
