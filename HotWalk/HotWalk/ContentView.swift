@@ -7,104 +7,125 @@ struct ContentView: View {
     @State private var tempGoal: String = ""
     
     var body: some View {
-        ZStack {
-            LinearGradient(gradient: Gradient(colors: [Color.pink.opacity(0.3), Color.purple.opacity(0.3)]),
-                          startPoint: .topLeading,
-                          endPoint: .bottomTrailing)
-                .ignoresSafeArea()
-            
-            VStack(spacing: 30) {
-                // Step Count
-                VStack {
-                    Text("\(healthManager.steps)")
-                        .font(.system(size: 72, weight: .bold))
-                        .foregroundColor(.purple)
-                    
-                    Text("steps today")
-                        .font(.title2)
-                        .foregroundColor(.gray)
-                    
-                    // Streak Display
-                    Text(viewModel.streakText)
-                        .font(.title3)
-                        .foregroundColor(.purple)
-                        .padding(.top, 5)
-                }
-                .padding(.top, 50)
+        NavigationView {
+            ZStack {
+                LinearGradient(gradient: Gradient(colors: [Color.pink.opacity(0.3), Color.purple.opacity(0.3)]),
+                              startPoint: .topLeading,
+                              endPoint: .bottomTrailing)
+                    .ignoresSafeArea()
                 
-                // Progress Bar
-                ZStack {
-                    Circle()
-                        .stroke(lineWidth: 20)
-                        .opacity(0.3)
-                        .foregroundColor(.gray)
-                    
-                    Circle()
-                        .trim(from: 0.0, to: viewModel.calculateProgress(steps: healthManager.steps))
-                        .stroke(style: StrokeStyle(lineWidth: 20, lineCap: .round, lineJoin: .round))
-                        .foregroundColor(.purple)
-                        .rotationEffect(Angle(degrees: 270.0))
-                        .animation(.linear, value: healthManager.steps)
-                    
+                VStack(spacing: 30) {
+                    // Step Count
                     VStack {
-                        Text("Goal: \(viewModel.dailyGoal)")
-                            .font(.headline)
-                        Button("Edit Goal") {
-                            tempGoal = String(viewModel.dailyGoal)
-                            showingGoalEditor = true
-                        }
-                        .foregroundColor(.purple)
+                        Text("\(healthManager.steps)")
+                            .font(.system(size: 72, weight: .bold))
+                            .foregroundColor(.purple)
+                        
+                        Text("steps today")
+                            .font(.title2)
+                            .foregroundColor(.gray)
+                        
+                        // Streak Display
+                        Text(viewModel.streakText)
+                            .font(.title3)
+                            .foregroundColor(.purple)
+                            .padding(.top, 5)
                     }
-                }
-                .frame(width: 250, height: 250)
-                
-                // Motivational Message
-                VStack(spacing: 10) {
-                    Text(viewModel.currentMessage)
-                        .font(.title2)
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.purple)
+                    .padding(.top, 50)
+                    
+                    // Progress Bar
+                    ZStack {
+                        Circle()
+                            .stroke(lineWidth: 20)
+                            .opacity(0.3)
+                            .foregroundColor(.gray)
+                        
+                        Circle()
+                            .trim(from: 0.0, to: viewModel.calculateProgress(steps: healthManager.steps))
+                            .stroke(style: StrokeStyle(lineWidth: 20, lineCap: .round, lineJoin: .round))
+                            .foregroundColor(.purple)
+                            .rotationEffect(Angle(degrees: 270.0))
+                            .animation(.linear, value: healthManager.steps)
+                        
+                        VStack {
+                            Text("Goal: \(viewModel.dailyGoal)")
+                                .font(.headline)
+                            Button("Edit Goal") {
+                                tempGoal = String(viewModel.dailyGoal)
+                                showingGoalEditor = true
+                            }
+                            .foregroundColor(.purple)
+                        }
+                    }
+                    .frame(width: 250, height: 250)
+                    
+                    // Motivational Message
+                    VStack(spacing: 10) {
+                        Text(viewModel.currentMessage)
+                            .font(.title2)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.purple)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .fill(Color.white.opacity(0.8))
+                                    .shadow(radius: 5)
+                            )
+                            .padding(.horizontal)
+                    }
+                    .transition(.opacity)
+                    .animation(.easeInOut, value: viewModel.currentMessage)
+                    
+                    // Calendar Navigation Button
+                    NavigationLink(destination: CalendarView()) {
+                        HStack {
+                            Image(systemName: "calendar")
+                                .font(.title2)
+                            Text("View Streak Calendar")
+                                .font(.headline)
+                        }
                         .padding()
                         .background(
                             RoundedRectangle(cornerRadius: 15)
-                                .fill(Color.white.opacity(0.8))
-                                .shadow(radius: 5)
+                                .fill(Color.purple.opacity(0.2))
+                                .shadow(radius: 3)
                         )
-                        .padding(.horizontal)
-                }
-                .transition(.opacity)
-                .animation(.easeInOut, value: viewModel.currentMessage)
-                
-                Spacer()
-            }
-            .padding()
-        }
-        .sheet(isPresented: $showingGoalEditor) {
-            NavigationView {
-                Form {
-                    Section(header: Text("Set Daily Step Goal")) {
-                        TextField("Steps", text: $tempGoal)
-                            .keyboardType(.numberPad)
+                        .foregroundColor(.purple)
                     }
+                    .padding(.top, 10)
+                    
+                    Spacer()
                 }
-                .navigationTitle("Edit Goal")
-                .navigationBarItems(
-                    leading: Button("Cancel") {
-                        showingGoalEditor = false
-                    },
-                    trailing: Button("Save") {
-                        if let newGoal = Int(tempGoal) {
-                            viewModel.dailyGoal = newGoal
+                .padding()
+            }
+            .navigationTitle("Hot Walk")
+            .sheet(isPresented: $showingGoalEditor) {
+                NavigationView {
+                    Form {
+                        Section(header: Text("Set Daily Step Goal")) {
+                            TextField("Steps", text: $tempGoal)
+                                .keyboardType(.numberPad)
                         }
-                        showingGoalEditor = false
                     }
-                )
+                    .navigationTitle("Edit Goal")
+                    .navigationBarItems(
+                        leading: Button("Cancel") {
+                            showingGoalEditor = false
+                        },
+                        trailing: Button("Save") {
+                            if let newGoal = Int(tempGoal) {
+                                viewModel.dailyGoal = newGoal
+                            }
+                            showingGoalEditor = false
+                        }
+                    )
+                }
             }
-        }
-        .onAppear {
-            // Start a timer to update steps every minute
-            Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
-                healthManager.fetchTodaySteps()
+            .onAppear {
+                // Start a timer to update steps every minute
+                Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
+                    healthManager.fetchTodaySteps()
+                }
             }
         }
     }

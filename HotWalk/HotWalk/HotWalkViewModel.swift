@@ -41,7 +41,12 @@ class HotWalkViewModel: ObservableObject {
         updateStreak(progress: progress)
         
         // Update message based on current progress
-        getMotivationalMessage(progress: progress)
+        DispatchQueue.main.async {
+            self.currentMessage = self.getMotivationalMessage(progress: progress)
+        }
+        
+        // Store goal completion status for today
+        storeGoalCompletion(for: Date(), progress: progress)
         
         return progress
     }
@@ -51,5 +56,28 @@ class HotWalkViewModel: ObservableObject {
         DispatchQueue.main.async {
             self.streakText = StreakManager.shared.getStreakText()
         }
+    }
+    
+    // MARK: - Goal Completion Storage
+    
+    private func storeGoalCompletion(for date: Date, progress: Double) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let dateString = dateFormatter.string(from: date)
+        
+        let completed = progress >= 1.0
+        UserDefaults.standard.set(completed, forKey: "goal_completed_\(dateString)")
+    }
+    
+    func wasGoalCompleted(for date: Date) -> Bool {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let dateString = dateFormatter.string(from: date)
+        
+        return UserDefaults.standard.bool(forKey: "goal_completed_\(dateString)")
+    }
+    
+    func getCurrentStreak() -> Int {
+        return StreakManager.shared.currentStreak
     }
 } 
