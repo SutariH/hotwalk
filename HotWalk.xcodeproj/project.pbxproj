@@ -14,6 +14,9 @@
 		744928C62DA55C18008E5010 /* MotivationalMessageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928C52DA55C18008E5010 /* MotivationalMessageManager.swift */; };
 		744928C82DA55E60008E5010 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928C72DA55E60008E5010 /* StreakManager.swift */; };
 		744928CA2DA56320008E5010 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928C92DA56320008E5010 /* CalendarView.swift */; };
+		744928CC2DA567AA008E5010 /* HotGirlPassManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928CB2DA567AA008E5010 /* HotGirlPassManager.swift */; };
+		744928CF2DA5709D008E5010 /* MilestoneManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928CE2DA5709D008E5010 /* MilestoneManager.swift */; };
+		744928D02DA5709D008E5010 /* MilestoneCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928CD2DA5709D008E5010 /* MilestoneCardView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +30,9 @@
 		744928C52DA55C18008E5010 /* MotivationalMessageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotivationalMessageManager.swift; sourceTree = "<group>"; };
 		744928C72DA55E60008E5010 /* StreakManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
 		744928C92DA56320008E5010 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		744928CB2DA567AA008E5010 /* HotGirlPassManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotGirlPassManager.swift; sourceTree = "<group>"; };
+		744928CD2DA5709D008E5010 /* MilestoneCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneCardView.swift; sourceTree = "<group>"; };
+		744928CE2DA5709D008E5010 /* MilestoneManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +78,9 @@
 				1A1A1A1A1A1A1A1A1A1A1A1D /* ContentView.swift */,
 				1A1A1A1A1A1A1A1A1A1A1A1F /* HealthManager.swift */,
 				1A1A1A1A1A1A1A1A1A1A1A21 /* HotWalkViewModel.swift */,
+				744928CD2DA5709D008E5010 /* MilestoneCardView.swift */,
+				744928CE2DA5709D008E5010 /* MilestoneManager.swift */,
+				744928CB2DA567AA008E5010 /* HotGirlPassManager.swift */,
 				744928C92DA56320008E5010 /* CalendarView.swift */,
 				744928C72DA55E60008E5010 /* StreakManager.swift */,
 				1A1A1A1A1A1A1A1A1A1A1A23 /* Info.plist */,
@@ -108,7 +117,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1630;
 				TargetAttributes = {
 					1A1A1A1A1A1A1A1A1A1A1A28 = {
 						CreatedOnToolsVersion = 15.0;
@@ -154,6 +163,9 @@
 				1A1A1A1A1A1A1A1A1A1A1A1E /* HealthManager.swift in Sources */,
 				1A1A1A1A1A1A1A1A1A1A1A20 /* HotWalkViewModel.swift in Sources */,
 				1A1A1A1A1A1A1A1A1A1A1A1A /* HotWalkApp.swift in Sources */,
+				744928CC2DA567AA008E5010 /* HotGirlPassManager.swift in Sources */,
+				744928CF2DA5709D008E5010 /* MilestoneManager.swift in Sources */,
+				744928D02DA5709D008E5010 /* MilestoneCardView.swift in Sources */,
 				744928C82DA55E60008E5010 /* StreakManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -197,6 +209,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -257,6 +270,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

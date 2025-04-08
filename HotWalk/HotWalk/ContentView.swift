@@ -5,6 +5,9 @@ struct ContentView: View {
     @StateObject private var viewModel = HotWalkViewModel()
     @State private var showingGoalEditor = false
     @State private var tempGoal: String = ""
+    @State private var showHotGirlPassMessage = false
+    @State private var currentMilestone: MilestoneType?
+    @State private var showingMilestoneCard = false
     
     var body: some View {
         NavigationView {
@@ -59,6 +62,32 @@ struct ContentView: View {
                     }
                     .frame(width: 250, height: 250)
                     
+                    // Hot Girl Pass Message
+                    if !viewModel.hotGirlPassMessage.isEmpty {
+                        Text(viewModel.hotGirlPassMessage)
+                            .font(.title3)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.purple)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .fill(Color.white.opacity(0.8))
+                                    .shadow(radius: 5)
+                            )
+                            .padding(.horizontal)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                            .onAppear {
+                                showHotGirlPassMessage = true
+                                // Clear the message after 3 seconds
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                    withAnimation {
+                                        showHotGirlPassMessage = false
+                                        viewModel.hotGirlPassMessage = ""
+                                    }
+                                }
+                            }
+                    }
+                    
                     // Motivational Message
                     VStack(spacing: 10) {
                         Text(viewModel.currentMessage)
@@ -97,6 +126,27 @@ struct ContentView: View {
                     Spacer()
                 }
                 .padding()
+                
+                // Milestone Card Overlay
+                if showingMilestoneCard, let milestone = currentMilestone {
+                    Color.black.opacity(0.4)
+                        .edgesIgnoringSafeArea(.all)
+                        .transition(.opacity)
+                    
+                    MilestoneCardView(
+                        milestone: milestone,
+                        onDismiss: {
+                            withAnimation {
+                                showingMilestoneCard = false
+                                currentMilestone = nil
+                            }
+                        },
+                        onShare: {
+                            // Share functionality will be implemented later
+                        }
+                    )
+                    .transition(.scale)
+                }
             }
             .navigationTitle("Hot Walk")
             .sheet(isPresented: $showingGoalEditor) {
@@ -125,7 +175,20 @@ struct ContentView: View {
                 // Start a timer to update steps every minute
                 Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
                     healthManager.fetchTodaySteps()
+                    checkForMilestones()
                 }
+            }
+        }
+    }
+    
+    private func checkForMilestones() {
+        if let milestone = MilestoneManager.shared.checkForMilestones(
+            streak: viewModel.getCurrentStreak(),
+            progress: viewModel.calculateProgress(steps: healthManager.steps)
+        ) {
+            currentMilestone = milestone
+            withAnimation {
+                showingMilestoneCard = true
             }
         }
     }

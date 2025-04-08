@@ -10,6 +10,7 @@ class HotWalkViewModel: ObservableObject {
     
     @Published var streakText: String = ""
     @Published var currentMessage: String = ""
+    @Published var hotGirlPassMessage: String = ""
     
     private var lastProgress: Double = 0.0
     private let progressThreshold: Double = 0.01 // Update message when progress changes by 1%
@@ -37,6 +38,13 @@ class HotWalkViewModel: ObservableObject {
     func calculateProgress(steps: Int) -> Double {
         let progress = Double(steps) / Double(dailyGoal)
         
+        // Check for Hot Girl Pass earning
+        if HotGirlPassManager.shared.tryEarnPass(steps: steps, goal: dailyGoal) {
+            DispatchQueue.main.async {
+                self.hotGirlPassMessage = "You overachiever! +1 Hot Girl Pass unlocked 💅"
+            }
+        }
+        
         // Update streak based on progress
         updateStreak(progress: progress)
         
@@ -52,8 +60,22 @@ class HotWalkViewModel: ObservableObject {
     }
     
     private func updateStreak(progress: Double) {
+        let previousStreak = StreakManager.shared.currentStreak
+        
+        // Try to use Hot Girl Pass if we're going to break the streak
+        if progress < 1.0 && previousStreak > 0 {
+            if HotGirlPassManager.shared.usePass() {
+                DispatchQueue.main.async {
+                    self.hotGirlPassMessage = "You missed your goal, but your Hot Girl Pass saved your streak 💌"
+                }
+                // Don't update streak if we used a pass
+                return
+            }
+        }
+        
         StreakManager.shared.updateStreak(progress: progress)
         DispatchQueue.main.async {
+            // Only show the streak text without the pass count
             self.streakText = StreakManager.shared.getStreakText()
         }
     }
