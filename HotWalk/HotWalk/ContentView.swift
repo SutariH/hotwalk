@@ -12,24 +12,46 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background gradient
+                // Enhanced background gradient
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.black, Color.purple.opacity(0.3)]),
+                    gradient: Gradient(colors: [
+                        Color(red: 44/255, green: 8/255, blue: 52/255), // Rich plum
+                        Color.black,
+                        Color.purple.opacity(0.3)
+                    ]),
                     startPoint: .top,
                     endPoint: .bottom
                 )
                 .edgesIgnoringSafeArea(.all)
                 
                 VStack(spacing: 30) {
-                    // Step count
-                    Text("\(healthManager.steps)")
-                        .font(.system(size: 60, weight: .bold, design: .rounded))
+                    // Title
+                    Text("Hot Girl Steps")
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
-                    
-                    // Progress ring
-                    AnimatedProgressRing(progress: viewModel.calculateProgress(steps: healthManager.steps))
-                        .frame(width: 300, height: 300)
                         .padding(.top, 20)
+                        .padding(.bottom, 10)
+                    
+                    // Progress ring with centered step count
+                    ZStack {
+                        // Progress ring
+                        AnimatedProgressRing(progress: viewModel.calculateProgress(steps: healthManager.steps))
+                            .frame(width: 300, height: 300)
+                        
+                        // Centered step count
+                        VStack(spacing: 5) {
+                            Text("\(healthManager.steps)")
+                                .font(.system(size: 60, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+                                .dynamicTypeSize(...DynamicTypeSize.accessibility3)
+                            
+                            Text("steps")
+                                .font(.system(size: 20, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                    }
+                    .padding(.top, 20)
                     
                     // Motivational message
                     Text(viewModel.currentMessage)
