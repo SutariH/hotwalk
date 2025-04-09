@@ -9,80 +9,161 @@ struct ContentView: View {
     @State private var currentMilestone: MilestoneType?
     @State private var showingMilestoneCard = false
     
+    // Share CTA messages
+    private let shareCTAMessages = [
+        "Hot girl reset complete 🔁 Show it off!",
+        "Twerked those toes today? Share the glow ✨",
+        "Wednesday? More like Win-slay-day. Brag now 💅",
+        "Thirsty for attention? Let your steps speak 💧",
+        "Hot girl walk ➡️ Hot girl flex. Tap to share 📸",
+        "Steps > drama. Tell the world 🌍",
+        "Sundays are for sparkle recaps ✨ Drop yours!",
+        "Serving walk-core excellence 🏆 Let 'em know",
+        "You slayed the sidewalk—now slay the feed 🔥",
+        "Got that step drip 💧 Share it loud!",
+        "Main character energy detected 📢 Show it!",
+        "Too cute not to post. Tap that share 💖"
+    ]
+    
+    private var currentShareMessage: String {
+        let day = Calendar.current.component(.day, from: Date())
+        return shareCTAMessages[day % shareCTAMessages.count]
+    }
+    
     var body: some View {
         NavigationView {
             ZStack {
                 // Enhanced background gradient
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color(red: 44/255, green: 8/255, blue: 52/255), // Rich plum
-                        Color.black,
-                        Color.purple.opacity(0.3)
+                        Color(red: 44/255, green: 8/255, blue: 52/255),
+                        Color.purple.opacity(0.3),
+                        Color(hue: 0.83, saturation: 0.3, brightness: 0.9)
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                .edgesIgnoringSafeArea(.all)
+                .ignoresSafeArea()
                 
-                VStack(spacing: 30) {
-                    // Title
-                    Text("Hot Girl Steps")
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                        .padding(.top, 20)
-                        .padding(.bottom, 10)
-                    
-                    // Progress ring with centered step count
-                    ZStack {
-                        // Progress ring
-                        AnimatedProgressRing(progress: viewModel.calculateProgress(steps: healthManager.steps))
-                            .frame(width: 300, height: 300)
+                ScrollView {
+                    VStack(spacing: 30) {
+                        // Title
+                        Text("Hot Girl Steps")
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .padding(.top, 20)
+                            .padding(.bottom, 10)
                         
-                        // Centered step count
-                        VStack(spacing: 5) {
-                            Text("\(healthManager.steps)")
-                                .font(.system(size: 60, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
-                                .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
-                                .dynamicTypeSize(...DynamicTypeSize.accessibility3)
+                        // Progress ring with centered step count
+                        ZStack {
+                            // Progress ring
+                            AnimatedProgressRing(progress: viewModel.calculateProgress(steps: healthManager.steps))
+                                .frame(width: 300, height: 300)
                             
-                            Text("steps")
-                                .font(.system(size: 20, weight: .medium, design: .rounded))
-                                .foregroundColor(.white.opacity(0.8))
+                            // Centered step count
+                            VStack(spacing: 5) {
+                                Text("\(healthManager.steps)")
+                                    .font(.system(size: 60, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+                                    .dynamicTypeSize(...DynamicTypeSize.accessibility3)
+                                
+                                Text("steps")
+                                    .font(.system(size: 20, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
                         }
-                    }
-                    .padding(.top, 20)
-                    
-                    // Motivational message
-                    Text(viewModel.currentMessage)
-                        .font(.body)
-                        .multilineTextAlignment(.center)
-                        .foregroundColor(.white)
+                        .padding(.top, 20)
+                        
+                        // Motivational message
+                        Text(viewModel.currentMessage)
+                            .font(.system(size: 18, weight: .medium, design: .rounded))
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 16)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(12)
+                            .padding(.horizontal)
+                            .padding(.top, 10)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(nil)
+                            .minimumScaleFactor(0.8)
+                            .accessibilityLabel("Motivational message: \(viewModel.currentMessage)")
+                        
+                        // Streak text
+                        Text(viewModel.streakText)
+                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.8))
+                            .padding(.horizontal)
+                            .padding(.vertical, 8)
+                            .background(Color.white.opacity(0.05))
+                            .cornerRadius(8)
+                        
+                        Spacer()
+                        
+                        // Share section
+                        VStack(spacing: 12) {
+                            // Share CTA message
+                            Text(currentShareMessage)
+                                .font(.system(size: 18, weight: .medium, design: .rounded))
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 12)
+                                .background(Color.white.opacity(0.1))
+                                .cornerRadius(12)
+                                .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
+                            
+                            // Share button
+                            Button(action: {
+                                shareMilestone()
+                            }) {
+                                HStack {
+                                    Image(systemName: "square.and.arrow.up")
+                                    Text("Share Your Steps")
+                                }
+                                .font(.system(size: 18, weight: .medium, design: .rounded))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 16)
+                                .frame(maxWidth: .infinity)
+                                .background(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color.purple.opacity(0.8),
+                                            Color.purple.opacity(0.6)
+                                        ]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .cornerRadius(15)
+                                .shadow(color: .black.opacity(0.3), radius: 5, x: 0, y: 3)
+                            }
+                            .buttonStyle(ScaleButtonStyle())
+                            .accessibilityLabel("Share your step count")
+                        }
                         .padding(.horizontal)
-                        .padding(.top, 10)
-                    
-                    // Streak text
-                    Text(viewModel.streakText)
-                        .font(.system(size: 16, weight: .medium, design: .rounded))
-                        .foregroundColor(.white.opacity(0.6))
-                    
-                    Spacer()
-                    
-                    // Calendar navigation button
-                    NavigationLink(destination: CalendarView()) {
-                        HStack {
-                            Image(systemName: "calendar")
-                            Text("View History")
+                        .padding(.bottom, 30)
+                        
+                        // Calendar navigation button
+                        NavigationLink(destination: CalendarView()) {
+                            HStack {
+                                Image(systemName: "calendar")
+                                Text("View History")
+                            }
+                            .font(.system(size: 18, weight: .medium, design: .rounded))
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color.purple.opacity(0.3))
+                            .cornerRadius(15)
                         }
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(Color.purple.opacity(0.3))
-                        .cornerRadius(15)
+                        .padding(.bottom, 30)
                     }
-                    .padding(.bottom, 30)
+                    .padding()
                 }
-                .padding()
                 
                 // Goal editor overlay
                 if showingGoalEditor {
@@ -184,4 +265,13 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+}
+
+// Add ScaleButtonStyle at the bottom of the file
+struct ScaleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
+    }
 } 
