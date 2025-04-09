@@ -15,6 +15,7 @@ class HotWalkViewModel: ObservableObject {
     
     private var lastProgress: Double = 0.0
     private let progressThreshold: Double = 0.01 // Update message when progress changes by 1%
+    private let calendar = Calendar.current
     
     init() {
         self.dailyGoal = UserDefaults.standard.integer(forKey: "dailyGoal")
@@ -23,6 +24,40 @@ class HotWalkViewModel: ObservableObject {
         }
         self.streakText = StreakManager.shared.getStreakText()
         self.currentMessage = MotivationalMessageManager.shared.getMessage(for: 0.0)
+        
+        // Check for pass usage after midnight
+        checkMidnightPassUsage()
+    }
+    
+    private func checkMidnightPassUsage() {
+        // Get yesterday's date
+        guard let yesterday = calendar.date(byAdding: .day, value: -1, to: Date()) else {
+            print("⚠️ Could not get yesterday's date in checkMidnightPassUsage")
+            return
+        }
+        
+        // Get yesterday's steps from storage
+        let yesterdaySteps = getStoredSteps(for: yesterday)
+        
+        // Only proceed if we have valid step data
+        guard yesterdaySteps > 0 else {
+            print("⚠️ No step data available for yesterday")
+            return
+        }
+        
+        // Check and apply pass if needed
+        if HotGirlPassManager.shared.checkAndApplyPassForPreviousDay(steps: yesterdaySteps, goal: dailyGoal) {
+            DispatchQueue.main.async {
+                self.hotGirlPassMessage = "Your Hot Girl Pass saved your streak from yesterday 💌"
+            }
+        }
+    }
+    
+    private func getStoredSteps(for date: Date) -> Int {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let dateString = dateFormatter.string(from: date)
+        return UserDefaults.standard.integer(forKey: "steps_\(dateString)")
     }
     
     func getMotivationalMessage(progress: Double) -> String {
@@ -61,22 +96,8 @@ class HotWalkViewModel: ObservableObject {
     }
     
     private func updateStreak(progress: Double) {
-        let previousStreak = StreakManager.shared.currentStreak
-        
-        // Try to use Hot Girl Pass if we're going to break the streak
-        if progress < 1.0 && previousStreak > 0 {
-            if HotGirlPassManager.shared.usePass() {
-                DispatchQueue.main.async {
-                    self.hotGirlPassMessage = "You missed your goal, but your Hot Girl Pass saved your streak 💌"
-                }
-                // Don't update streak if we used a pass
-                return
-            }
-        }
-        
         StreakManager.shared.updateStreak(progress: progress)
         DispatchQueue.main.async {
-            // Only show the streak text without the pass count
             self.streakText = StreakManager.shared.getStreakText()
         }
     }
@@ -90,6 +111,7 @@ class HotWalkViewModel: ObservableObject {
         
         let completed = progress >= 1.0
         UserDefaults.standard.set(completed, forKey: "goal_completed_\(dateString)")
+        UserDefaults.standard.set(steps, forKey: "steps_\(dateString)")
     }
     
     func wasGoalCompleted(for date: Date) -> Bool {

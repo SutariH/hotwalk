@@ -8,6 +8,9 @@ struct ContentView: View {
     @State private var showHotGirlPassMessage = false
     @State private var currentMilestone: MilestoneType?
     @State private var showingMilestoneCard = false
+    @State private var isShowingAffirmation = false
+    @State private var rotationAngle: Double = 0
+    @State private var currentAffirmation = ""
     
     // Share CTA messages
     private let shareCTAMessages = [
@@ -54,24 +57,47 @@ struct ContentView: View {
                             .padding(.top, 20)
                             .padding(.bottom, 10)
                         
-                        // Progress ring with centered step count
+                        // Step Ring with Flip Animation
                         ZStack {
-                            // Progress ring
-                            AnimatedProgressRing(progress: viewModel.calculateProgress(steps: healthManager.steps))
-                                .frame(width: 300, height: 300)
+                            // Back of card (Step Ring)
+                            StepRingView(progress: viewModel.calculateProgress(steps: healthManager.steps))
+                                .rotation3DEffect(
+                                    Angle(degrees: rotationAngle),
+                                    axis: (x: 0, y: 1, z: 0)
+                                )
+                                .opacity(isShowingAffirmation ? 0 : 1)
                             
-                            // Centered step count
-                            VStack(spacing: 5) {
-                                Text("\(healthManager.steps)")
-                                    .font(.system(size: 60, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white)
-                                    .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
-                                    .dynamicTypeSize(...DynamicTypeSize.accessibility3)
-                                
-                                Text("steps")
-                                    .font(.system(size: 20, weight: .medium, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.8))
+                            // Front of card (Affirmation)
+                            if isShowingAffirmation {
+                                AffirmationCardView(affirmation: currentAffirmation)
+                                    .rotation3DEffect(
+                                        Angle(degrees: rotationAngle - 180),
+                                        axis: (x: 0, y: 1, z: 0)
+                                    )
                             }
+                        }
+                        .frame(width: 300, height: 300)
+                        .onTapGesture {
+                            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                rotationAngle += 180
+                                if !isShowingAffirmation {
+                                    currentAffirmation = AffirmationManager.shared.getNextAffirmation()
+                                }
+                                isShowingAffirmation.toggle()
+                            }
+                        }
+                        
+                        // Step count display
+                        VStack(spacing: 5) {
+                            Text("\(healthManager.steps)")
+                                .font(.system(size: 60, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+                                .dynamicTypeSize(...DynamicTypeSize.accessibility3)
+                            
+                            Text("steps")
+                                .font(.system(size: 20, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.8))
                         }
                         .padding(.top, 20)
                         
