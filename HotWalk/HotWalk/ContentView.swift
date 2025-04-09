@@ -61,20 +61,12 @@ struct ContentView: View {
                         // Step Ring with Flip Animation
                         ZStack {
                             // Front of card (Step Ring with step count)
-                            StepRingView(progress: viewModel.calculateProgress(steps: healthManager.steps))
+                            AnimatedProgressRing(progress: viewModel.calculateProgress(steps: healthManager.steps), steps: healthManager.steps)
                                 .rotation3DEffect(
                                     Angle(degrees: rotationAngle),
                                     axis: (x: 0, y: 1, z: 0)
                                 )
                                 .opacity(isShowingAffirmation ? 0 : 1)
-                                .overlay(
-                                    VStack {
-                                        Text("\(healthManager.steps)")
-                                            .font(.system(size: 36, weight: .bold, design: .rounded))
-                                            .foregroundColor(.white)
-                                            .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 2)
-                                    }
-                                )
                             
                             // Back of card (Affirmation)
                             if isShowingAffirmation {
