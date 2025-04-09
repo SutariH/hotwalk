@@ -105,6 +105,19 @@ struct ContentView: View {
                         
                         // Share section
                         VStack(spacing: 12) {
+                            // View History button
+                            NavigationLink(destination: CalendarView()) {
+                                HStack {
+                                    Image(systemName: "calendar")
+                                    Text("View History")
+                                }
+                                .font(.system(size: 18, weight: .medium, design: .rounded))
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Color.purple.opacity(0.3))
+                                .cornerRadius(15)
+                            }
+                            
                             // Share CTA message
                             Text(currentShareMessage)
                                 .font(.system(size: 18, weight: .medium, design: .rounded))
@@ -146,20 +159,6 @@ struct ContentView: View {
                             .accessibilityLabel("Share your step count")
                         }
                         .padding(.horizontal)
-                        .padding(.bottom, 30)
-                        
-                        // Calendar navigation button
-                        NavigationLink(destination: CalendarView()) {
-                            HStack {
-                                Image(systemName: "calendar")
-                                Text("View History")
-                            }
-                            .font(.system(size: 18, weight: .medium, design: .rounded))
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(Color.purple.opacity(0.3))
-                            .cornerRadius(15)
-                        }
                         .padding(.bottom, 30)
                     }
                     .padding()
