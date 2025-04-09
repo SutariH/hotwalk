@@ -231,6 +231,15 @@ struct ContentView: View {
             })
         }
         .onAppear {
+            // Make navigation bar transparent
+            let navBarAppearance = UINavigationBarAppearance()
+            navBarAppearance.configureWithTransparentBackground()
+            navBarAppearance.backgroundColor = .clear
+
+            UINavigationBar.appearance().standardAppearance = navBarAppearance
+            UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
+            UINavigationBar.appearance().compactAppearance = navBarAppearance
+            
             // Initial step fetch
             healthManager.fetchTodaySteps()
             
