@@ -1,4 +1,5 @@
 import SwiftUI
+import HealthKit
 
 // Add DayStatus enum at the top of the file
 enum DayStatus {
@@ -19,6 +20,8 @@ struct CalendarView: View {
     @State private var tempGoal: String = ""
     @State private var selectedDateSteps: Int = 0
     @State private var selectedDateStatus: DayStatus = .none
+    @State private var todaySteps: Int = 0
+    @State private var isTransitioning: Bool = false
     
     private let calendar = Calendar.current
     private let daysInWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -43,13 +46,15 @@ struct CalendarView: View {
     private func getReactionMessage(for status: DayStatus) -> String {
         switch status {
         case .goalMet:
-            return "Keep the fire going 🔥"
+            return "You crushed it like Beyoncé's halftime show 🐝"
         case .hotGirlPass:
             return "You used a Hot Girl Pass 💌. Iconic."
         case .missed:
-            return "Oopsie! Even hot girls rest 😴"
+            return "It's giving... rest day 🧘‍♀️✨"
         case .today:
-            return "Still time to strut! 👟"
+            return todaySteps >= viewModel.dailyGoal ? 
+                "You crushed it like Beyoncé's halftime show 🐝" : 
+                "Still time to strut! 👟"
         case .none:
             return ""
         }
@@ -158,14 +163,26 @@ struct CalendarView: View {
                                 stepCount: getStepCount(for: date)
                             )
                             .onTapGesture {
-                                // Toggle selection: if tapping the same day, deselect it
-                                if let selectedDate = selectedDate, calendar.isDate(selectedDate, inSameDayAs: date) {
-                                    self.selectedDate = nil
-                                    selectedDateStatus = .none
-                                } else {
-                                    self.selectedDate = date
-                                    fetchSteps(for: date)
-                                    selectedDateStatus = getStatus(for: date)
+                                // Handle date selection with animation
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    isTransitioning = true
+                                    
+                                    // If tapping the same day, deselect it and show today's data
+                                    if let selectedDate = selectedDate, calendar.isDate(selectedDate, inSameDayAs: date) {
+                                        self.selectedDate = nil
+                                        selectedDateStatus = .none
+                                    } else {
+                                        self.selectedDate = date
+                                        fetchDailySteps(for: date) { steps in
+                                            selectedDateSteps = Int(steps)
+                                            selectedDateStatus = getStatus(for: date)
+                                        }
+                                    }
+                                    
+                                    // Reset transition flag after a short delay
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        isTransitioning = false
+                                    }
                                 }
                             }
                             .frame(minWidth: 44, minHeight: 44)
@@ -180,38 +197,42 @@ struct CalendarView: View {
                 }
                 .padding(.horizontal)
                 
-                // Day details section (only shown when a day is selected)
-                if let date = selectedDate {
-                    VStack(spacing: 15) {
-                        // Date header
-                        Text(formatDate(date))
-                            .font(.title3.bold())
+                // Day details section (shows today by default or selected date)
+                VStack(spacing: 15) {
+                    // Date header
+                    Text(formatDate(selectedDate ?? Date()))
+                        .font(.title3.bold())
+                        .foregroundColor(.white)
+                        .padding(.top, 5)
+                        .accessibilityAddTraits(.isHeader)
+                    
+                    // Steps and goal
+                    VStack(spacing: 10) {
+                        Text("\(selectedDate == nil ? todaySteps : selectedDateSteps) steps")
+                            .font(.title2.bold())
                             .foregroundColor(.white)
-                            .padding(.top, 5)
-                            .accessibilityAddTraits(.isHeader)
                         
-                        // Steps and goal
-                        VStack(spacing: 10) {
-                            Text("\(selectedDateSteps) steps")
-                                .font(.title2.bold())
-                                .foregroundColor(.white)
-                            
-                            Text("Goal: \(viewModel.dailyGoal)")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.9))
-                            
-                            ProgressView(value: Double(selectedDateSteps), total: Double(viewModel.dailyGoal))
-                                .progressViewStyle(LinearProgressViewStyle(tint: .purple))
-                                .frame(width: 200)
-                        }
-                        .padding()
-                        .background(Color.purple.opacity(0.2))
-                        .cornerRadius(15)
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("\(selectedDateSteps) steps out of \(viewModel.dailyGoal) goal")
+                        Text("Goal: \(viewModel.dailyGoal)")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.9))
                         
-                        // Status card
-                        VStack(spacing: 10) {
+                        ProgressView(
+                            value: Double(selectedDate == nil ? todaySteps : selectedDateSteps), 
+                            total: Double(viewModel.dailyGoal)
+                        )
+                        .progressViewStyle(LinearProgressViewStyle(tint: .purple))
+                        .frame(width: 200)
+                    }
+                    .padding()
+                    .background(Color.purple.opacity(0.2))
+                    .cornerRadius(15)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("\(selectedDate == nil ? todaySteps : selectedDateSteps) steps out of \(viewModel.dailyGoal) goal")
+                    
+                    // Status card
+                    VStack(spacing: 10) {
+                        if let date = selectedDate {
+                            // Selected date status
                             if isGoalMet(for: date) {
                                 Text("🔥 Goal Achieved!")
                                     .font(.title3.bold())
@@ -240,94 +261,69 @@ struct CalendarView: View {
                                     .multilineTextAlignment(.center)
                                     .foregroundColor(.white.opacity(0.9))
                             }
-                        }
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(
-                                    isGoalMet(for: date) ? Color.purple.opacity(0.2) :
-                                    HotGirlPassManager.shared.wasPassUsed(on: date) ? Color.pink.opacity(0.2) :
-                                    Color.gray.opacity(0.2)
-                                )
-                        )
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel(
-                            isGoalMet(for: date) ? "Goal achieved" :
-                            HotGirlPassManager.shared.wasPassUsed(on: date) ? "Hot Girl Pass used" :
-                            "No goal met"
-                        )
-                        
-                        // Affirmation message with improved styling
-                        if selectedDateStatus != .none {
-                            Text(getReactionMessage(for: selectedDateStatus))
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .multilineTextAlignment(.center)
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 16)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.white.opacity(0.1))
-                                )
-                                .shadow(color: Color.purple.opacity(0.3), radius: 5, x: 0, y: 0)
-                                .padding(.top, 5)
-                                .accessibilityLabel(getReactionMessage(for: selectedDateStatus))
-                        }
-                        
-                        // Redesigned action buttons
-                        HStack(spacing: 12) {
-                            // Slayed It button
-                            HStack(spacing: 6) {
-                                Text("🔥")
-                                    .font(.system(size: 16))
+                        } else {
+                            // Today's status
+                            if todaySteps >= viewModel.dailyGoal {
+                                Text("🔥 Goal Achieved!")
+                                    .font(.title3.bold())
+                                    .foregroundColor(.white)
                                 
-                                Text("Slayed It")
-                                    .font(.subheadline.weight(.medium))
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .background(Color.purple.opacity(0.3))
-                            .foregroundColor(.white)
-                            .clipShape(Capsule())
-                            .accessibilityLabel("Slayed It badge")
-                            
-                            // Hot Girl Pass button
-                            HStack(spacing: 6) {
-                                Text("💌")
-                                    .font(.system(size: 16))
+                                Text("You crushed your step goal today!")
+                                    .font(.body)
+                                    .multilineTextAlignment(.center)
+                                    .foregroundColor(.white.opacity(0.9))
+                            } else {
+                                Text("🔥 Goal Not Met")
+                                    .font(.title3.bold())
+                                    .foregroundColor(.white)
                                 
-                                Text("Hot Girl Pass")
-                                    .font(.subheadline.weight(.medium))
+                                Text("Still time to reach your step goal!")
+                                    .font(.body)
+                                    .multilineTextAlignment(.center)
+                                    .foregroundColor(.white.opacity(0.9))
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .background(Color.pink.opacity(0.3))
-                            .foregroundColor(.white)
-                            .clipShape(Capsule())
-                            .accessibilityLabel("Hot Girl Pass badge")
-                            
-                            // Oops button
-                            HStack(spacing: 6) {
-                                Text("😴")
-                                    .font(.system(size: 16))
-                                
-                                Text("Oops")
-                                    .font(.subheadline.weight(.medium))
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .background(Color.gray.opacity(0.3))
-                            .foregroundColor(.white.opacity(0.8))
-                            .clipShape(Capsule())
-                            .accessibilityLabel("Oops badge")
                         }
-                        .padding(.horizontal)
-                        .padding(.top, 10)
                     }
-                    .padding(.horizontal)
-                    .transition(.opacity.combined(with: .move(edge: .bottom)))
-                    .animation(.easeInOut(duration: 0.3), value: selectedDate)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 15)
+                            .fill(
+                                selectedDate == nil ? 
+                                    (todaySteps >= viewModel.dailyGoal ? Color.purple.opacity(0.2) : Color.gray.opacity(0.2)) :
+                                    (isGoalMet(for: selectedDate!) ? Color.purple.opacity(0.2) :
+                                     HotGirlPassManager.shared.wasPassUsed(on: selectedDate!) ? Color.pink.opacity(0.2) :
+                                     Color.gray.opacity(0.2))
+                            )
+                    )
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel(
+                        selectedDate == nil ? 
+                            (todaySteps >= viewModel.dailyGoal ? "Goal achieved" : "Goal not met yet") :
+                            (isGoalMet(for: selectedDate!) ? "Goal achieved" :
+                             HotGirlPassManager.shared.wasPassUsed(on: selectedDate!) ? "Hot Girl Pass used" :
+                             "No goal met")
+                    )
+                    
+                    // Affirmation message with improved styling
+                    Text(getReactionMessage(for: selectedDate == nil ? .today : selectedDateStatus))
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.1))
+                        )
+                        .shadow(color: Color.purple.opacity(0.3), radius: 5, x: 0, y: 0)
+                        .padding(.top, 5)
+                        .accessibilityLabel(getReactionMessage(for: selectedDate == nil ? .today : selectedDateStatus))
                 }
+                .padding(.horizontal)
+                .opacity(isTransitioning ? 0 : 1)
+                .animation(.easeInOut(duration: 0.3), value: selectedDate)
+                .animation(.easeInOut(duration: 0.3), value: todaySteps)
+                .animation(.easeInOut(duration: 0.3), value: selectedDateSteps)
                 
                 Spacer()
             }
@@ -359,7 +355,9 @@ struct CalendarView: View {
             )
         }
         .onAppear {
-            fetchSteps(for: currentDate)
+            fetchDailySteps(for: Date()) { steps in
+                todaySteps = Int(steps)
+            }
         }
     }
     
@@ -410,43 +408,73 @@ struct CalendarView: View {
         return 0
     }
     
-    private func fetchSteps(for date: Date) {
-        // Create date boundaries for the selected day (00:00 to 23:59:59)
+    // Updated HealthKit query to fetch only the selected day's steps
+    private func fetchDailySteps(for date: Date, completion: @escaping (Double) -> Void) {
+        // Check if HealthKit is available
+        guard HKHealthStore.isHealthDataAvailable() else {
+            print("HealthKit is not available on this device")
+            completion(0)
+            return
+        }
+        
+        // Get the step count type
+        guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
+            print("Step count type is not available")
+            completion(0)
+            return
+        }
+        
+        // Create the day range with proper boundaries
         let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: date)
-        let endOfDay = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: date)!
+        guard
+            let startOfDay = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: date),
+            let endOfDay = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: date)
+        else {
+            print("Could not create date boundaries")
+            completion(0)
+            return
+        }
         
-        // In a real app, this would fetch from HealthKit with the correct date boundaries
-        // For now, we'll use a placeholder value that's consistent for the same date
-        // This ensures the same date always returns the same step count
-        let dateString = dateFormatter.string(from: date)
-        let hash = dateString.hashValue
-        selectedDateSteps = (hash % (viewModel.dailyGoal * 2)) + Int.random(in: 0...viewModel.dailyGoal)
+        // Create a predicate that only includes samples from the selected day
+        let predicate = HKQuery.predicateForSamples(
+            withStart: startOfDay,
+            end: endOfDay,
+            options: .strictStartDate
+        )
         
-        // In a real implementation, you would use HealthKit like this:
-        /*
-        let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
-        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: endOfDay, options: .strictStartDate)
-        
+        // Create the statistics query
         let query = HKStatisticsQuery(
             quantityType: stepType,
             quantitySamplePredicate: predicate,
             options: .cumulativeSum
         ) { _, result, error in
-            guard let result = result, let sum = result.sumQuantity() else {
+            if let error = error {
+                print("Error fetching step data: \(error.localizedDescription)")
                 DispatchQueue.main.async {
-                    self.selectedDateSteps = 0
+                    completion(0)
                 }
                 return
             }
             
+            guard let stats = result,
+                  let quantity = stats.sumQuantity() else {
+                DispatchQueue.main.async {
+                    completion(0)
+                }
+                return
+            }
+            
+            // Get the step count as a double
+            let stepCount = quantity.doubleValue(for: HKUnit.count())
+            
+            // Return the result on the main thread
             DispatchQueue.main.async {
-                self.selectedDateSteps = Int(sum.doubleValue(for: HKUnit.count()))
+                completion(stepCount)
             }
         }
         
+        // Execute the query
         healthManager.healthStore.execute(query)
-        */
     }
     
     private func previousMonth() {
