@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var isShowingAffirmation = false
     @State private var rotationAngle: Double = 0
     @State private var currentAffirmation = ""
+    @State private var flipped = false
     
     // Share CTA messages
     private let shareCTAMessages = [
@@ -59,15 +60,23 @@ struct ContentView: View {
                         
                         // Step Ring with Flip Animation
                         ZStack {
-                            // Back of card (Step Ring)
+                            // Front of card (Step Ring with step count)
                             StepRingView(progress: viewModel.calculateProgress(steps: healthManager.steps))
                                 .rotation3DEffect(
                                     Angle(degrees: rotationAngle),
                                     axis: (x: 0, y: 1, z: 0)
                                 )
                                 .opacity(isShowingAffirmation ? 0 : 1)
+                                .overlay(
+                                    VStack {
+                                        Text("\(healthManager.steps)")
+                                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                                            .foregroundColor(.white)
+                                            .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 2)
+                                    }
+                                )
                             
-                            // Front of card (Affirmation)
+                            // Back of card (Affirmation)
                             if isShowingAffirmation {
                                 AffirmationCardView(affirmation: currentAffirmation)
                                     .rotation3DEffect(
@@ -87,19 +96,12 @@ struct ContentView: View {
                             }
                         }
                         
-                        // Step count display
-                        VStack(spacing: 5) {
-                            Text("\(healthManager.steps)")
-                                .font(.system(size: 60, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
-                                .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
-                                .dynamicTypeSize(...DynamicTypeSize.accessibility3)
-                            
-                            Text("steps")
-                                .font(.system(size: 20, weight: .medium, design: .rounded))
-                                .foregroundColor(.white.opacity(0.8))
-                        }
-                        .padding(.top, 20)
+                        // Goal percentage display (always visible below the ring)
+                        Text("\(Int((Double(healthManager.steps) / Double(viewModel.dailyGoal)) * 100))% of goal")
+                            .font(.system(size: 18, weight: .medium, design: .rounded))
+                            .foregroundColor(.white)
+                            .opacity(0.9)
+                            .padding(.top, 8)
                         
                         // Motivational message
                         Text(viewModel.currentMessage)

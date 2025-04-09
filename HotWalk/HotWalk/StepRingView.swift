@@ -27,17 +27,6 @@ struct StepRingView: View {
                 .frame(width: 250, height: 250)
                 .rotationEffect(.degrees(-90))
                 .animation(.easeInOut, value: progress)
-            
-            // Step count
-            VStack(spacing: 5) {
-                Text("\(Int(progress * 100))%")
-                    .font(.system(size: 40, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
-                
-                Text("of goal")
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
-                    .foregroundColor(.white.opacity(0.8))
-            }
         }
     }
 } 
