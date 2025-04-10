@@ -125,11 +125,12 @@ struct ContentView: View {
                 .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 30) {
-                        Text("Hot Girl Steps")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                            .padding(.top, 20)
+                    VStack(spacing: 40) {
+                        Image("HotGirlStepsLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 140)
+                            .padding(.top, 30)
                             .padding(.bottom, 10)
                         
                         ZStack {
@@ -149,41 +150,43 @@ struct ContentView: View {
                             }
                         }
                         
-                        Text("\(Int((Double(healthManager.steps) / Double(viewModel.dailyGoal)) * 100))% of goal")
-                            .font(.system(size: 18, weight: .medium, design: .rounded))
-                            .foregroundColor(.white)
-                            .opacity(0.9)
-                            .padding(.top, 8)
-                        
-                        Text(viewModel.currentMessage)
-                            .font(.system(size: 18, weight: .medium, design: .rounded))
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 16)
-                            .frame(maxWidth: .infinity)
-                            .background(Color.white.opacity(0.1))
-                            .cornerRadius(12)
-                            .padding(.horizontal)
-                            .padding(.top, 10)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .lineLimit(nil)
-                            .minimumScaleFactor(0.8)
-                            .accessibilityLabel("Motivational message: \(viewModel.currentMessage)")
-                        
-                        Text(viewModel.streakText)
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
-                            .foregroundColor(.white.opacity(0.8))
-                            .padding(.horizontal)
-                            .padding(.vertical, 8)
-                            .background(Color.white.opacity(0.05))
-                            .cornerRadius(8)
+                        VStack(spacing: 16) {
+                            Text("\(Int((Double(healthManager.steps) / Double(viewModel.dailyGoal)) * 100))% of goal")
+                                .font(.system(size: 20, weight: .medium, design: .rounded))
+                                .foregroundColor(.white)
+                                .opacity(0.9)
+                            
+                            Text(viewModel.currentMessage)
+                                .font(.system(size: 18, weight: .medium, design: .rounded))
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 16)
+                                .frame(maxWidth: .infinity)
+                                .background(Color.white.opacity(0.1))
+                                .cornerRadius(12)
+                                .padding(.horizontal)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .lineLimit(nil)
+                                .minimumScaleFactor(0.8)
+                                .accessibilityLabel("Motivational message: \(viewModel.currentMessage)")
+                            
+                            Text(viewModel.streakText)
+                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.8))
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 12)
+                                .background(Color.white.opacity(0.05))
+                                .cornerRadius(8)
+                        }
+                        .padding(.top, 20)
                         
                         Spacer()
                         
                         shareSection
+                            .padding(.top, 40)
                     }
-                    .padding()
+                    .padding(.horizontal)
                 }
                 
                 if showingGoalEditor {
