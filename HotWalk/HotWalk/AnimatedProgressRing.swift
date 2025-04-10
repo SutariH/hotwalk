@@ -3,6 +3,8 @@ import SwiftUI
 // Configuration struct for animation parameters
 private struct RingConfig {
     static let ringSize: CGFloat = 250
+    static let sparkleSize: CGFloat = 4
+    static let sparkleCount: Int = 5
 }
 
 struct AnimatedProgressRing: View {
@@ -11,6 +13,8 @@ struct AnimatedProgressRing: View {
     
     @State private var ringScale: CGFloat = 1.0
     @State private var ringGlowOpacity: Double = 0.3
+    @State private var sparkleScale: CGFloat = 1.0
+    @State private var sparkleOpacity: Double = 0.0
     
     private func startCelebration() {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
@@ -59,6 +63,25 @@ struct AnimatedProgressRing: View {
                 .frame(width: RingConfig.ringSize, height: RingConfig.ringSize)
                 .rotationEffect(.degrees(-90))
                 .animation(.easeInOut(duration: 0.5), value: progress)
+            
+            // Sparkle effects
+            ForEach(0..<RingConfig.sparkleCount) { index in
+                Circle()
+                    .fill(Color.white.opacity(0.8))
+                    .frame(width: RingConfig.sparkleSize, height: RingConfig.sparkleSize)
+                    .offset(
+                        x: CGFloat.random(in: -100...100),
+                        y: CGFloat.random(in: -100...100)
+                    )
+                    .scaleEffect(sparkleScale)
+                    .opacity(sparkleOpacity)
+                    .animation(
+                        Animation.easeInOut(duration: 1.5)
+                            .repeatForever(autoreverses: true)
+                            .delay(Double(index) * 0.3),
+                        value: sparkleScale
+                    )
+            }
         }
     }
     
@@ -79,6 +102,12 @@ struct AnimatedProgressRing: View {
         ZStack {
             ringView
             stepCountView
+        }
+        .onAppear {
+            withAnimation {
+                sparkleScale = 1.2
+                sparkleOpacity = 1.0
+            }
         }
         .onChange(of: progress) { newProgress in
             if newProgress >= 1.0 {
