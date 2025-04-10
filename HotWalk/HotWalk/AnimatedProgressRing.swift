@@ -5,6 +5,42 @@ private struct RingConfig {
     static let ringSize: CGFloat = 250
     static let sparkleSize: CGFloat = 4
     static let sparkleCount: Int = 5
+    
+    // Progress thresholds
+    static let slowThreshold: Double = 0.5
+    static let mediumThreshold: Double = 0.75
+    static let fastThreshold: Double = 1.0
+    
+    // Animation durations
+    static let slowDuration: Double = 2.0
+    static let mediumDuration: Double = 1.5
+    static let fastDuration: Double = 1.0
+    static let celebrationDuration: Double = 1.8
+    
+    // Ring radius for sparkle positioning
+    static let ringRadius: CGFloat = ringSize / 2
+    
+    // Sparkle movement ranges
+    static let slowRange: ClosedRange<CGFloat> = -40...40
+    static let mediumRange: ClosedRange<CGFloat> = 0...120
+    static let fastRange: ClosedRange<CGFloat> = -200...200
+    static let celebrationRange: ClosedRange<CGFloat> = -150...150
+    
+    // Glow configurations
+    static let slowGlow: Double = 0.3
+    static let mediumGlow: Double = 0.5
+    static let fastGlow: Double = 0.7
+    static let celebrationGlow: Double = 0.6
+    
+    static let slowBlur: CGFloat = 1
+    static let mediumBlur: CGFloat = 2
+    static let fastBlur: CGFloat = 3
+    static let celebrationBlur: CGFloat = 2.5
+    
+    static let slowGlowWidth: CGFloat = 20
+    static let mediumGlowWidth: CGFloat = 25
+    static let fastGlowWidth: CGFloat = 30
+    static let celebrationGlowWidth: CGFloat = 28
 }
 
 struct AnimatedProgressRing: View {
@@ -13,8 +49,100 @@ struct AnimatedProgressRing: View {
     
     @State private var ringScale: CGFloat = 1.0
     @State private var ringGlowOpacity: Double = 0.3
+    @State private var ringGlowWidth: CGFloat = 20
+    @State private var ringBlur: CGFloat = 1
     @State private var sparkleScale: CGFloat = 1.0
     @State private var sparkleOpacity: Double = 0.0
+    @State private var sparklePositions: [CGPoint] = []
+    @State private var sparkleTargets: [CGPoint] = []
+    
+    private func updateRingGlow() {
+        if progress <= RingConfig.slowThreshold {
+            // 0-50%: Subtle glow
+            ringGlowOpacity = RingConfig.slowGlow
+            ringBlur = RingConfig.slowBlur
+            ringGlowWidth = RingConfig.slowGlowWidth
+        } else if progress <= RingConfig.mediumThreshold {
+            // 51-75%: Medium glow
+            ringGlowOpacity = RingConfig.mediumGlow
+            ringBlur = RingConfig.mediumBlur
+            ringGlowWidth = RingConfig.mediumGlowWidth
+        } else if progress <= RingConfig.fastThreshold {
+            // 76-100%: Intense glow
+            ringGlowOpacity = RingConfig.fastGlow
+            ringBlur = RingConfig.fastBlur
+            ringGlowWidth = RingConfig.fastGlowWidth
+        } else {
+            // 101%+: Calmer glow
+            ringGlowOpacity = RingConfig.celebrationGlow
+            ringBlur = RingConfig.celebrationBlur
+            ringGlowWidth = RingConfig.celebrationGlowWidth
+        }
+    }
+    
+    private func updateSparklePositions() {
+        let range: ClosedRange<CGFloat>
+        let duration: Double
+        
+        if progress <= RingConfig.slowThreshold {
+            // 0-50%: Sparkles stay inside the ring
+            range = RingConfig.slowRange
+            duration = RingConfig.slowDuration
+            
+            sparklePositions = (0..<RingConfig.sparkleCount).map { _ in
+                let angle = Double.random(in: 0...360)
+                let distance = CGFloat.random(in: 0...RingConfig.ringRadius * 0.8)
+                return CGPoint(
+                    x: distance * cos(CGFloat(angle) * .pi / 180),
+                    y: distance * sin(CGFloat(angle) * .pi / 180)
+                )
+            }
+            
+        } else if progress <= RingConfig.mediumThreshold {
+            // 51-75%: Sparkles start from center and move outward
+            range = RingConfig.mediumRange
+            duration = RingConfig.mediumDuration
+            
+            sparklePositions = (0..<RingConfig.sparkleCount).map { _ in
+                let angle = Double.random(in: 0...360)
+                let distance = CGFloat.random(in: RingConfig.ringRadius...RingConfig.ringRadius * 1.2)
+                return CGPoint(
+                    x: distance * cos(CGFloat(angle) * .pi / 180),
+                    y: distance * sin(CGFloat(angle) * .pi / 180)
+                )
+            }
+            
+        } else if progress <= RingConfig.fastThreshold {
+            // 76-100%: Sparkles move across top half of screen
+            range = RingConfig.fastRange
+            duration = RingConfig.fastDuration
+            
+            sparklePositions = (0..<RingConfig.sparkleCount).map { _ in
+                CGPoint(
+                    x: CGFloat.random(in: range),
+                    y: CGFloat.random(in: -range.upperBound...0)
+                )
+            }
+            
+        } else {
+            // 101%+: Calmer movement
+            range = RingConfig.celebrationRange
+            duration = RingConfig.celebrationDuration
+            
+            sparklePositions = (0..<RingConfig.sparkleCount).map { _ in
+                let angle = Double.random(in: 0...360)
+                let distance = CGFloat.random(in: RingConfig.ringRadius * 0.8...RingConfig.ringRadius * 1.2)
+                return CGPoint(
+                    x: distance * cos(CGFloat(angle) * .pi / 180),
+                    y: distance * sin(CGFloat(angle) * .pi / 180)
+                )
+            }
+        }
+        
+        withAnimation(.easeInOut(duration: 0.3)) {
+            sparkleScale = progress > RingConfig.fastThreshold ? 1.1 : 1.0
+        }
+    }
     
     private func startCelebration() {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
@@ -41,10 +169,11 @@ struct AnimatedProgressRing: View {
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
-                    lineWidth: 20
+                    lineWidth: ringGlowWidth
                 )
                 .frame(width: RingConfig.ringSize, height: RingConfig.ringSize)
                 .scaleEffect(ringScale)
+                .blur(radius: ringBlur)
             
             // Progress ring
             Circle()
@@ -65,18 +194,21 @@ struct AnimatedProgressRing: View {
                 .animation(.easeInOut(duration: 0.5), value: progress)
             
             // Sparkle effects
-            ForEach(0..<RingConfig.sparkleCount) { index in
+            ForEach(0..<RingConfig.sparkleCount, id: \.self) { index in
                 Circle()
                     .fill(Color.white.opacity(0.8))
                     .frame(width: RingConfig.sparkleSize, height: RingConfig.sparkleSize)
                     .offset(
-                        x: CGFloat.random(in: -100...100),
-                        y: CGFloat.random(in: -100...100)
+                        x: sparklePositions.indices.contains(index) ? sparklePositions[index].x : 0,
+                        y: sparklePositions.indices.contains(index) ? sparklePositions[index].y : 0
                     )
                     .scaleEffect(sparkleScale)
                     .opacity(sparkleOpacity)
                     .animation(
-                        Animation.easeInOut(duration: 1.5)
+                        Animation.easeInOut(duration: progress <= RingConfig.slowThreshold ? RingConfig.slowDuration :
+                                            progress <= RingConfig.mediumThreshold ? RingConfig.mediumDuration :
+                                            progress <= RingConfig.fastThreshold ? RingConfig.fastDuration :
+                                            RingConfig.celebrationDuration)
                             .repeatForever(autoreverses: true)
                             .delay(Double(index) * 0.3),
                         value: sparkleScale
@@ -108,8 +240,12 @@ struct AnimatedProgressRing: View {
                 sparkleScale = 1.2
                 sparkleOpacity = 1.0
             }
+            updateSparklePositions()
+            updateRingGlow()
         }
         .onChange(of: progress) { newProgress in
+            updateSparklePositions()
+            updateRingGlow()
             if newProgress >= 1.0 {
                 startCelebration()
             }
