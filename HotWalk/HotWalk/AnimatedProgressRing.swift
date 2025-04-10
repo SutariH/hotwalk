@@ -26,21 +26,27 @@ private struct RingConfig {
     static let fastRange: ClosedRange<CGFloat> = -200...200
     static let celebrationRange: ClosedRange<CGFloat> = -150...150
     
-    // Glow configurations
+    // Enhanced glow configurations
     static let slowGlow: Double = 0.3
-    static let mediumGlow: Double = 0.5
-    static let fastGlow: Double = 0.7
-    static let celebrationGlow: Double = 0.6
+    static let mediumGlow: Double = 0.6
+    static let fastGlow: Double = 0.9
+    static let celebrationGlow: Double = 1.0
     
-    static let slowBlur: CGFloat = 1
-    static let mediumBlur: CGFloat = 2
-    static let fastBlur: CGFloat = 3
-    static let celebrationBlur: CGFloat = 2.5
+    static let slowBlur: CGFloat = 2
+    static let mediumBlur: CGFloat = 4
+    static let fastBlur: CGFloat = 6
+    static let celebrationBlur: CGFloat = 8
     
     static let slowGlowWidth: CGFloat = 20
-    static let mediumGlowWidth: CGFloat = 25
-    static let fastGlowWidth: CGFloat = 30
-    static let celebrationGlowWidth: CGFloat = 28
+    static let mediumGlowWidth: CGFloat = 30
+    static let fastGlowWidth: CGFloat = 40
+    static let celebrationGlowWidth: CGFloat = 50
+    
+    // Pulsing animation configurations
+    static let slowPulseDuration: Double = 2.0
+    static let mediumPulseDuration: Double = 1.5
+    static let fastPulseDuration: Double = 1.0
+    static let celebrationPulseDuration: Double = 0.8
 }
 
 struct AnimatedProgressRing: View {
@@ -55,28 +61,46 @@ struct AnimatedProgressRing: View {
     @State private var sparkleOpacity: Double = 0.0
     @State private var sparklePositions: [CGPoint] = []
     @State private var sparkleTargets: [CGPoint] = []
+    @State private var pulseScale: CGFloat = 1.0
+    @State private var glowColor: Color = .white
     
     private func updateRingGlow() {
         if progress <= RingConfig.slowThreshold {
-            // 0-50%: Subtle glow
+            // 0-50%: Subtle glow with slow pulse
             ringGlowOpacity = RingConfig.slowGlow
             ringBlur = RingConfig.slowBlur
             ringGlowWidth = RingConfig.slowGlowWidth
+            glowColor = .white
+            withAnimation(.easeInOut(duration: RingConfig.slowPulseDuration).repeatForever(autoreverses: true)) {
+                pulseScale = 1.05
+            }
         } else if progress <= RingConfig.mediumThreshold {
-            // 51-75%: Medium glow
+            // 51-75%: Medium glow with faster pulse
             ringGlowOpacity = RingConfig.mediumGlow
             ringBlur = RingConfig.mediumBlur
             ringGlowWidth = RingConfig.mediumGlowWidth
+            glowColor = .white.opacity(0.8)
+            withAnimation(.easeInOut(duration: RingConfig.mediumPulseDuration).repeatForever(autoreverses: true)) {
+                pulseScale = 1.1
+            }
         } else if progress <= RingConfig.fastThreshold {
-            // 76-100%: Intense glow
+            // 76-100%: Intense glow with rapid pulse
             ringGlowOpacity = RingConfig.fastGlow
             ringBlur = RingConfig.fastBlur
             ringGlowWidth = RingConfig.fastGlowWidth
+            glowColor = .white.opacity(0.6)
+            withAnimation(.easeInOut(duration: RingConfig.fastPulseDuration).repeatForever(autoreverses: true)) {
+                pulseScale = 1.15
+            }
         } else {
-            // 101%+: Calmer glow
+            // 101%+: Celebration glow with quick pulse
             ringGlowOpacity = RingConfig.celebrationGlow
             ringBlur = RingConfig.celebrationBlur
             ringGlowWidth = RingConfig.celebrationGlowWidth
+            glowColor = .white.opacity(0.4)
+            withAnimation(.easeInOut(duration: RingConfig.celebrationPulseDuration).repeatForever(autoreverses: true)) {
+                pulseScale = 1.2
+            }
         }
     }
     
@@ -158,13 +182,14 @@ struct AnimatedProgressRing: View {
     
     private var ringView: some View {
         ZStack {
-            // Background ring with glow
+            // Background ring with enhanced glow
             Circle()
                 .stroke(
                     LinearGradient(
                         gradient: Gradient(colors: [
-                            Color.white.opacity(ringGlowOpacity),
-                            Color.purple.opacity(ringGlowOpacity * 0.5)
+                            glowColor.opacity(ringGlowOpacity),
+                            Color.purple.opacity(ringGlowOpacity * 0.5),
+                            Color.pink.opacity(ringGlowOpacity * 0.3)
                         ]),
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -172,7 +197,7 @@ struct AnimatedProgressRing: View {
                     lineWidth: ringGlowWidth
                 )
                 .frame(width: RingConfig.ringSize, height: RingConfig.ringSize)
-                .scaleEffect(ringScale)
+                .scaleEffect(ringScale * pulseScale)
                 .blur(radius: ringBlur)
             
             // Progress ring
