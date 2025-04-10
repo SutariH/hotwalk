@@ -51,6 +51,10 @@ class MilestoneManager: ObservableObject {
     
     private init() {}
     
+    private func getDailyKey(for date: Date) -> String {
+        return DateFormatterManager.shared.dailyKeyFormatter.string(from: date)
+    }
+    
     // Check if a milestone has been shown today
     private func hasShownMilestoneToday(_ milestone: MilestoneType) -> Bool {
         let today = Calendar.current.startOfDay(for: Date())
@@ -65,13 +69,12 @@ class MilestoneManager: ObservableObject {
     // Mark a milestone as shown today
     private func markMilestoneAsShown(_ milestone: MilestoneType) {
         let today = Calendar.current.startOfDay(for: Date())
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        let todayString = dateFormatter.string(from: today)
+        let todayString = getDailyKey(for: today)
         
-        var shownMilestones = userDefaults.dictionary(forKey: shownMilestonesKey) as? [String: String] ?? [:]
+        var shownMilestones = UserDefaults.standard.dictionary(forKey: shownMilestonesKey) as? [String: String] ?? [:]
         shownMilestones[milestone.rawValue] = todayString
-        userDefaults.set(shownMilestones, forKey: shownMilestonesKey)
+        UserDefaults.standard.set(shownMilestones, forKey: shownMilestonesKey)
+        UserDefaults.standard.synchronize()
     }
     
     // Check for milestones based on streak and progress

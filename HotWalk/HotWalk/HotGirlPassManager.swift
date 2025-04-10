@@ -102,25 +102,23 @@ class HotGirlPassManager {
         guard currentPassCount > 0 else { return false }
         
         let newCount = currentPassCount - 1
-        defaults.set(newCount, forKey: passesKey)
+        let dateString = getDailyKey(for: date)
         
-        // Store the date when the pass was used
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        let dateString = dateFormatter.string(from: date)
+        UserDefaults.standard.set(newCount, forKey: passesKey)
         
-        var usedPasses = defaults.stringArray(forKey: usedPassesKey) ?? []
+        var usedPasses = UserDefaults.standard.stringArray(forKey: usedPassesKey) ?? []
         usedPasses.append(dateString)
-        defaults.set(usedPasses, forKey: usedPassesKey)
+        UserDefaults.standard.set(usedPasses, forKey: usedPassesKey)
         
-        // Only update lastMidnightCheckKey, not lastPassUsedKey
-        defaults.set(Date(), forKey: lastMidnightCheckKey)
+        UserDefaults.standard.set(Date(), forKey: lastMidnightCheckKey)
+        UserDefaults.standard.synchronize()
+        
         return true
     }
     
     func tryEarnPass(steps: Int, goal: Int) -> Bool {
         // Check if we already earned a pass today
-        if let lastEarned = defaults.object(forKey: lastPassEarnedKey) as? Date,
+        if let lastEarned = UserDefaults.standard.object(forKey: lastPassEarnedKey) as? Date,
            calendar.isDateInToday(lastEarned) {
             return false
         }
@@ -128,8 +126,11 @@ class HotGirlPassManager {
         // Check if we've reached 150% of the goal and have less than 3 passes
         if Double(steps) >= Double(goal) * 1.5 && currentPassCount < 3 {
             let newCount = min(currentPassCount + 1, 3)
-            defaults.set(newCount, forKey: passesKey)
-            defaults.set(Date(), forKey: lastPassEarnedKey)
+            
+            UserDefaults.standard.set(newCount, forKey: passesKey)
+            UserDefaults.standard.set(Date(), forKey: lastPassEarnedKey)
+            UserDefaults.standard.synchronize()
+            
             return true
         }
         
@@ -143,5 +144,9 @@ class HotGirlPassManager {
         
         let usedPasses = defaults.stringArray(forKey: usedPassesKey) ?? []
         return usedPasses.contains(dateString)
+    }
+    
+    private func getDailyKey(for date: Date) -> String {
+        return DateFormatterManager.shared.dailyKeyFormatter.string(from: date)
     }
 } 

@@ -598,6 +598,10 @@ struct CalendarView: View {
         // Execute the query
         healthManager.healthStore.execute(query)
     }
+    
+    private func getDailyKey(for date: Date) -> String {
+        return DateFormatterManager.shared.dailyKeyFormatter.string(from: date)
+    }
 }
 
 struct DayCell: View {

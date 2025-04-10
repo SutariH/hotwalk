@@ -13,8 +13,8 @@ struct ContentView: View {
     @State private var currentAffirmation = ""
     @State private var flipped = false
     
-    // Share CTA messages
-    private let shareCTAMessages = [
+    // Share CTA messages - moved to static property
+    private static let shareCTAMessages = [
         "Hot girl reset complete 🔁 Show it off!",
         "Twerked those toes today? Share the glow ✨",
         "Wednesday? More like Win-slay-day. Brag now 💅",
@@ -29,9 +29,10 @@ struct ContentView: View {
         "Too cute not to post. Tap that share 💖"
     ]
     
+    // Computed property for share message
     private var currentShareMessage: String {
         let day = Calendar.current.component(.day, from: Date())
-        return shareCTAMessages[day % shareCTAMessages.count]
+        return Self.shareCTAMessages[day % Self.shareCTAMessages.count]
     }
     
     var body: some View {

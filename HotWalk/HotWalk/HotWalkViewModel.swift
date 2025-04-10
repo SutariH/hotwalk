@@ -105,13 +105,12 @@ class HotWalkViewModel: ObservableObject {
     // MARK: - Goal Completion Storage
     
     private func storeGoalCompletion(for date: Date, progress: Double) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        let dateString = dateFormatter.string(from: date)
-        
+        let dateString = getDailyKey(for: date)
         let completed = progress >= 1.0
+        
         UserDefaults.standard.set(completed, forKey: "goal_completed_\(dateString)")
         UserDefaults.standard.set(steps, forKey: "steps_\(dateString)")
+        UserDefaults.standard.synchronize()
     }
     
     func wasGoalCompleted(for date: Date) -> Bool {
@@ -124,5 +123,9 @@ class HotWalkViewModel: ObservableObject {
     
     func getCurrentStreak() -> Int {
         return StreakManager.shared.currentStreak
+    }
+    
+    private func getDailyKey(for date: Date) -> String {
+        return DateFormatterManager.shared.dailyKeyFormatter.string(from: date)
     }
 } 

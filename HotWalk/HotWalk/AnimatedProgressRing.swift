@@ -29,9 +29,21 @@ struct AnimatedProgressRing: View {
     @State private var movementTimer: Timer?
     @State private var pulseTimer: Timer?
     
-    private let baseRadius: CGFloat = 100
-    private let ringSize: CGFloat = 250
-    private let celebrationColors: [Color] = [.white, .yellow, .pink, .purple]
+    private static let baseRadius: CGFloat = 100
+    private static let ringSize: CGFloat = 250
+    private static let celebrationColors: [Color] = [.white, .yellow, .pink, .purple]
+    
+    private var sparkleCount: Int {
+        progress >= 1.0 ? 24 : (progress >= 0.75 ? 16 : 8)
+    }
+    
+    private var animationDuration: Double {
+        progress >= 1.0 ? 2.0 : (progress >= 0.75 ? 4.0 : 12.0)
+    }
+    
+    private var maxRadius: CGFloat {
+        progress >= 1.0 ? Self.baseRadius * 1.5 : Self.baseRadius
+    }
     
     private func generateSparkles(count: Int, isCelebration: Bool = false) -> [Sparkle] {
         var newSparkles: [Sparkle] = []
@@ -39,7 +51,7 @@ struct AnimatedProgressRing: View {
         
         for i in 0..<count {
             let angle = Double(i) * angleStep
-            let radius = isCelebration ? baseRadius * 1.5 : baseRadius
+            let radius = isCelebration ? Self.baseRadius * 1.5 : Self.baseRadius
             let baseX = cos(angle * .pi / 180) * radius
             let baseY = sin(angle * .pi / 180) * radius
             
@@ -51,7 +63,7 @@ struct AnimatedProgressRing: View {
             )
             
             let randomColor = isCelebration ? 
-                celebrationColors[Int.random(in: 0..<celebrationColors.count)] :
+                Self.celebrationColors[Int.random(in: 0..<Self.celebrationColors.count)] :
                 .white
             
             newSparkles.append(Sparkle(
@@ -76,8 +88,7 @@ struct AnimatedProgressRing: View {
     }
     
     private func updateSparkles() {
-        let count = progress >= 1.0 ? 24 : (progress >= 0.75 ? 16 : 8)
-        sparkles = generateSparkles(count: count, isCelebration: progress >= 1.0)
+        sparkles = generateSparkles(count: sparkleCount, isCelebration: progress >= 1.0)
     }
     
     private func startCelebration() {
@@ -96,7 +107,6 @@ struct AnimatedProgressRing: View {
     }
     
     private func updateSparklePositions() {
-        let maxRadius = progress >= 1.0 ? baseRadius * 1.5 : baseRadius
         let bounceFactor: CGFloat = 0.8
         
         for i in 0..<sparkles.count {
@@ -143,7 +153,28 @@ struct AnimatedProgressRing: View {
         }
     }
     
-    var body: some View {
+    private var sparkleView: some View {
+        ForEach(sparkles) { sparkle in
+            Circle()
+                .fill(sparkle.color)
+                .frame(width: 6, height: 6)
+                .opacity(sparkle.opacity * (0.7 + 0.3 * sin(sparkle.pulsePhase * .pi / 180)))
+                .scaleEffect(sparkle.scale * (0.8 + 0.2 * sin(sparkle.pulsePhase * .pi / 180)))
+                .offset(
+                    x: sparkle.position.x + sparkle.wobbleOffset.x,
+                    y: sparkle.position.y + sparkle.wobbleOffset.y
+                )
+                .rotationEffect(.degrees(sparkle.rotation + animationPhase))
+                .animation(
+                    .linear(duration: sparkle.duration)
+                    .repeatForever(autoreverses: false)
+                    .delay(sparkle.delay),
+                    value: animationPhase
+                )
+        }
+    }
+    
+    private var ringView: some View {
         ZStack {
             // Background ring with glow
             Circle()
@@ -158,7 +189,7 @@ struct AnimatedProgressRing: View {
                     ),
                     lineWidth: 20
                 )
-                .frame(width: ringSize, height: ringSize)
+                .frame(width: Self.ringSize, height: Self.ringSize)
                 .scaleEffect(ringScale)
             
             // Progress ring
@@ -175,41 +206,30 @@ struct AnimatedProgressRing: View {
                     ),
                     style: StrokeStyle(lineWidth: 20, lineCap: .round)
                 )
-                .frame(width: ringSize, height: ringSize)
+                .frame(width: Self.ringSize, height: Self.ringSize)
                 .rotationEffect(.degrees(-90))
                 .animation(.easeInOut(duration: 0.5), value: progress)
+        }
+    }
+    
+    private var stepCountView: some View {
+        VStack(spacing: 4) {
+            Text("\(steps)")
+                .font(.system(size: 36, weight: .bold, design: .rounded))
+                .foregroundColor(.white)
+                .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 2)
             
-            // Sparkles
-            ForEach(sparkles) { sparkle in
-                Circle()
-                    .fill(sparkle.color)
-                    .frame(width: 6, height: 6)
-                    .opacity(sparkle.opacity * (0.7 + 0.3 * sin(sparkle.pulsePhase * .pi / 180)))
-                    .scaleEffect(sparkle.scale * (0.8 + 0.2 * sin(sparkle.pulsePhase * .pi / 180)))
-                    .offset(
-                        x: sparkle.position.x + sparkle.wobbleOffset.x,
-                        y: sparkle.position.y + sparkle.wobbleOffset.y
-                    )
-                    .rotationEffect(.degrees(sparkle.rotation + animationPhase))
-                    .animation(
-                        .linear(duration: sparkle.duration)
-                        .repeatForever(autoreverses: false)
-                        .delay(sparkle.delay),
-                        value: animationPhase
-                    )
-            }
-            
-            // Step count and label
-            VStack(spacing: 4) {
-                Text("\(steps)")
-                    .font(.system(size: 36, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 2)
-                
-                Text("steps")
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
-                    .foregroundColor(.white.opacity(0.8))
-            }
+            Text("steps")
+                .font(.system(size: 16, weight: .medium, design: .rounded))
+                .foregroundColor(.white.opacity(0.8))
+        }
+    }
+    
+    var body: some View {
+        ZStack {
+            ringView
+            sparkleView
+            stepCountView
         }
         .onAppear {
             updateSparkles()
@@ -245,9 +265,7 @@ struct AnimatedProgressRing: View {
     private func startRotationAnimation() {
         sparkleTimer?.invalidate()
         
-        let duration = progress >= 1.0 ? 2.0 : (progress >= 0.75 ? 4.0 : 12.0)
-        let step = 360.0 / (duration * 60) // 60 updates per second
-        
+        let step = 360.0 / (animationDuration * 60) // 60 updates per second
         sparkleTimer = Timer.scheduledTimer(withTimeInterval: 1/60, repeats: true) { _ in
             animationPhase += step
             if animationPhase >= 360 {
