@@ -5,21 +5,9 @@ enum MilestoneType: String, CaseIterable {
     case fiveDayStreak = "5-Day Streak"
     case sevenDayStreak = "7-Day Streak"
     case tenDayStreak = "10-Day Streak"
-    case halfGoal = "Half Goal"
-    case fullGoal = "Full Goal"
-    case doubleGoal = "Double Goal"
-    
-    var iconName: String {
-        switch self {
-        case .threeDayStreak: return "flame.fill"
-        case .fiveDayStreak: return "flame.fill"
-        case .sevenDayStreak: return "flame.fill"
-        case .tenDayStreak: return "flame.fill"
-        case .halfGoal: return "chart.bar.fill"
-        case .fullGoal: return "trophy.fill"
-        case .doubleGoal: return "star.fill"
-        }
-    }
+    case oneHundredTwentyFivePercent = "125% Goal"
+    case oneHundredFiftyPercent = "150% Goal"
+    case twoHundredPercent = "200% Goal"
     
     var title: String {
         switch self {
@@ -27,21 +15,33 @@ enum MilestoneType: String, CaseIterable {
         case .fiveDayStreak: return "5-Day Streak! 🔥"
         case .sevenDayStreak: return "7-Day Streak! 🔥"
         case .tenDayStreak: return "10-Day Streak! 🔥"
-        case .halfGoal: return "Halfway There! 🎯"
-        case .fullGoal: return "Goal Achieved! 🏆"
-        case .doubleGoal: return "Double Goal! ⭐️"
+        case .oneHundredTwentyFivePercent: return "125% Goal! 🎯"
+        case .oneHundredFiftyPercent: return "150% Goal! 🏆"
+        case .twoHundredPercent: return "200% Goal! ⭐️"
         }
     }
     
     var description: String {
         switch self {
-        case .threeDayStreak: return "You've walked for 3 days straight! Keep that hot girl energy going! 💃"
+        case .threeDayStreak: return "Okayyy consistency queen 👑 You've walked hot 3 days in a row."
         case .fiveDayStreak: return "5 days of consistent walking! You're unstoppable! ✨"
-        case .sevenDayStreak: return "A full week of walking! You're officially a walking queen! 👑"
+        case .sevenDayStreak: return "You just earned 7 days of main character energy. Keep slaying."
         case .tenDayStreak: return "10 days of dedication! You're a walking legend! 🌟"
-        case .halfGoal: return "You've reached 50% of your daily goal! Keep pushing! 💪"
-        case .fullGoal: return "You've crushed your daily goal! Hot girl walk complete! 🎉"
-        case .doubleGoal: return "You've doubled your goal! You're absolutely killing it! ��"
+        case .oneHundredTwentyFivePercent: return "You didn't walk. You WERKED. 125% hotness achieved."
+        case .oneHundredFiftyPercent: return "The sidewalk is jealous. 150% slay complete."
+        case .twoHundredPercent: return "NASA called. You walked straight into orbit 💫"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .threeDayStreak: return "🔥"
+        case .fiveDayStreak: return "🔥"
+        case .sevenDayStreak: return "👑"
+        case .tenDayStreak: return "🌟"
+        case .oneHundredTwentyFivePercent: return "✨"
+        case .oneHundredFiftyPercent: return "🔥"
+        case .twoHundredPercent: return "🚀"
         }
     }
 } 

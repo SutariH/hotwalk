@@ -1,45 +1,6 @@
 import Foundation
 import SwiftUI
 
-// Define milestone types
-enum MilestoneType: String, CaseIterable {
-    case threeDayStreak = "3-Day Streak"
-    case sevenDayStreak = "7-Day Streak"
-    case oneHundredTwentyFivePercent = "125% Goal"
-    case oneHundredFiftyPercent = "150% Goal"
-    case twoHundredPercent = "200% Goal"
-    
-    var message: String {
-        switch self {
-        case .threeDayStreak:
-            return "Okayyy consistency queen 👑 You've walked hot 3 days in a row."
-        case .sevenDayStreak:
-            return "You just earned 7 days of main character energy. Keep slaying."
-        case .oneHundredTwentyFivePercent:
-            return "You didn't walk. You WERKED. 125% hotness achieved."
-        case .oneHundredFiftyPercent:
-            return "The sidewalk is jealous. 150% slay complete."
-        case .twoHundredPercent:
-            return "NASA called. You walked straight into orbit 💫"
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .threeDayStreak:
-            return "🔥"
-        case .sevenDayStreak:
-            return "👑"
-        case .oneHundredTwentyFivePercent:
-            return "✨"
-        case .oneHundredFiftyPercent:
-            return "🔥"
-        case .twoHundredPercent:
-            return "🚀"
-        }
-    }
-}
-
 class MilestoneManager: ObservableObject {
     static let shared = MilestoneManager()
     

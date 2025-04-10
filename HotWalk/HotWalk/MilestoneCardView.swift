@@ -29,13 +29,13 @@ struct MilestoneCardView: View {
                 )
             
             // Title
-            Text(milestone.rawValue)
+            Text(milestone.title)
                 .font(.title)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
             
             // Description
-            Text(milestone.message)
+            Text(milestone.description)
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
