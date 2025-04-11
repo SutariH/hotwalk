@@ -16,14 +16,14 @@ struct CalendarView: View {
     @StateObject private var healthManager = HealthManager()
     @State private var currentDate = Date()
     @State private var selectedDate: Date? = nil
-    @State private var showingGoalEditor = false
-    @State private var tempGoal: String = ""
     @State private var selectedDateSteps: Int = 0
     @State private var selectedDateStatus: DayStatus = .none
     @State private var todaySteps: Int = 0
     @State private var isTransitioning: Bool = false
     @State private var stepCountCache: [Date: Int] = [:]
     @State private var isFetchingData: Bool = false
+    @State private var isInitialLoadComplete: Bool = false
+    @State private var visibleDays: Set<Date> = []
     
     private let calendar = Calendar.current
     private let daysInWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -80,6 +80,61 @@ struct CalendarView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE, MMMM d, yyyy"
         return formatter.string(from: date)
+    }
+    
+    private func loadInitialData() {
+        // First, load today's data
+        fetchDailySteps(for: Date()) { steps in
+            todaySteps = Int(steps)
+            stepCountCache[Date()] = Int(steps)
+            
+            // Then start loading the current month's data in the background
+            DispatchQueue.global(qos: .userInitiated).async {
+                prefetchMonthData()
+                DispatchQueue.main.async {
+                    isInitialLoadComplete = true
+                }
+            }
+        }
+    }
+    
+    private func loadDataForVisibleDays() {
+        let visibleDates = daysInMonth().compactMap { $0 }
+        let newDates = Set(visibleDates).subtracting(visibleDays)
+        
+        guard !newDates.isEmpty else { return }
+        
+        isFetchingData = true
+        visibleDays.formUnion(newDates)
+        
+        // Load data for newly visible days in batches
+        let batchSize = 5
+        for batch in stride(from: 0, to: newDates.count, by: batchSize) {
+            let endIndex = min(batch + batchSize, newDates.count)
+            let batchDates = Array(newDates)[batch..<endIndex]
+            
+            DispatchQueue.global(qos: .userInitiated).async {
+                let group = DispatchGroup()
+                
+                for date in batchDates {
+                    group.enter()
+                    fetchDailySteps(for: date) { steps in
+                        DispatchQueue.main.async {
+                            stepCountCache[date] = Int(steps)
+                        }
+                        group.leave()
+                    }
+                }
+                
+                group.wait()
+                
+                DispatchQueue.main.async {
+                    if batch + batchSize >= newDates.count {
+                        isFetchingData = false
+                    }
+                }
+            }
+        }
     }
     
     var body: some View {
@@ -146,6 +201,11 @@ struct CalendarView: View {
                                     wasPassUsed: HotGirlPassManager.shared.wasPassUsed(on: date),
                                     stepCount: getStepCount(for: date)
                                 )
+                                .onAppear {
+                                    if isInitialLoadComplete {
+                                        loadDataForVisibleDays()
+                                    }
+                                }
                                 .onTapGesture {
                                     withAnimation(.easeInOut(duration: 0.3)) {
                                         isTransitioning = true
@@ -346,34 +406,10 @@ struct CalendarView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(
-            leading: EmptyView(),
-            trailing: Button(action: {
-                tempGoal = String(viewModel.dailyGoal)
-                showingGoalEditor = true
-            }) {
-                Image(systemName: "gear")
-                    .foregroundColor(.white)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .accessibilityLabel("Settings")
-            }
+            leading: EmptyView()
         )
-        .sheet(isPresented: $showingGoalEditor) {
-            GoalEditorView(
-                goal: $tempGoal,
-                onSave: { newGoal in
-                    if let goal = Int(newGoal) {
-                        viewModel.dailyGoal = goal
-                        showingGoalEditor = false
-                    }
-                },
-                onCancel: { showingGoalEditor = false }
-            )
-        }
         .onAppear {
-            fetchDailySteps(for: Date()) { steps in
-                todaySteps = Int(steps)
-            }
-            prefetchMonthData()
+            loadInitialData()
         }
         .onChange(of: currentDate) { _ in
             prefetchMonthData()
@@ -602,6 +638,27 @@ struct CalendarView: View {
     private func getDailyKey(for date: Date) -> String {
         return DateFormatterManager.shared.dailyKeyFormatter.string(from: date)
     }
+    
+    private func getMonthIndex(_ date: Date) -> Int {
+        if let index = calendar.dateComponents([.month], from: date).month {
+            return index - 1
+        }
+        return 0
+    }
+    
+    private func getWeekIndex(_ date: Date) -> Int {
+        if let index = calendar.dateComponents([.weekOfMonth], from: date).weekOfMonth {
+            return index - 1
+        }
+        return 0
+    }
+    
+    private func getDayIndex(_ date: Date) -> Int {
+        if let index = calendar.dateComponents([.weekday], from: date).weekday {
+            return index - 1
+        }
+        return 0
+    }
 }
 
 struct DayCell: View {
@@ -700,50 +757,6 @@ struct DayCell: View {
             return 3
         }
         return 0
-    }
-}
-
-struct GoalEditorView: View {
-    @Binding var goal: String
-    let onSave: (String) -> Void
-    let onCancel: () -> Void
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                Text("Set Daily Goal")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                TextField("Steps", text: $goal)
-                    .keyboardType(.numberPad)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .frame(width: 200)
-                    .foregroundColor(.white)
-                    .background(Color.white.opacity(0.1))
-                    .cornerRadius(8)
-                
-                HStack(spacing: 20) {
-                    Button("Cancel") {
-                        onCancel()
-                    }
-                    .foregroundColor(.white)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .accessibilityLabel("Cancel goal editing")
-                    
-                    Button("Save") {
-                        onSave(goal)
-                    }
-                    .foregroundColor(.white)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .accessibilityLabel("Save new goal")
-                }
-            }
-            .padding()
-            .background(Color.purple.opacity(0.8))
-            .cornerRadius(15)
-        }
     }
 }
 

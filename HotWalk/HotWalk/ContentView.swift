@@ -189,8 +189,8 @@ struct ContentView: View {
                     .padding(.horizontal)
                 }
                 
-                if showingGoalEditor {
-                    goalEditorOverlay
+                .sheet(isPresented: $showingGoalEditor) {
+                    GoalEditorView(viewModel: viewModel)
                 }
                 
                 if showingMilestoneCard {
@@ -198,10 +198,9 @@ struct ContentView: View {
                 }
             }
             .navigationBarItems(trailing: Button(action: {
-                tempGoal = String(viewModel.dailyGoal)
                 showingGoalEditor = true
             }) {
-                Image(systemName: "gear")
+                Image(systemName: "pencil")
                     .foregroundColor(.white)
             })
         }
@@ -213,45 +212,6 @@ struct ContentView: View {
         .onChange(of: healthManager.steps) { newSteps in
             viewModel.steps = newSteps
         }
-    }
-    
-    private var goalEditorOverlay: some View {
-        Color.black.opacity(0.5)
-            .edgesIgnoringSafeArea(.all)
-            .onTapGesture {
-                showingGoalEditor = false
-            }
-            .overlay(
-                VStack(spacing: 20) {
-                    Text("Set Daily Goal")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    
-                        TextField("Steps", text: $tempGoal)
-                            .keyboardType(.numberPad)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .frame(width: 200)
-                    
-                    HStack(spacing: 20) {
-                        Button("Cancel") {
-                            showingGoalEditor = false
-                        }
-                        .foregroundColor(.white)
-                        
-                        Button("Save") {
-                            if let newGoal = Int(tempGoal) {
-                                viewModel.dailyGoal = newGoal
-                                showingGoalEditor = false
-                            }
-                        }
-                        .foregroundColor(.white)
-                    }
-                }
-                .padding()
-                .background(Color.purple.opacity(0.8))
-                .cornerRadius(15)
-            )
     }
     
     private var milestoneCardOverlay: some View {
