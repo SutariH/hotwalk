@@ -3,7 +3,7 @@ import SwiftUI
 struct CelebrationView: View {
     @State private var sparkles: [Sparkle] = []
     @State private var isVisible = false
-    @State private var explosionPhase = 0 // 0: initial, 1: explosion, 2: simmering
+    @State private var explosionPhase = 0 // Unused: Not used in current implementation
     let onComplete: () -> Void
     
     struct Sparkle: Identifiable {

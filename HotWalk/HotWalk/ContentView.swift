@@ -112,7 +112,7 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-            ZStack {
+        ZStack {
                 LinearGradient(
                     gradient: Gradient(colors: [
                         Color(red: 44/255, green: 8/255, blue: 52/255),
@@ -123,7 +123,7 @@ struct ContentView: View {
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
-                
+            
                 ScrollView {
                     VStack(spacing: 40) {
                         Image("HotGirlStepsLogo")
@@ -228,8 +228,8 @@ struct ContentView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                     
-                    TextField("Steps", text: $tempGoal)
-                        .keyboardType(.numberPad)
+                        TextField("Steps", text: $tempGoal)
+                            .keyboardType(.numberPad)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .frame(width: 200)
                     
@@ -275,7 +275,7 @@ struct ContentView: View {
             )
     }
     
-    private func setupNavigationBar() {
+    private func setupNavigationBar() { // Unused: Not called anywhere in the app
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithTransparentBackground()
         navBarAppearance.backgroundColor = .clear
@@ -382,7 +382,7 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-}
+} 
 
 struct ScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {

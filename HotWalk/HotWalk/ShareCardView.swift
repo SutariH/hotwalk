@@ -3,7 +3,7 @@ import SwiftUI
 struct ShareCardView: View {
     let steps: Int
     let goalPercentage: Int
-    let message: String
+    let message: String // Unused: Parameter not used in view's body
     let dailyGoal: Int
     
     var body: some View {

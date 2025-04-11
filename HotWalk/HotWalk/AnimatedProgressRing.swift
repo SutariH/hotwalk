@@ -53,14 +53,14 @@ struct AnimatedProgressRing: View {
     let progress: Double
     let steps: Int
     
-    @State private var ringScale: CGFloat = 1.0
+    @State private var ringScale: CGFloat = 1.0 // Unused: Not actively used in animations
     @State private var ringGlowOpacity: Double = 0.3
     @State private var ringGlowWidth: CGFloat = 20
     @State private var ringBlur: CGFloat = 1
     @State private var sparkleScale: CGFloat = 1.0
     @State private var sparkleOpacity: Double = 0.0
     @State private var sparklePositions: [CGPoint] = []
-    @State private var sparkleTargets: [CGPoint] = []
+    @State private var sparkleTargets: [CGPoint] = [] // Unused: Declared but never used
     @State private var pulseScale: CGFloat = 1.0
     @State private var glowColor: Color = .white
     

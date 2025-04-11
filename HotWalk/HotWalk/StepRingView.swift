@@ -1,5 +1,6 @@
 import SwiftUI
 
+// Unused: This view has been replaced by AnimatedProgressRing
 struct StepRingView: View {
     let progress: Double
     
