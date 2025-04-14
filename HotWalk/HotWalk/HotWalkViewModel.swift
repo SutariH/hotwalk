@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-class HotWalkViewModel: ObservableObject {
+class HotGirlStepsViewModel: ObservableObject {
     @Published var dailyGoal: Int {
         didSet {
             UserDefaults.standard.set(dailyGoal, forKey: "dailyGoal")

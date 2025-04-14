@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var healthManager = HealthManager()
-    @StateObject private var viewModel = HotWalkViewModel()
+    @StateObject private var viewModel = HotGirlStepsViewModel()
     @State private var showingGoalEditor = false
     @State private var tempGoal: String = ""
     @State private var showHotGirlPassMessage = false
@@ -325,9 +325,13 @@ struct ContentView: View {
             
             // Configure for iPad
             if let popoverController = activityVC.popoverPresentationController {
-                popoverController.sourceView = UIApplication.shared.windows.first?.rootViewController?.view
-                popoverController.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2, width: 0, height: 0)
-                popoverController.permittedArrowDirections = []
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let window = windowScene.windows.first,
+                   let rootView = window.rootViewController?.view {
+                    popoverController.sourceView = rootView
+                    popoverController.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2, width: 0, height: 0)
+                    popoverController.permittedArrowDirections = []
+                }
             }
             
             // Present the share sheet

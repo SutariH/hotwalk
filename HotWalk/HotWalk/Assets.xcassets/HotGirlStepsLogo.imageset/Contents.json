@@ -2,7 +2,18 @@
   "images" : [
     {
       "filename" : "HotGirlStepsLogo.pdf",
-      "idiom" : "universal"
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "HotGirlStepsLogo 1.pdf",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "HotGirlStepsLogo 2.pdf",
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {

@@ -12,7 +12,7 @@ enum DayStatus {
 
 struct CalendarView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var viewModel = HotWalkViewModel()
+    @StateObject private var viewModel = HotGirlStepsViewModel()
     @StateObject private var healthManager = HealthManager()
     @State private var currentDate = Date()
     @State private var selectedDate: Date? = nil

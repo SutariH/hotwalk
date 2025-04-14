@@ -2,14 +2,14 @@ import SwiftUI
 
 struct GoalEditorView: View {
     @Environment(\.dismiss) private var dismiss
-    @ObservedObject var viewModel: HotWalkViewModel
+    @ObservedObject var viewModel: HotGirlStepsViewModel
     @State private var tempGoal: String
     @State private var selectedPreset: Int?
     @State private var isEditing = false
     
     private let presets = [5000, 7500, 10000, 12500, 15000]
     
-    init(viewModel: HotWalkViewModel) {
+    init(viewModel: HotGirlStepsViewModel) {
         self.viewModel = viewModel
         _tempGoal = State(initialValue: String(viewModel.dailyGoal))
     }
@@ -171,5 +171,5 @@ struct GoalEditorView: View {
 }
 
 #Preview {
-    GoalEditorView(viewModel: HotWalkViewModel())
+    GoalEditorView(viewModel: HotGirlStepsViewModel())
 } 

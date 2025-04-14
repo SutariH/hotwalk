@@ -1,4 +1,4 @@
-# Hot Walk 🦶
+# Hot Girl Steps 🦶
 
 A fun and motivational step tracking app that helps you reach your daily walking goals with style!
 
@@ -30,4 +30,4 @@ A fun and motivational step tracking app that helps you reach your daily walking
 
 ## Privacy
 
-Hot Walk only requests read access to your step count data through HealthKit. No data is stored or transmitted outside of your device. 
+Hot Girl Steps only requests read access to your step count data through HealthKit. No data is stored or transmitted outside of your device. 

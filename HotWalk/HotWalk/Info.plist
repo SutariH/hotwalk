@@ -2,51 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <!-- HealthKit Permissions -->
-    <key>NSHealthShareUsageDescription</key>
-    <string>Hot Walk needs access to your step count to track your daily progress and provide motivation.</string>
-    <key>NSHealthUpdateUsageDescription</key>
-    <string>Hot Walk needs access to your step count to track your daily progress and provide motivation.</string>
-    
-    <!-- App Information -->
-    <key>CFBundleDisplayName</key>
-    <string>Hot Walk</string>
-    <key>CFBundleName</key>
-    <string>Hot Walk</string>
-    <key>CFBundleIdentifier</key>
-    <string>com.yourdomain.hotwalk</string>
-    <key>CFBundleVersion</key>
-    <string>1.0</string>
-    <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
-    
-    <!-- Required Device Capabilities -->
-    <key>UIRequiredDeviceCapabilities</key>
-    <array>
-        <string>armv7</string>
-    </array>
-    
-    <!-- Supported Interface Orientations -->
-    <key>UISupportedInterfaceOrientations</key>
-    <array>
-        <string>UIInterfaceOrientationPortrait</string>
-    </array>
-    
-    <!-- Launch Screen -->
-    <key>UILaunchStoryboardName</key>
-    <string>LaunchScreen</string>
-    
-    <!-- Privacy Descriptions -->
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>Hot Walk needs access to your photo library to save and share your achievements.</string>
-    <key>NSCameraUsageDescription</key>
-    <string>Hot Walk needs access to your camera to take photos for sharing achievements.</string>
-    
-    <!-- App Transport Security -->
-    <key>NSAppTransportSecurity</key>
-    <dict>
-        <key>NSAllowsArbitraryLoads</key>
-        <true/>
-    </dict>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
-</plist> 
+</plist>

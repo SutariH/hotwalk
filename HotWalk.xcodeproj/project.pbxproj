@@ -11,6 +11,7 @@
 		1A1A1A1A1A1A1A1A1A1A1A1C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1A1A1A1A1A1A1A1A1A1A1D /* ContentView.swift */; };
 		1A1A1A1A1A1A1A1A1A1A1A1E /* HealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1A1A1A1A1A1A1A1A1A1A1F /* HealthManager.swift */; };
 		1A1A1A1A1A1A1A1A1A1A1A20 /* HotWalkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1A1A1A1A1A1A1A1A1A1A21 /* HotWalkViewModel.swift */; };
+		7447F07D2DAD63C600E9AA92 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7447F07C2DAD63C600E9AA92 /* Assets.xcassets */; };
 		744928C62DA55C18008E5010 /* MotivationalMessageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928C52DA55C18008E5010 /* MotivationalMessageManager.swift */; };
 		744928C82DA55E60008E5010 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928C72DA55E60008E5010 /* StreakManager.swift */; };
 		744928CA2DA56320008E5010 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928C92DA56320008E5010 /* CalendarView.swift */; };
@@ -24,9 +25,9 @@
 		744E65542DA70DC100E7730C /* AnimatedProgressRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744E65532DA70DC100E7730C /* AnimatedProgressRing.swift */; };
 		74DAAC172DA7D84400B3AA7D /* DateFormatterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74DAAC162DA7D84300B3AA7D /* DateFormatterManager.swift */; };
 		74DAAC1B2DA7E43700B3AA7D /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74DAAC1A2DA7E43700B3AA7D /* ShareCardView.swift */; };
-		74DAAC222DA85AD000B3AA7D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 74DAAC1F2DA85AD000B3AA7D /* Assets.xcassets */; };
 		74DAAC232DA85AD000B3AA7D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 74DAAC202DA85AD000B3AA7D /* LaunchScreen.storyboard */; };
 		74DAAC242DA85AD000B3AA7D /* MilestoneType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74DAAC212DA85AD000B3AA7D /* MilestoneType.swift */; };
+		74DAAC282DA91FDB00B3AA7D /* GoalEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74DAAC272DA91FDB00B3AA7D /* GoalEditorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +38,7 @@
 		1A1A1A1A1A1A1A1A1A1A1A22 /* HotWalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HotWalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A1A1A1A1A1A1A1A1A1A1A23 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1A1A1A1A1A1A1A1A1A1A1A32 /* HotWalk.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HotWalk.entitlements; sourceTree = "<group>"; };
+		7447F07C2DAD63C600E9AA92 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		744928C52DA55C18008E5010 /* MotivationalMessageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotivationalMessageManager.swift; sourceTree = "<group>"; };
 		744928C72DA55E60008E5010 /* StreakManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
 		744928C92DA56320008E5010 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
@@ -50,9 +52,9 @@
 		744E65532DA70DC100E7730C /* AnimatedProgressRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedProgressRing.swift; sourceTree = "<group>"; };
 		74DAAC162DA7D84300B3AA7D /* DateFormatterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatterManager.swift; sourceTree = "<group>"; };
 		74DAAC1A2DA7E43700B3AA7D /* ShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardView.swift; sourceTree = "<group>"; };
-		74DAAC1F2DA85AD000B3AA7D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		74DAAC202DA85AD000B3AA7D /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		74DAAC212DA85AD000B3AA7D /* MilestoneType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneType.swift; sourceTree = "<group>"; };
+		74DAAC272DA91FDB00B3AA7D /* GoalEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalEditorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,13 +97,13 @@
 			children = (
 				744928D22DA5A361008E5010 /* CelebrationView.swift */,
 				744E654C2DA705B700E7730C /* AffirmationCardView.swift */,
-				74DAAC1F2DA85AD000B3AA7D /* Assets.xcassets */,
 				74DAAC202DA85AD000B3AA7D /* LaunchScreen.storyboard */,
 				74DAAC212DA85AD000B3AA7D /* MilestoneType.swift */,
 				744E654D2DA705B700E7730C /* AffirmationManager.swift */,
 				744928C52DA55C18008E5010 /* MotivationalMessageManager.swift */,
 				1A1A1A1A1A1A1A1A1A1A1A1B /* HotWalkApp.swift */,
 				1A1A1A1A1A1A1A1A1A1A1A1D /* ContentView.swift */,
+				7447F07C2DAD63C600E9AA92 /* Assets.xcassets */,
 				74DAAC1A2DA7E43700B3AA7D /* ShareCardView.swift */,
 				744E65512DA706CE00E7730C /* StepRingView.swift */,
 				74DAAC162DA7D84300B3AA7D /* DateFormatterManager.swift */,
@@ -112,6 +114,7 @@
 				744928CE2DA5709D008E5010 /* MilestoneManager.swift */,
 				744928CB2DA567AA008E5010 /* HotGirlPassManager.swift */,
 				744928C92DA56320008E5010 /* CalendarView.swift */,
+				74DAAC272DA91FDB00B3AA7D /* GoalEditorView.swift */,
 				744928C72DA55E60008E5010 /* StreakManager.swift */,
 				1A1A1A1A1A1A1A1A1A1A1A23 /* Info.plist */,
 				1A1A1A1A1A1A1A1A1A1A1A32 /* HotWalk.entitlements */,
@@ -177,7 +180,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				74DAAC222DA85AD000B3AA7D /* Assets.xcassets in Resources */,
+				7447F07D2DAD63C600E9AA92 /* Assets.xcassets in Resources */,
 				74DAAC232DA85AD000B3AA7D /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -206,6 +209,7 @@
 				744928CF2DA5709D008E5010 /* MilestoneManager.swift in Sources */,
 				744928D02DA5709D008E5010 /* MilestoneCardView.swift in Sources */,
 				744E65542DA70DC100E7730C /* AnimatedProgressRing.swift in Sources */,
+				74DAAC282DA91FDB00B3AA7D /* GoalEditorView.swift in Sources */,
 				744928C82DA55E60008E5010 /* StreakManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -334,29 +338,42 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = HotWalk/HotWalk/HotWalk.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = ZHWF7QY98A;
+				DEVELOPMENT_TEAM = 7A2Z4NZF9X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HotWalk/HotWalk/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Hot Girl Steps ";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Hot Girl Steps needs access to your camera to take photos for sharing achievements.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Hot Girl Steps needs access to your step count to track your daily progress and provide motivation.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hot Girl Steps needs access to your step count to track your daily progress and provide motivation.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Hot Girl Steps needs access to your photo library to save and share your achievements.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UIStatusBarStyle = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.HotWalk;
+				PRODUCT_BUNDLE_IDENTIFIER = fi.vimdigital.HotGirlSteps;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -365,29 +382,42 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = HotWalk/HotWalk/HotWalk.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = ZHWF7QY98A;
+				DEVELOPMENT_TEAM = 7A2Z4NZF9X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HotWalk/HotWalk/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Hot Girl Steps ";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Hot Girl Steps needs access to your camera to take photos for sharing achievements.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Hot Girl Steps needs access to your step count to track your daily progress and provide motivation.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hot Girl Steps needs access to your step count to track your daily progress and provide motivation.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Hot Girl Steps needs access to your photo library to save and share your achievements.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UIStatusBarStyle = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.HotWalk;
+				PRODUCT_BUNDLE_IDENTIFIER = fi.vimdigital.HotGirlSteps;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
