@@ -64,12 +64,6 @@ class HotGirlPassManager {
         let lastCheck = defaults.object(forKey: lastMidnightCheckKey) as? Date ?? Date()
         let currentDate = Date()
         
-        // Only proceed if we haven't checked today
-        guard !calendar.isDateInToday(lastCheck) else {
-            print("⚠️ Already checked today")
-            return false
-        }
-        
         // Get yesterday's date
         guard let yesterday = calendar.date(byAdding: .day, value: -1, to: currentDate) else {
             print("⚠️ Could not get yesterday's date")
@@ -91,7 +85,13 @@ class HotGirlPassManager {
         // If we have passes and goal wasn't met, use a pass
         if currentPassCount > 0 {
             print("💌 Using pass for yesterday")
-            return usePass(for: yesterday)
+            let success = usePass(for: yesterday)
+            if success {
+                // Update last check time only if pass was successfully used
+                defaults.set(currentDate, forKey: lastMidnightCheckKey)
+                defaults.synchronize()
+            }
+            return success
         }
         
         print("⚠️ No passes available")
@@ -104,14 +104,21 @@ class HotGirlPassManager {
         let newCount = currentPassCount - 1
         let dateString = getDailyKey(for: date)
         
-        UserDefaults.standard.set(newCount, forKey: passesKey)
+        // Update pass count
+        defaults.set(newCount, forKey: passesKey)
         
-        var usedPasses = UserDefaults.standard.stringArray(forKey: usedPassesKey) ?? []
-        usedPasses.append(dateString)
-        UserDefaults.standard.set(usedPasses, forKey: usedPassesKey)
+        // Add to used passes
+        var usedPasses = defaults.stringArray(forKey: usedPassesKey) ?? []
+        if !usedPasses.contains(dateString) {
+            usedPasses.append(dateString)
+            defaults.set(usedPasses, forKey: usedPassesKey)
+        }
         
-        UserDefaults.standard.set(Date(), forKey: lastMidnightCheckKey)
-        UserDefaults.standard.synchronize()
+        // Update last pass used date
+        defaults.set(date, forKey: lastPassUsedKey)
+        
+        // Ensure changes are saved
+        defaults.synchronize()
         
         return true
     }
