@@ -229,7 +229,7 @@ struct ContentView: View {
                         }
                     },
                     onShare: {
-                        shareMilestone()
+                        shareMilestoneCard()
                     }
                 )
             )
@@ -308,6 +308,84 @@ struct ContentView: View {
             let activityItems: [Any] = [
                 image,
                 "Check out my Hot Girl Steps! 🚶‍♀️✨ #HotGirlWalk"
+            ]
+            
+            // Create activity view controller
+            let activityVC = UIActivityViewController(
+                activityItems: activityItems,
+                applicationActivities: nil
+            )
+            
+            // Exclude some activity types that might cause issues
+            activityVC.excludedActivityTypes = [
+                .assignToContact,
+                .addToReadingList,
+                .openInIBooks
+            ]
+            
+            // Configure for iPad
+            if let popoverController = activityVC.popoverPresentationController {
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let window = windowScene.windows.first,
+                   let rootView = window.rootViewController?.view {
+                    popoverController.sourceView = rootView
+                    popoverController.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2, width: 0, height: 0)
+                    popoverController.permittedArrowDirections = []
+                }
+            }
+            
+            // Present the share sheet
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first,
+               let rootVC = window.rootViewController {
+                rootVC.present(activityVC, animated: true)
+            }
+        }
+    }
+    
+    private func shareMilestoneCard() {
+        // Create the milestone card view
+        let milestoneCard = MilestoneCardView(
+            milestone: currentMilestone ?? .threeDayStreak,
+            onClose: {},
+            onShare: {}
+        )
+        
+        // Convert the view to an image
+        let image: UIImage?
+        
+        if #available(iOS 16.0, *) {
+            // Use ImageRenderer for iOS 16+
+            let renderer = ImageRenderer(content: milestoneCard)
+            renderer.scale = UIScreen.main.scale
+            image = renderer.uiImage
+        } else if #available(iOS 10.0, *) {
+            // Use UIGraphicsImageRenderer for iOS 10-15
+            let renderer = UIGraphicsImageRenderer(size: CGSize(width: 350, height: 500))
+            image = renderer.image { context in
+                let hostingController = UIHostingController(rootView: milestoneCard)
+                hostingController.view.frame = CGRect(x: 0, y: 0, width: 350, height: 500)
+                hostingController.view.backgroundColor = .clear
+                hostingController.view.drawHierarchy(in: hostingController.view.bounds, afterScreenUpdates: true)
+            }
+        } else {
+            // Fallback for iOS 9 and earlier
+            let size = CGSize(width: 350, height: 500)
+            UIGraphicsBeginImageContextWithOptions(size, false, UIScreen.main.scale)
+            let hostingController = UIHostingController(rootView: milestoneCard)
+            hostingController.view.frame = CGRect(x: 0, y: 0, width: 350, height: 500)
+            hostingController.view.backgroundColor = .clear
+            hostingController.view.drawHierarchy(in: hostingController.view.bounds, afterScreenUpdates: true)
+            image = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+        }
+        
+        // Share the image
+        if let image = image {
+            // Create activity items
+            let activityItems: [Any] = [
+                image,
+                "I just achieved \(currentMilestone?.title ?? "a milestone") in Hot Girl Steps! 🚶‍♀️✨ #HotGirlWalk"
             ]
             
             // Create activity view controller
