@@ -98,6 +98,74 @@ class HotGirlPassManager {
         return false
     }
     
+    // New function to handle multiple consecutive missed days
+    func checkAndApplyPassesForMissedDays(since lastSuccessDate: Date?, currentDate: Date = Date()) -> Bool {
+        guard let lastSuccess = lastSuccessDate else {
+            print("⚠️ No last success date available")
+            return false
+        }
+        
+        let calendar = Calendar.current
+        let lastSuccessDay = calendar.startOfDay(for: lastSuccess)
+        let today = calendar.startOfDay(for: currentDate)
+        
+        // Calculate days between last success and today
+        guard let daysBetween = calendar.dateComponents([.day], from: lastSuccessDay, to: today).day,
+              daysBetween > 1 else {
+            print("✅ No missed days to check")
+            return false
+        }
+        
+        var anyPassUsed = false
+        var currentPasses = currentPassCount
+        
+        // Loop through each missed day
+        for dayOffset in 1..<daysBetween {
+            guard let missedDate = calendar.date(byAdding: .day, value: dayOffset, to: lastSuccessDay) else {
+                continue
+            }
+            
+            // Skip if pass was already used for this day
+            if wasPassUsed(on: missedDate) {
+                continue
+            }
+            
+            // Get steps for the missed day
+            let dateString = getDailyKey(for: missedDate)
+            let steps = defaults.integer(forKey: "steps_\(dateString)")
+            let goal = defaults.integer(forKey: "dailyGoal")
+            
+            // Skip if no step data available
+            guard steps > 0, goal > 0 else {
+                continue
+            }
+            
+            // Check if goal was met
+            if Double(steps) >= Double(goal) {
+                continue
+            }
+            
+            // Use pass if available
+            if currentPasses > 0 {
+                if usePass(for: missedDate) {
+                    currentPasses -= 1
+                    anyPassUsed = true
+                    print("💌 Used pass for \(dateString)")
+                }
+            } else {
+                print("⚠️ No passes available for \(dateString)")
+                break
+            }
+        }
+        
+        if anyPassUsed {
+            defaults.set(currentDate, forKey: lastMidnightCheckKey)
+            defaults.synchronize()
+        }
+        
+        return anyPassUsed
+    }
+    
     func usePass(for date: Date) -> Bool {
         guard currentPassCount > 0 else { return false }
         

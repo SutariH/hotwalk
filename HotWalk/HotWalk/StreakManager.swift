@@ -18,7 +18,7 @@ class StreakManager {
         }
     }
     
-    private var lastSuccessDate: Date? {
+    var lastSuccessDate: Date? {
         get {
             return userDefaults.object(forKey: lastSuccessDateKey) as? Date
         }
@@ -42,13 +42,21 @@ class StreakManager {
             } else if calendar.isDate(lastSuccessDay, equalTo: today, toGranularity: .day) {
                 // Same day, do nothing
                 return
-            } else if let daysBetween = calendar.dateComponents([.day], from: lastSuccessDay, to: today).day,
-                      daysBetween == 1 {
-                // Next day, increment streak
-                currentStreak += 1
-            } else {
-                // More than one day gap, reset streak
-                currentStreak = 1
+            } else if let daysBetween = calendar.dateComponents([.day], from: lastSuccessDay, to: today).day {
+                if daysBetween == 1 {
+                    // Next day, increment streak
+                    currentStreak += 1
+                } else {
+                    // Check if passes were used for missed days
+                    let hotGirlPassManager = HotGirlPassManager.shared
+                    if hotGirlPassManager.checkAndApplyPassesForMissedDays(since: lastSuccess) {
+                        // Passes were used, maintain streak
+                        currentStreak += 1
+                    } else {
+                        // No passes available, reset streak
+                        currentStreak = 1
+                    }
+                }
             }
         } else {
             // First time reaching goal

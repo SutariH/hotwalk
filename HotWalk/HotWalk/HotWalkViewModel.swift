@@ -45,10 +45,11 @@ class HotGirlStepsViewModel: ObservableObject {
             return
         }
         
-        // Check and apply pass if needed
-        if HotGirlPassManager.shared.checkAndApplyPassForPreviousDay(steps: yesterdaySteps, goal: dailyGoal) {
+        // Check for multiple missed days
+        let lastSuccessDate = StreakManager.shared.lastSuccessDate
+        if HotGirlPassManager.shared.checkAndApplyPassesForMissedDays(since: lastSuccessDate) {
             DispatchQueue.main.async {
-                self.hotGirlPassMessage = "Your Hot Girl Pass saved your streak from yesterday 💌"
+                self.hotGirlPassMessage = "Your Hot Girl Pass saved your streak! 💌"
             }
         }
     }
