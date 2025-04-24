@@ -23,6 +23,7 @@
 		744E654F2DA705B800E7730C /* AffirmationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744E654D2DA705B700E7730C /* AffirmationManager.swift */; };
 		744E65522DA706CE00E7730C /* StepRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744E65512DA706CE00E7730C /* StepRingView.swift */; };
 		744E65542DA70DC100E7730C /* AnimatedProgressRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744E65532DA70DC100E7730C /* AnimatedProgressRing.swift */; };
+		74BC993A2DBAB26600FA1049 /* BackgroundHealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74BC99392DBAB26500FA1049 /* BackgroundHealthManager.swift */; };
 		74DAAC172DA7D84400B3AA7D /* DateFormatterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74DAAC162DA7D84300B3AA7D /* DateFormatterManager.swift */; };
 		74DAAC1B2DA7E43700B3AA7D /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74DAAC1A2DA7E43700B3AA7D /* ShareCardView.swift */; };
 		74DAAC232DA85AD000B3AA7D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 74DAAC202DA85AD000B3AA7D /* LaunchScreen.storyboard */; };
@@ -50,6 +51,7 @@
 		744E654D2DA705B700E7730C /* AffirmationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationManager.swift; sourceTree = "<group>"; };
 		744E65512DA706CE00E7730C /* StepRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepRingView.swift; sourceTree = "<group>"; };
 		744E65532DA70DC100E7730C /* AnimatedProgressRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedProgressRing.swift; sourceTree = "<group>"; };
+		74BC99392DBAB26500FA1049 /* BackgroundHealthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundHealthManager.swift; sourceTree = "<group>"; };
 		74DAAC162DA7D84300B3AA7D /* DateFormatterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatterManager.swift; sourceTree = "<group>"; };
 		74DAAC1A2DA7E43700B3AA7D /* ShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardView.swift; sourceTree = "<group>"; };
 		74DAAC202DA85AD000B3AA7D /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 				1A1A1A1A1A1A1A1A1A1A1A1F /* HealthManager.swift */,
 				1A1A1A1A1A1A1A1A1A1A1A21 /* HotWalkViewModel.swift */,
 				744928CD2DA5709D008E5010 /* MilestoneCardView.swift */,
+				74BC99392DBAB26500FA1049 /* BackgroundHealthManager.swift */,
 				744928CE2DA5709D008E5010 /* MilestoneManager.swift */,
 				744928CB2DA567AA008E5010 /* HotGirlPassManager.swift */,
 				744928C92DA56320008E5010 /* CalendarView.swift */,
@@ -205,6 +208,7 @@
 				744E654F2DA705B800E7730C /* AffirmationManager.swift in Sources */,
 				1A1A1A1A1A1A1A1A1A1A1A1A /* HotWalkApp.swift in Sources */,
 				744928CC2DA567AA008E5010 /* HotGirlPassManager.swift in Sources */,
+				74BC993A2DBAB26600FA1049 /* BackgroundHealthManager.swift in Sources */,
 				744928D32DA5A361008E5010 /* CelebrationView.swift in Sources */,
 				744928CF2DA5709D008E5010 /* MilestoneManager.swift in Sources */,
 				744928D02DA5709D008E5010 /* MilestoneCardView.swift in Sources */,

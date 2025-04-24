@@ -20,8 +20,13 @@ struct MilestoneCardView: View {
     ]
     
     // Random tagline generator
-    private var randomTagline: String {
-        shareTaglines.randomElement() ?? "🔥 Crushing goals like a boss!"
+    @State private var currentTagline: String
+    
+    init(milestone: MilestoneType, onClose: @escaping () -> Void, onShare: @escaping () -> Void) {
+        self.milestone = milestone
+        self.onClose = onClose
+        self.onShare = onShare
+        _currentTagline = State(initialValue: shareTaglines.randomElement() ?? "🔥 Crushing goals like a boss!")
     }
     
     var body: some View {
@@ -104,14 +109,18 @@ struct MilestoneCardView: View {
                 .foregroundColor(.white.opacity(0.9))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
+                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(nil)
             
             // Share Message
-            Text(randomTagline)
+            Text(currentTagline)
                 .font(.system(size: 20, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
                 .padding(.top, 10)
+                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(nil)
             
             // App Logo
             Image("HotGirlStepsLogo")

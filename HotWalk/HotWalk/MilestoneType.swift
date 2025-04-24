@@ -23,7 +23,7 @@ enum MilestoneType: String, CaseIterable {
     
     var description: String {
         switch self {
-        case .threeDayStreak: return "Okayyy consistency queen 👑 You've walked hot 3 days in a row."
+        case .threeDayStreak: return "Okayyy consistency queen 👑 You've walked 3 days in a row."
         case .fiveDayStreak: return "5 days of consistent walking! You're unstoppable! ✨"
         case .sevenDayStreak: return "You just earned 7 days of main character energy. Keep slaying."
         case .tenDayStreak: return "10 days of dedication! You're a walking legend! 🌟"
