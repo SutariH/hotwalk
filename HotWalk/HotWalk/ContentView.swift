@@ -1,4 +1,6 @@
 import SwiftUI
+import FirebaseFirestore
+import UserNotifications
 
 struct ContentView: View {
     @StateObject private var healthManager = HealthManager()
@@ -11,6 +13,7 @@ struct ContentView: View {
     @State private var isShowingAffirmation = false
     @State private var rotationAngle: Double = 0
     @State private var currentAffirmation = ""
+    @State private var hasRequestedNotifications = false
     
     // Share CTA messages - moved to static property
     private static let shareCTAMessages = [
@@ -112,7 +115,7 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-        ZStack {
+            ZStack {
                 LinearGradient(
                     gradient: Gradient(colors: [
                         Color(red: 44/255, green: 8/255, blue: 52/255),
@@ -123,7 +126,7 @@ struct ContentView: View {
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
-            
+                
                 ScrollView {
                     VStack(spacing: 40) {
                         Image("HotGirlStepsLogo")
@@ -208,6 +211,15 @@ struct ContentView: View {
             setupNavigationBar()
             healthManager.fetchTodaySteps()
             setupStepUpdateTimer()
+            
+            // Request notification permissions if not already requested
+            if !hasRequestedNotifications {
+                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+                    DispatchQueue.main.async {
+                        hasRequestedNotifications = true
+                    }
+                }
+            }
         }
         .onChange(of: healthManager.steps) { newSteps in
             viewModel.steps = newSteps
@@ -235,7 +247,7 @@ struct ContentView: View {
             )
     }
     
-    private func setupNavigationBar() { // Unused: Not called anywhere in the app
+    private func setupNavigationBar() {
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithTransparentBackground()
         navBarAppearance.backgroundColor = .clear
@@ -424,7 +436,7 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-} 
+}
 
 struct ScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {

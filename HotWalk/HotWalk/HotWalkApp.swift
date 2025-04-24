@@ -1,12 +1,25 @@
 import SwiftUI
+import FirebaseCore
 
 @main
 struct HotWalkApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    
+    init() {
+        FirebaseApp.configure()
+    }
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if !hasCompletedOnboarding {
+                OnboardingView()
+                    .onDisappear {
+                        hasCompletedOnboarding = true
+                    }
+            } else {
+                ContentView()
+            }
         }
     }
 }
