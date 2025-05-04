@@ -8,10 +8,20 @@ class BackgroundHealthManager: ObservableObject {
     private let healthStore = HKHealthStore()
     private let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
     private let userDefaults = UserDefaults.standard
-    private let lastNotificationKey = "last50PercentNotificationDate"
+    private let lastNotificationKey = "lastNotificationDate"
+    private let lastMessageKey = "lastNotificationMessage"
     
-    private let motivational50Messages = [
-        "You're 50% there and already 100% iconic.",
+    // Notification thresholds
+    private let notificationThresholds: [(percentage: Double, key: String)] = [
+        (0.5, "last50PercentNotificationDate"),
+        (0.8, "last80PercentNotificationDate"),
+        (1.0, "last100PercentNotificationDate")
+    ]
+    
+    // Motivational messages for each milestone
+    private let motivationalMessages: [Double: [String]] = [
+        0.5: [
+            "You're 50% there and already 100% iconic.",
             "Halfway, honey. Time to sashay the rest of that sidewalk.",
             "Midway through the walk, fully in your power.",
             "50% done? Baby, the glow-up is in motion.",
@@ -20,51 +30,37 @@ class BackgroundHealthManager: ObservableObject {
             "That was the warm-up, darling. Let's give them something to gag on.",
             "50% of your steps and 100% that baddie.",
             "Halfway down the street, halfway to legendary.",
-            "You just hit 50% — now flip your hair and finish strong.",
-            "Midway milestone unlocked. The rest is your runway.",
-            "You're only halfway but already turning heads.",
-            "50% done? That walk is giving main character energy.",
-            "Slayed half the day's steps — now let's dominate the rest.",
-            "Halfway there and not a single step wasted.",
-            "Keep going, hot stuff. The strut's just getting started.",
-            "You're 50% in and fully serving.",
-            "Half the steps, all the sparkle.",
-            "You're halfway and the sidewalk is still trembling.",
-            "Strutting into part two like a queen late to brunch.",
-            "Midway? Mood: unstoppable.",
-            "Halfway through and you're still a 10 outta 10.",
-            "50% in and still giving life with every step.",
-            "You've got that halfway hustle, baby.",
-            "Half a walk, whole lotta hotness.",
-            "The glow is getting stronger — you're at 50%!",
-            "Half the steps, full throttle fab.",
-            "You're halfway, and honestly? The ground's lucky to feel your footsteps.",
-            "Halfway mark: hit. Aura: unmatched.",
-            "You + 50% progress = absolute slay.",
-            "Midway and still walking like you're holding a crown.",
-            "Keep strutting — the world isn't ready for 100% you.",
-            "Halfway steps but already legendary vibes.",
-            "Only halfway? Feels like you've already conquered the world.",
-            "Half your goal met. Full glam energy detected.",
-            "You're halfway there. Now channel Beyoncé and finish it out.",
-            "50% = the foreplay. Let's get to the main event.",
-            "Halfway. Fabulous. Fierce. Finish it.",
-            "Halfway and looking like a fitness goddess.",
-            "50% down and radiating pure slay.",
-            "Midway point reached. Now give 'em face, legs, and power.",
-            "Halfway done? The world's just catching up to your pace.",
-            "50% means the confetti is loading...",
-            "That halfway mark never looked so hot.",
-            "Halfway and hotter than a fresh blowout.",
-            "You've made it halfway — now turn this walk into a performance.",
-            "That's 50% of your goal and 100% sparkle.",
-            "Halfway steps = halfway to Hot Girl legend status.",
-            "You've hit 50%, now unleash the rest of the slay.",
-            "Halfway there, and still not a single step wasted. You absolute queen."
+            "You just hit 50% — now flip your hair and finish strong."
+        ],
+        0.8: [
+            "80% there and serving absolute excellence!",
+            "Almost there, queen! The finish line is your runway.",
+            "80% done? More like 100% slayage in progress.",
+            "You're at 80% and the sidewalk is still trembling!",
+            "Almost to the finish line, and you're still giving main character energy.",
+            "80% of your goal met, 100% of the world's attention captured.",
+            "The final stretch is here, and you're walking it like you own it.",
+            "80% down, but your energy is at 200%!",
+            "Almost there, hot stuff! The crown is within reach.",
+            "80% complete and still turning heads like it's your job."
+        ],
+        1.0: [
+            "GOALS ACHIEVED! You absolute queen! 👑",
+            "Hot girl walk? Completed it, mastered it, owned it!",
+            "Step count? SLAYED. Goals? ACHIEVED. Day? MADE.",
+            "You did it! The sidewalk is officially your runway.",
+            "Mission accomplished! Time to celebrate your hot girl victory!",
+            "Goals? Met. Steps? Counted. Day? Dominated.",
+            "You've reached 100% and the world is still catching up!",
+            "Hot girl walk completed! Now go treat yourself, you deserve it!",
+            "100% done and 100% that baddie!",
+            "You've conquered your step goal! The crown looks good on you!"
+        ]
     ]
     
     private init() {
         setupBackgroundDelivery()
+        setupNotificationCategories()
     }
     
     private func setupBackgroundDelivery() {
@@ -96,19 +92,27 @@ class BackgroundHealthManager: ObservableObject {
                 return
             }
             
-            self.checkFor50PercentGoal()
+            self.checkForGoalMilestones()
             completionHandler()
         }
         
         healthStore.execute(observerQuery)
     }
     
-    private func checkFor50PercentGoal() {
-        // Get the current day's step count
+    private func checkForGoalMilestones() {
         let calendar = Calendar.current
         let now = Date()
         let startOfDay = calendar.startOfDay(for: now)
         let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: now, options: .strictStartDate)
+        
+        // Check if we've already sent a notification today
+        let lastNotificationDate = userDefaults.object(forKey: lastNotificationKey) as? Date
+        let isSameDay = calendar.isDate(lastNotificationDate ?? Date.distantPast, inSameDayAs: now)
+        
+        // If we've already sent a notification today, don't proceed
+        if isSameDay {
+            return
+        }
         
         let statisticsQuery = HKStatisticsQuery(
             quantityType: stepType,
@@ -122,32 +126,93 @@ class BackgroundHealthManager: ObservableObject {
             let steps = sum.doubleValue(for: HKUnit.count())
             let dailyGoal = self.userDefaults.integer(forKey: "dailyGoal")
             
-            // Check if we've already sent a notification today
-            let lastNotificationDate = self.userDefaults.object(forKey: self.lastNotificationKey) as? Date
-            let isSameDay = calendar.isDate(lastNotificationDate ?? Date.distantPast, inSameDayAs: now)
-            
-            if steps >= Double(dailyGoal) * 0.5 && !isSameDay {
-                self.send50PercentNotification()
+            // Check each threshold
+            for (percentage, key) in self.notificationThresholds {
+                let threshold = Double(dailyGoal) * percentage
+                let lastNotificationDate = self.userDefaults.object(forKey: key) as? Date
+                let hasNotifiedToday = calendar.isDate(lastNotificationDate ?? Date.distantPast, inSameDayAs: now)
+                
+                if steps >= threshold && !hasNotifiedToday {
+                    // Save the notification date before sending
+                    self.userDefaults.set(now, forKey: key)
+                    self.userDefaults.set(now, forKey: self.lastNotificationKey)
+                    self.sendMilestoneNotification(percentage: percentage)
+                    break // Only send one notification per check
+                }
             }
         }
         
         healthStore.execute(statisticsQuery)
     }
     
-    private func send50PercentNotification() {
+    private func sendMilestoneNotification(percentage: Double) {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             guard settings.authorizationStatus == .authorized else { return }
             
             let content = UNMutableNotificationContent()
-            content.title = "Hot Girl Alert! 🎉"
-            content.body = MotivationalMessageManager.shared.getMessage(for: 0.5)
+            content.title = self.getNotificationTitle(for: percentage)
+            content.body = self.getRandomMessage(for: percentage)
             content.sound = .default
+            content.categoryIdentifier = "STEP_GOAL_NOTIFICATION"
             
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-            let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+            let request = UNNotificationRequest(
+                identifier: "step_goal_\(Int(percentage * 100))_percent_\(Date().timeIntervalSince1970)",
+                content: content,
+                trigger: trigger
+            )
             
-            UNUserNotificationCenter.current().add(request)
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [request.identifier])
+            
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error = error {
+                    print("Error scheduling notification: \(error.localizedDescription)")
+                }
+            }
         }
+    }
+    
+    private func getNotificationTitle(for percentage: Double) -> String {
+        switch percentage {
+        case 0.5:
+            return "Hot Girl Alert! 🎉"
+        case 0.8:
+            return "Almost There! ✨"
+        case 1.0:
+            return "Goals Achieved! 👑"
+        default:
+            return "Step Update! 🚶‍♀️"
+        }
+    }
+    
+    private func getRandomMessage(for percentage: Double) -> String {
+        guard let messages = motivationalMessages[percentage] else { return "" }
+        
+        // Get the last used message
+        let lastMessage = userDefaults.string(forKey: lastMessageKey) ?? ""
+        
+        // Filter out the last used message
+        let availableMessages = messages.filter { $0 != lastMessage }
+        
+        // If all messages were used, reset and use any message
+        let selectedMessage = availableMessages.randomElement() ?? messages.randomElement() ?? ""
+        
+        // Save the selected message
+        userDefaults.set(selectedMessage, forKey: lastMessageKey)
+        
+        return selectedMessage
+    }
+    
+    // Add notification category setup
+    private func setupNotificationCategories() {
+        let category = UNNotificationCategory(
+            identifier: "STEP_GOAL_NOTIFICATION",
+            actions: [],
+            intentIdentifiers: [],
+            options: .customDismissAction
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
     }
     
     func checkAuthorizationStatus() -> Bool {
