@@ -11,25 +11,27 @@ struct RealityShowView: View {
         ScrollView {
             VStack(spacing: 24) {
                 // Header Section
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .center, spacing: 16) {
                     Text("The Camera's Rolling.\nYou're Already Late.")
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.white)
-                        .multilineTextAlignment(.leading)
+                        .multilineTextAlignment(.center)
                         .padding(.bottom, 4)
                     
                     Text("You thought this was just a walk? Think again.")
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
                         .padding(.bottom, 8)
                     
                     Text("Every step writes a new episode in the most iconic fake reality show the internet's never seen.\n\nClaudia's spiraling. Diego's watching. You're walking straight into your main character era.")
                         .font(.body)
                         .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
                         .lineSpacing(6)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(20)
                 .background(Color.white.opacity(0.15))
                 .cornerRadius(16)
@@ -98,18 +100,47 @@ struct EpisodeCard: View {
         Int(episode.id.dropFirst(2)) ?? 0
     }
     
-    private var unlockRequirement: String {
+    private var unlockRequirement: some View {
+        let hotPink = Color(red: 255/255, green: 20/255, blue: 147/255)
+        let neonBlue = Color(hue: 0.83, saturation: 0.5, brightness: 1.0)
+        
         switch episode.unlockType {
         case .steps:
             let remaining = max(0, episode.unlockValue - stepsToday)
-            return remaining > 0 ? "\(remaining) more steps" : "Complete"
+            return remaining > 0 ? 
+                AnyView(Text("\(remaining) more steps")
+                    .font(.subheadline)
+                    .foregroundColor(isUnlocked ? hotPink : .white.opacity(0.6))) :
+                AnyView(Image(systemName: "lock.open.fill")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(neonBlue)
+                    .shadow(color: neonBlue.opacity(0.8), radius: 8, x: 0, y: 0)
+                    .shadow(color: neonBlue.opacity(0.4), radius: 12, x: 0, y: 0))
         case .streak:
             let remaining = max(0, episode.unlockValue - streakCount)
-            return remaining > 0 ? "\(remaining) more days" : "Complete"
+            return remaining > 0 ? 
+                AnyView(Text("\(remaining) more days")
+                    .font(.subheadline)
+                    .foregroundColor(isUnlocked ? hotPink : .white.opacity(0.6))) :
+                AnyView(Image(systemName: "lock.open.fill")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(neonBlue)
+                    .shadow(color: neonBlue.opacity(0.8), radius: 8, x: 0, y: 0)
+                    .shadow(color: neonBlue.opacity(0.4), radius: 12, x: 0, y: 0))
         case .invite:
-            return "Invite friends"
+            return AnyView(Text("Invite friends")
+                .font(.subheadline)
+                .foregroundColor(isUnlocked ? hotPink : .white.opacity(0.6)))
         case .returnAfterMiss:
-            return streakCount == 1 ? "Complete" : "Return after missing a streak"
+            return streakCount == 1 ? 
+                AnyView(Image(systemName: "lock.open.fill")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(neonBlue)
+                    .shadow(color: neonBlue.opacity(0.8), radius: 8, x: 0, y: 0)
+                    .shadow(color: neonBlue.opacity(0.4), radius: 12, x: 0, y: 0)) :
+                AnyView(Text("Return after missing a streak")
+                    .font(.subheadline)
+                    .foregroundColor(isUnlocked ? hotPink : .white.opacity(0.6)))
         }
     }
     
@@ -125,9 +156,7 @@ struct EpisodeCard: View {
                 Spacer()
                 
                 // Unlock Status
-                Text(unlockRequirement)
-                    .font(.subheadline)
-                    .foregroundColor(isUnlocked ? .green : .white.opacity(0.6))
+                unlockRequirement
             }
             
             Text(episode.title)
@@ -213,17 +242,7 @@ struct EpisodePopupCard: View {
                 .padding(.top, 8)
             }
             .padding(24)
-            .background(
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color(red: 44/255, green: 8/255, blue: 52/255),
-                        Color.purple.opacity(0.3),
-                        Color(hue: 0.83, saturation: 0.3, brightness: 0.9)
-                    ]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
+            .background(Color(red: 44/255, green: 8/255, blue: 52/255))
             .cornerRadius(20)
             .shadow(radius: 10)
             .padding(.horizontal, 20)
