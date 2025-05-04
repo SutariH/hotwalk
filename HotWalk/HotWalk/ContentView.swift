@@ -1,6 +1,7 @@
 import SwiftUI
 import FirebaseFirestore
 import UserNotifications
+import FirebaseAuth
 
 struct ContentView: View {
     @StateObject private var healthManager = HealthManager()
@@ -199,9 +200,9 @@ struct ContentView: View {
                     Label("History", systemImage: "clock.fill")
                 }
             
-            GoalEditorView(viewModel: viewModel)
+            ProfileView()
                 .tabItem {
-                    Label("Settings", systemImage: "gear")
+                    Label("Profile", systemImage: "person.fill")
                 }
         }
         .accentColor(.purple)
