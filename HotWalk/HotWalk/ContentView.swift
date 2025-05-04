@@ -200,6 +200,11 @@ struct ContentView: View {
                     Label("History", systemImage: "clock.fill")
                 }
             
+            RealityShowView(stepsToday: healthManager.steps, streakCount: viewModel.getCurrentStreak())
+                .tabItem {
+                    Label("Show", systemImage: "tv.fill")
+                }
+            
             ProfileView()
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
