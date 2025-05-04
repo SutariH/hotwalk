@@ -130,7 +130,7 @@ struct MilestoneCardView: View {
                 .padding(.vertical, 10)
             
             // Download Prompt
-            Text("Get yours at hotgirlwalk.app")
+            Text("Track your steps at hotgirlsteps.com")
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundColor(.white.opacity(0.7))
                 .padding(.bottom, 10)

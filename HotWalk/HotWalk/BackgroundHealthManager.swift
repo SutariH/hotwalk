@@ -140,7 +140,7 @@ class BackgroundHealthManager: ObservableObject {
             
             let content = UNMutableNotificationContent()
             content.title = "Hot Girl Alert! 🎉"
-            content.body = "You're halfway to your daily goal! Keep slaying those steps, queen!"
+            content.body = MotivationalMessageManager.shared.getMessage(for: 0.5)
             content.sound = .default
             
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)

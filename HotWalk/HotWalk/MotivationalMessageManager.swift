@@ -37,11 +37,21 @@ enum MessageCategory: String, Codable {
             ]
         case .medium:
             return [
-                "You're not walking. You're gliding. Like a hot cloud ☁️",
-                "Certified sidewalk runway model 🕶️",
-                "Every step is one less reason to answer his texts 📵",
-                "Walking away from the haters 🚶‍♀️💨",
-                "The sidewalk's lucky to have you 💋"
+                "Halfway there and looking fabulous 💅",
+                "You're giving main character energy 🌟",
+                "The sidewalk is your runway, bestie 👠",
+                "Your steps are giving influencer vibes 📱",
+                "You're in your element and it shows 💫",
+                "This walk? A whole mood board 🎨",
+                "Serving steps with a side of style 💃",
+                "The concrete can't handle your confidence 💅",
+                "You're walking like rent is due tomorrow 💸",
+                "Your steps are giving 'that girl' energy ✨",
+                "Walking like you own the block (you do) 👑",
+                "This isn't a walk, it's a moment 📸",
+                "Your steps are giving 'it girl' vibes 💅",
+                "You're walking like you've got tea to spill ☕️",
+                "Strutting like you've got insider info 🤫"
             ]
         case .high:
             return [
@@ -49,7 +59,17 @@ enum MessageCategory: String, Codable {
                 "You're one podcast episode away from greatness 🎧",
                 "You're about to make your future self cry from pride 😭",
                 "Your hotness bar is almost maxed out 🧃",
-                "This walk? Oscar-worthy. Best Supporting Steps 🎬"
+                "This walk? Oscar-worthy. Best Supporting Steps 🎬",
+                "This isn't a walk. This is your acceptance speech 👑",
+                "You're walking like the sidewalk owes you rent 💸",
+                "Almost there — make the concrete jealous 💅",
+                "Every step is a slay. Keep the camera rolling 🎥",
+                "Only a few steps away from being legally iconic 💼✨",
+                "Your aura is glowing and your steps are showing 💖",
+                "Finish strong, sugarplum. The crown's within reach 👠",
+                "You're at 90%. That's legally a diva entrance 💃",
+                "Walk faster — your future self is waiting with confetti 🎉",
+                "Don't stop now — you're making the sidewalk emotional 😭"
             ]
         case .complete:
             return [
@@ -57,7 +77,17 @@ enum MessageCategory: String, Codable {
                 "You crushed it like a hot girl summer lemonade 🍋",
                 "If slay was a sport, you'd be in the Olympics 🥇",
                 "Tell your enemies to stay mad 😌",
-                "Even your shoes are clapping 👏"
+                "Even your shoes are clapping 👏",
+                "Your walk just earned a five-star Yelp review from the universe ⭐️⭐️⭐️⭐️⭐️",
+                "Achievement: unlocked. Outfit: immaculate. Vibes: undefeated 🔓👗🌟",
+                "The runway called — it wants its walk back 💃📞",
+                "You didn't just walk. You closed the show in couture 👠✨",
+                "Stepped your way into legend status. Again. 🔥",
+                "Today's walk has been nominated for Best Motion Picture 🎬🏆",
+                "Every step was a serve and you didn't even break a sweat 💅",
+                "That strut was so smooth, GPS lost track of you 📍💨",
+                "You just invented a new genre of fabulous 🚀👑",
+                "Hot Girl Steps? More like Hot Girl HISTORY 📖💖"
             ]
         case .overachiever:
             return [
@@ -65,7 +95,16 @@ enum MessageCategory: String, Codable {
                 "Somebody's trying to break the app. We see you 💻💀",
                 "There's hot… and then there's YOU 🔥🔥🔥",
                 "Overachiever alert 🚨 You just unlocked mythical status 🦄",
-                "You walked 1.5x your goal and somehow still look cute. Unfair."
+                "You walked 1.5x your goal and somehow still look cute. Unfair.",
+                "You didn't just go the extra mile — you moonwalked it 🌕👟",
+                "Over 150%? You're in rare air, babe 💨👑",
+                "The sidewalk filed a complaint — you're too powerful 💅🚷",
+                "You hit 1.5x and still had time to save the world 🦸‍♀️✨",
+                "Overachiever? More like over-iconic 🔥",
+                "You just turned a walk into a performance art piece 🎭",
+                "That wasn't fitness, that was a spiritual awakening 🔮",
+                "Step count? Maxed out. Energy? Unmatched 🔋",
+                "You walked so far, Google Maps asked for directions 🗺️📍"
             ]
         case .legendary:
             return [

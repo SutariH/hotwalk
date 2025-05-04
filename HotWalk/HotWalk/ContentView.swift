@@ -60,19 +60,6 @@ struct ContentView: View {
     
     private var shareSection: some View {
         VStack(spacing: 24) {
-            NavigationLink(destination: CalendarView()) {
-                HStack {
-                    Image(systemName: "calendar")
-                    Text("View History")
-                }
-                .font(.system(size: 18, weight: .medium, design: .rounded))
-                .foregroundColor(.white)
-                .padding()
-                .background(Color.purple.opacity(0.3))
-                .cornerRadius(15)
-            }
-            .padding(.bottom, 8)
-            
             Text(currentShareMessage)
                 .font(.system(size: 18, weight: .medium, design: .rounded))
                 .foregroundColor(.white)
@@ -113,7 +100,7 @@ struct ContentView: View {
         .padding(.bottom, 30)
     }
     
-    var body: some View {
+    private var mainView: some View {
         NavigationView {
             ZStack {
                 LinearGradient(
@@ -192,21 +179,32 @@ struct ContentView: View {
                     .padding(.horizontal)
                 }
                 
-                .sheet(isPresented: $showingGoalEditor) {
-                    GoalEditorView(viewModel: viewModel)
-                }
-                
                 if showingMilestoneCard {
                     milestoneCardOverlay
                 }
             }
-            .navigationBarItems(trailing: Button(action: {
-                showingGoalEditor = true
-            }) {
-                Image(systemName: "pencil")
-                    .foregroundColor(.white)
-            })
+            .navigationBarTitle("", displayMode: .inline)
         }
+    }
+    
+    var body: some View {
+        TabView {
+            mainView
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
+            
+            CalendarView()
+                .tabItem {
+                    Label("History", systemImage: "clock.fill")
+                }
+            
+            GoalEditorView(viewModel: viewModel)
+                .tabItem {
+                    Label("Settings", systemImage: "gear")
+                }
+        }
+        .accentColor(.purple)
         .onAppear {
             setupNavigationBar()
             healthManager.fetchTodaySteps()
@@ -282,7 +280,9 @@ struct ContentView: View {
             steps: healthManager.steps,
             goalPercentage: Int((Double(healthManager.steps) / Double(viewModel.dailyGoal)) * 100),
             message: viewModel.currentMessage,
-            dailyGoal: viewModel.dailyGoal
+            dailyGoal: viewModel.dailyGoal,
+            onClose: {},
+            onShare: {}
         )
         
         // Convert the view to an image
@@ -299,7 +299,7 @@ struct ContentView: View {
             image = renderer.image { context in
                 let hostingController = UIHostingController(rootView: shareCard)
                 hostingController.view.frame = CGRect(x: 0, y: 0, width: 350, height: 500)
-                hostingController.view.backgroundColor = .clear
+                hostingController.view.backgroundColor = UIColor.clear
                 hostingController.view.drawHierarchy(in: hostingController.view.bounds, afterScreenUpdates: true)
             }
         } else {
@@ -308,7 +308,7 @@ struct ContentView: View {
             UIGraphicsBeginImageContextWithOptions(size, false, UIScreen.main.scale)
             let hostingController = UIHostingController(rootView: shareCard)
             hostingController.view.frame = CGRect(x: 0, y: 0, width: 350, height: 500)
-            hostingController.view.backgroundColor = .clear
+            hostingController.view.backgroundColor = UIColor.clear
             hostingController.view.drawHierarchy(in: hostingController.view.bounds, afterScreenUpdates: true)
             image = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
