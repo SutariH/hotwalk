@@ -202,7 +202,12 @@ struct ContentView: View {
             
             RealityShowView(stepsToday: healthManager.steps, streakCount: viewModel.getCurrentStreak())
                 .tabItem {
-                    Label("Show", systemImage: "tv.fill")
+                    Label("Show", systemImage: "film")
+                }
+            
+            FriendsView()
+                .tabItem {
+                    Label("Friends", systemImage: "person.2.fill")
                 }
             
             ProfileView()

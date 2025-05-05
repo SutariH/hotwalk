@@ -33,5 +33,41 @@
 			</array>
 		</dict>
 	</dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>hotwalk</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>com.hotwalk.app</string>
+		</dict>
+	</array>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:hotgirlsteps.com</string>
+	</array>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>hotwalk</string>
+			</array>
+		</dict>
+	</array>
+	<key>Associated Domains</key>
+	<array>
+		<string>applinks:hotgirlsteps.com</string>
+	</array>
+	<key>NSFaceIDUsageDescription</key>
+	<string>We use Face ID to securely sign you in to your account.</string>
 </dict>
 </plist>

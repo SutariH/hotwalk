@@ -1,10 +1,30 @@
 import SwiftUI
 import FirebaseCore
+import FirebaseAuth
+
+class AppState: ObservableObject {
+    @Published var isAuthenticated = false
+    
+    init() {
+        // Check initial auth state
+        if let _ = Auth.auth().currentUser {
+            isAuthenticated = true
+        }
+        
+        // Listen for auth state changes
+        Auth.auth().addStateDidChangeListener { [weak self] _, user in
+            DispatchQueue.main.async {
+                self?.isAuthenticated = user != nil
+            }
+        }
+    }
+}
 
 @main
 struct HotWalkApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @StateObject private var appState = AppState()
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @StateObject private var invitationService = InvitationService()
     
     init() {
         FirebaseApp.configure()
@@ -12,13 +32,20 @@ struct HotWalkApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if !hasCompletedOnboarding {
-                OnboardingView()
-                    .onDisappear {
-                        hasCompletedOnboarding = true
-                    }
-            } else {
+            if appState.isAuthenticated {
                 ContentView()
+            } else {
+                OnboardingView()
+            }
+        }
+    }
+    
+    private func handleDeepLink(_ url: URL) {
+        Task {
+            do {
+                try await invitationService.handleInvitationLink(url)
+            } catch {
+                print("Error handling deep link: \(error.localizedDescription)")
             }
         }
     }
