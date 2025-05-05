@@ -17,6 +17,7 @@ struct RealityShowView: View {
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 4)
+                        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                     
                     Text("You thought this was just a walk? Think again.")
                         .font(.title3)
@@ -24,17 +25,35 @@ struct RealityShowView: View {
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 8)
+                        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                     
                     Text("Every step writes a new episode in the most iconic fake reality show the internet's never seen.\n\nClaudia's spiraling. Diego's watching. You're walking straight into your main character era.")
                         .font(.body)
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .lineSpacing(6)
+                        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
-                .padding(20)
-                .background(Color.white.opacity(0.15))
-                .cornerRadius(16)
+                .padding(24)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color(red: 0.9, green: 0.6, blue: 0.9),
+                                    Color(red: 0.7, green: 0.3, blue: 0.7)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: .purple.opacity(0.3), radius: 20, x: 0, y: 10)
+                )
                 
                 // Episodes Section
                 VStack(alignment: .leading, spacing: 20) {
@@ -43,6 +62,7 @@ struct RealityShowView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                         .padding(.bottom, 4)
+                        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                     
                     ForEach(episodeManager.availableEpisodes) { episode in
                         let isUnlocked = episodeManager.unlockedEpisodes.contains { $0.id == episode.id }
@@ -60,9 +80,25 @@ struct RealityShowView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(20)
-                .background(Color.white.opacity(0.15))
-                .cornerRadius(16)
+                .padding(24)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color(red: 0.9, green: 0.6, blue: 0.9),
+                                    Color(red: 0.7, green: 0.3, blue: 0.7)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: .purple.opacity(0.3), radius: 20, x: 0, y: 10)
+                )
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 20)
@@ -100,6 +136,47 @@ struct EpisodeCard: View {
         Int(episode.id.dropFirst(2)) ?? 0
     }
     
+    private var backgroundGradient: LinearGradient {
+        switch episode.unlockType {
+        case .steps:
+            return LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.9, green: 0.6, blue: 0.9),
+                    Color(red: 0.7, green: 0.3, blue: 0.7)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .streak:
+            return LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.8, green: 0.4, blue: 0.8),
+                    Color(red: 0.6, green: 0.2, blue: 0.6)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .invite:
+            return LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.6, green: 0.4, blue: 0.9),
+                    Color(red: 0.4, green: 0.2, blue: 0.7)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .returnAfterMiss:
+            return LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 0.9, green: 0.4, blue: 0.7),
+                    Color(red: 0.7, green: 0.2, blue: 0.5)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+    
     private var unlockRequirement: some View {
         let hotPink = Color(red: 255/255, green: 20/255, blue: 147/255)
         let neonBlue = Color(hue: 0.83, saturation: 0.5, brightness: 1.0)
@@ -110,6 +187,7 @@ struct EpisodeCard: View {
             return remaining > 0 ? 
                 AnyView(Text("\(remaining) more steps")
                     .font(.subheadline)
+                    .fontWeight(.semibold)
                     .foregroundColor(isUnlocked ? hotPink : .white.opacity(0.6))) :
                 AnyView(Image(systemName: "lock.open.fill")
                     .font(.system(size: 20, weight: .bold))
@@ -121,6 +199,7 @@ struct EpisodeCard: View {
             return remaining > 0 ? 
                 AnyView(Text("\(remaining) more days")
                     .font(.subheadline)
+                    .fontWeight(.semibold)
                     .foregroundColor(isUnlocked ? hotPink : .white.opacity(0.6))) :
                 AnyView(Image(systemName: "lock.open.fill")
                     .font(.system(size: 20, weight: .bold))
@@ -130,6 +209,7 @@ struct EpisodeCard: View {
         case .invite:
             return AnyView(Text("Invite friends")
                 .font(.subheadline)
+                .fontWeight(.semibold)
                 .foregroundColor(isUnlocked ? hotPink : .white.opacity(0.6)))
         case .returnAfterMiss:
             return streakCount == 1 ? 
@@ -140,7 +220,21 @@ struct EpisodeCard: View {
                     .shadow(color: neonBlue.opacity(0.4), radius: 12, x: 0, y: 0)) :
                 AnyView(Text("Return after missing a streak")
                     .font(.subheadline)
+                    .fontWeight(.semibold)
                     .foregroundColor(isUnlocked ? hotPink : .white.opacity(0.6)))
+        }
+    }
+    
+    private var backgroundColor: Color {
+        switch episode.unlockType {
+        case .steps:
+            return isUnlocked ? Color(hex: "3cb9d6") : Color(hex: "aae4fc") // Darker blue when unlocked, light blue when locked
+        case .streak:
+            return isUnlocked ? Color(hex: "ab67db") : Color(hex: "D8A6ED") // Darker purple when unlocked, light purple when locked
+        case .invite:
+            return isUnlocked ? Color(hex: "e06ebd") : Color(hex: "ec9aca") // Darker pink when unlocked, light pink when locked
+        case .returnAfterMiss:
+            return isUnlocked ? Color(hex: "ab67db") : Color(hex: "D8A6ED") // Darker purple when unlocked, light purple when locked
         }
     }
     
@@ -150,7 +244,7 @@ struct EpisodeCard: View {
                 // Episode Number
                 Text("Episode \(episodeNumber)")
                     .font(.subheadline)
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
                     .foregroundColor(isUnlocked ? .white : .white.opacity(0.6))
                 
                 Spacer()
@@ -161,6 +255,7 @@ struct EpisodeCard: View {
             
             Text(episode.title)
                 .font(.headline)
+                .fontWeight(.bold)
                 .foregroundColor(isUnlocked ? .white : .white.opacity(0.6))
                 .padding(.vertical, 4)
             
@@ -174,8 +269,15 @@ struct EpisodeCard: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white.opacity(0.15))
-        .cornerRadius(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(backgroundColor)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                )
+                .shadow(color: .purple.opacity(0.3), radius: 10, x: 0, y: 5)
+        )
         .opacity(isUnlocked ? 1.0 : 0.8)
     }
 }
@@ -186,6 +288,19 @@ struct EpisodePopupCard: View {
     
     private var episodeNumber: Int {
         Int(episode.id.dropFirst(2)) ?? 0
+    }
+    
+    private var backgroundColor: Color {
+        switch episode.unlockType {
+        case .steps:
+            return Color(hex: "3cb9d6") // Darker blue
+        case .streak:
+            return Color(hex: "ab67db") // Darker purple
+        case .invite:
+            return Color(hex: "e06ebd") // Darker pink
+        case .returnAfterMiss:
+            return Color(hex: "ab67db") // Darker purple
+        }
     }
     
     var body: some View {
@@ -234,7 +349,7 @@ struct EpisodePopupCard: View {
                 // Unlock Info
                 HStack {
                     Image(systemName: episode.unlockType == .steps ? "figure.walk" : "flame.fill")
-                        .foregroundColor(.purple)
+                        .foregroundColor(.white)
                     Text("Unlocked at \(episode.unlockValue) \(episode.unlockType == .steps ? "steps" : "days")")
                         .font(.subheadline)
                         .foregroundColor(.white)
@@ -242,7 +357,7 @@ struct EpisodePopupCard: View {
                 .padding(.top, 8)
             }
             .padding(24)
-            .background(Color(red: 44/255, green: 8/255, blue: 52/255))
+            .background(backgroundColor)
             .cornerRadius(20)
             .shadow(radius: 10)
             .padding(.horizontal, 20)
@@ -254,4 +369,31 @@ struct EpisodePopupCard: View {
 
 #Preview {
     RealityShowView(stepsToday: 8500, streakCount: 3)
+}
+
+// Add Color extension for hex support
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let a, r, g, b: UInt64
+        switch hex.count {
+        case 3: // RGB (12-bit)
+            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+        case 6: // RGB (24-bit)
+            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        case 8: // ARGB (32-bit)
+            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+        default:
+            (a, r, g, b) = (1, 1, 1, 0)
+        }
+        self.init(
+            .sRGB,
+            red: Double(r) / 255,
+            green: Double(g) / 255,
+            blue:  Double(b) / 255,
+            opacity: Double(a) / 255
+        )
+    }
 } 
