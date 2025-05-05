@@ -7,14 +7,54 @@ import CryptoKit
 
 class OnboardingViewModel: ObservableObject {
     @Published var email = ""
-    @Published var password = ""
     @Published var displayName = ""
+    @Published var dateOfBirth = Date()
+    @Published var country = ""
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var isAuthenticated = false
+    @Published var currentStep = OnboardingStep.signIn
+    @Published var hasCompletedProfile = false
+    @Published var marketingConsent = true
+    @Published var hasSelectedCountry = false
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @Published var isValidEmail = false
+    @Published var showEmailError = false
     
     private let db = Firestore.firestore()
     private var currentNonce: String?
+    
+    let countries = [
+        "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
+        "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
+        "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
+        "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
+        "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
+        "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
+        "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+        "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel",
+        "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo",
+        "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania",
+        "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius",
+        "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia",
+        "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman",
+        "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+        "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe",
+        "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia",
+        "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan",
+        "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan",
+        "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City",
+        "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+    ].sorted()
+    
+    enum OnboardingStep {
+        case signIn
+        case name
+        case email
+        case country
+        case dateOfBirth
+        case notifications
+    }
     
     // Generate a random nonce for Apple Sign In
     private func randomNonceString(length: Int = 32) -> String {
@@ -110,7 +150,9 @@ class OnboardingViewModel: ObservableObject {
                     try await db.collection("users").document(user.uid).setData(userData, merge: true)
                     
                     await MainActor.run {
-                        isAuthenticated = true
+                        self.email = email
+                        self.displayName = displayName
+                        currentStep = .name
                         isLoading = false
                     }
                 } catch {
@@ -130,319 +172,616 @@ class OnboardingViewModel: ObservableObject {
         }
     }
     
-    func signUp() async {
+    func saveName() async {
         await MainActor.run { isLoading = true; errorMessage = nil }
         
-        // Validate inputs
-        guard !email.isEmpty, !password.isEmpty, !displayName.isEmpty else {
+        guard let user = Auth.auth().currentUser else {
             await MainActor.run {
-                errorMessage = "Please fill in all fields"
-                isLoading = false
-            }
-            return
-        }
-        
-        // Validate email format
-        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
-        guard emailPredicate.evaluate(with: email) else {
-            await MainActor.run {
-                errorMessage = "Please enter a valid email address"
-                isLoading = false
-            }
-            return
-        }
-        
-        // Validate password length
-        guard password.count >= 6 else {
-            await MainActor.run {
-                errorMessage = "Password must be at least 6 characters"
+                errorMessage = "No user found. Please sign in again."
                 isLoading = false
             }
             return
         }
         
         do {
-            print("Debug: Starting user creation with email: \(email)")
-            
-            // Create Firebase Auth user
-            let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
-            let user = authResult.user
-            print("Debug: Firebase Auth user created successfully with ID: \(user.uid)")
-            
-            // Create user profile in Firestore
             let userData: [String: Any] = [
-                "email": email,
                 "displayName": displayName,
-                "createdAt": FieldValue.serverTimestamp(),
-                "lastLogin": FieldValue.serverTimestamp()
+                "lastUpdated": FieldValue.serverTimestamp()
             ]
             
-            print("Debug: Attempting to create Firestore document for user: \(user.uid)")
-            try await db.collection("users").document(user.uid).setData(userData)
-            print("Debug: Firestore document created successfully")
-            
-            // Update display name in Auth
-            print("Debug: Updating display name in Auth")
-            let changeRequest = user.createProfileChangeRequest()
-            changeRequest.displayName = displayName
-            try await changeRequest.commitChanges()
-            print("Debug: Display name updated successfully")
+            try await db.collection("users").document(user.uid).setData(userData, merge: true)
             
             await MainActor.run {
-                isAuthenticated = true
+                currentStep = .email
                 isLoading = false
             }
-        } catch let error as NSError {
-            print("Debug: Error occurred during sign up: \(error.localizedDescription)")
-            print("Debug: Error domain: \(error.domain)")
-            print("Debug: Error code: \(error.code)")
-            
-            let errorMessage: String
-            switch error.code {
-            case AuthErrorCode.emailAlreadyInUse.rawValue:
-                errorMessage = "This email is already registered. Please sign in instead."
-            case AuthErrorCode.invalidEmail.rawValue:
-                errorMessage = "Please enter a valid email address."
-            case AuthErrorCode.weakPassword.rawValue:
-                errorMessage = "Please choose a stronger password."
-            case AuthErrorCode.networkError.rawValue:
-                errorMessage = "Network error. Please check your connection and try again."
-            default:
-                errorMessage = "An error occurred: \(error.localizedDescription)"
-            }
-            
+        } catch {
+            print("Debug: Error saving name: \(error.localizedDescription)")
             await MainActor.run {
-                self.errorMessage = errorMessage
+                errorMessage = "Error saving name. Please try again."
                 isLoading = false
             }
         }
     }
     
-    func signIn() async {
-        await MainActor.run { isLoading = true; errorMessage = nil }
+    func saveEmail() async {
+        await MainActor.run { 
+            isLoading = true
+            errorMessage = nil
+            showEmailError = false
+        }
         
-        // Validate inputs
-        guard !email.isEmpty, !password.isEmpty else {
+        // If email is not empty, validate it
+        if !email.isEmpty && !isValidEmailFormat(email) {
             await MainActor.run {
-                errorMessage = "Please fill in all fields"
+                showEmailError = true
+                isLoading = false
+            }
+            return
+        }
+        
+        guard let user = Auth.auth().currentUser else {
+            await MainActor.run {
+                errorMessage = "No user found. Please sign in again."
                 isLoading = false
             }
             return
         }
         
         do {
-            print("Debug: Attempting to sign in user: \(email)")
-            let authResult = try await Auth.auth().signIn(withEmail: email, password: password)
-            let user = authResult.user
-            print("Debug: User signed in successfully: \(user.uid)")
+            let userData: [String: Any] = [
+                "email": email,
+                "marketingConsent": marketingConsent,
+                "lastUpdated": FieldValue.serverTimestamp()
+            ]
             
-            // Update last login timestamp
-            try await db.collection("users").document(user.uid).updateData([
-                "lastLogin": FieldValue.serverTimestamp()
-            ])
-            print("Debug: Last login timestamp updated")
+            try await db.collection("users").document(user.uid).setData(userData, merge: true)
             
             await MainActor.run {
-                isAuthenticated = true
+                currentStep = .country
                 isLoading = false
             }
-        } catch let error as NSError {
-            print("Debug: Error occurred during sign in: \(error.localizedDescription)")
-            print("Debug: Error domain: \(error.domain)")
-            print("Debug: Error code: \(error.code)")
-            
-            let errorMessage: String
-            switch error.code {
-            case AuthErrorCode.wrongPassword.rawValue:
-                errorMessage = "Incorrect password. Please try again."
-            case AuthErrorCode.invalidEmail.rawValue:
-                errorMessage = "Please enter a valid email address."
-            case AuthErrorCode.userNotFound.rawValue:
-                errorMessage = "No account found with this email. Please sign up first."
-            case AuthErrorCode.networkError.rawValue:
-                errorMessage = "Network error. Please check your connection and try again."
-            default:
-                errorMessage = "An error occurred: \(error.localizedDescription)"
-            }
-            
+        } catch {
+            print("Debug: Error saving email: \(error.localizedDescription)")
             await MainActor.run {
-                self.errorMessage = errorMessage
+                errorMessage = "Error saving email. Please try again."
                 isLoading = false
             }
         }
     }
     
-    func checkAuthState() {
-        if let user = Auth.auth().currentUser {
-            print("Debug: User is already authenticated: \(user.uid)")
-            isAuthenticated = true
-        } else {
-            print("Debug: No authenticated user found")
+    func saveCountry() async {
+        await MainActor.run { isLoading = true; errorMessage = nil }
+        
+        guard let user = Auth.auth().currentUser else {
+            await MainActor.run {
+                errorMessage = "No user found. Please sign in again."
+                isLoading = false
+            }
+            return
         }
+        
+        do {
+            let userData: [String: Any] = [
+                "country": country,
+                "lastUpdated": FieldValue.serverTimestamp()
+            ]
+            
+            try await db.collection("users").document(user.uid).setData(userData, merge: true)
+            
+            await MainActor.run {
+                currentStep = .dateOfBirth
+                isLoading = false
+            }
+        } catch {
+            print("Debug: Error saving country: \(error.localizedDescription)")
+            await MainActor.run {
+                errorMessage = "Error saving country. Please try again."
+                isLoading = false
+            }
+        }
+    }
+    
+    func saveDateOfBirth() async {
+        await MainActor.run { isLoading = true; errorMessage = nil }
+        
+        guard let user = Auth.auth().currentUser else {
+            await MainActor.run {
+                errorMessage = "No user found. Please sign in again."
+                isLoading = false
+            }
+            return
+        }
+        
+        do {
+            let userData: [String: Any] = [
+                "dateOfBirth": dateOfBirth,
+                "lastUpdated": FieldValue.serverTimestamp()
+            ]
+            
+            try await db.collection("users").document(user.uid).setData(userData, merge: true)
+            
+            await MainActor.run {
+                currentStep = .notifications
+                isLoading = false
+            }
+        } catch {
+            print("Debug: Error saving date of birth: \(error.localizedDescription)")
+            await MainActor.run {
+                errorMessage = "Error saving date of birth. Please try again."
+                isLoading = false
+            }
+        }
+    }
+    
+    func requestNotifications() async {
+        await MainActor.run { isLoading = true }
+        
+        do {
+            let settings = await UNUserNotificationCenter.current().notificationSettings()
+            
+            if settings.authorizationStatus == .notDetermined {
+                let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])
+                
+                if granted {
+                    await MainActor.run {
+                        isAuthenticated = true
+                        hasCompletedProfile = true
+                        hasCompletedOnboarding = true
+                        isLoading = false
+                    }
+                } else {
+                    await MainActor.run {
+                        isAuthenticated = true
+                        hasCompletedProfile = true
+                        hasCompletedOnboarding = true
+                        isLoading = false
+                    }
+                }
+            } else {
+                await MainActor.run {
+                    isAuthenticated = true
+                    hasCompletedProfile = true
+                    hasCompletedOnboarding = true
+                    isLoading = false
+                }
+            }
+        } catch {
+            print("Debug: Error requesting notifications: \(error.localizedDescription)")
+            await MainActor.run {
+                isAuthenticated = true
+                hasCompletedProfile = true
+                hasCompletedOnboarding = true
+                isLoading = false
+            }
+        }
+    }
+    
+    // Change from private to internal
+    func isValidEmailFormat(_ email: String) -> Bool {
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
+        return emailPred.evaluate(with: email)
     }
 }
 
 struct OnboardingView: View {
     @StateObject private var viewModel = OnboardingViewModel()
-    @State private var isSignUp = true
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         NavigationView {
             ZStack {
+                // Background gradient
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color(red: 44/255, green: 8/255, blue: 52/255),
-                        Color.purple.opacity(0.3),
-                        Color(hue: 0.83, saturation: 0.3, brightness: 0.9)
+                        Color(red: 0.9, green: 0.6, blue: 0.9),
+                        Color(red: 0.7, green: 0.3, blue: 0.7)
                     ]),
-                    startPoint: .top,
-                    endPoint: .bottom
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 24) {
-                        Text(isSignUp ? "Create Account" : "Welcome Back")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                        
-                        // Sign in with Apple button
-                        SignInWithAppleButton(
-                            onRequest: viewModel.handleSignInWithAppleRequest,
-                            onCompletion: { result in
-                                Task {
-                                    await viewModel.handleSignInWithAppleCompletion(result)
-                                }
-                            }
-                        )
-                        .frame(height: 50)
-                        .padding(.horizontal)
-                        
-                        Text("or")
-                            .foregroundColor(.white.opacity(0.8))
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
-                        
-                        VStack(spacing: 16) {
-                            if isSignUp {
-                                TextField("Display Name", text: $viewModel.displayName)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                    .autocapitalization(.words)
-                            }
-                            
-                            TextField("Email", text: $viewModel.email)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .autocapitalization(.none)
-                                .keyboardType(.emailAddress)
-                            
-                            SecureField("Password", text: $viewModel.password)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                        }
-                        .padding(.horizontal)
-                        
-                        if let error = viewModel.errorMessage {
-                            Text(error)
-                                .foregroundColor(.red)
-                                .font(.system(size: 14, weight: .medium, design: .rounded))
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal)
-                        }
-                        
-                        Button(action: {
-                            Task {
-                                if isSignUp {
-                                    await viewModel.signUp()
-                                } else {
-                                    await viewModel.signIn()
-                                }
-                            }
-                        }) {
-                            if viewModel.isLoading {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            } else {
-                                Text(isSignUp ? "Create Account" : "Sign In")
-                                    .font(.system(size: 18, weight: .medium, design: .rounded))
-                            }
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color.purple.opacity(0.8),
-                                    Color.purple.opacity(0.6)
-                                ]),
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .cornerRadius(12)
-                        .padding(.horizontal)
-                        .disabled(viewModel.isLoading)
-                        
-                        Button(action: { isSignUp.toggle() }) {
-                            Text(isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up")
-                                .foregroundColor(.white.opacity(0.8))
-                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                        switch viewModel.currentStep {
+                        case .signIn:
+                            SignInView(viewModel: viewModel)
+                        case .name:
+                            NameView(viewModel: viewModel)
+                        case .email:
+                            EmailView(viewModel: viewModel)
+                        case .country:
+                            CountryView(viewModel: viewModel)
+                        case .dateOfBirth:
+                            DateOfBirthView(viewModel: viewModel)
+                        case .notifications:
+                            NotificationsView(viewModel: viewModel)
                         }
                     }
+                    .padding(.horizontal, 20)
                     .padding(.vertical, 40)
                 }
             }
             .navigationBarHidden(true)
         }
-        .onAppear {
-            viewModel.checkAuthState()
+    }
+}
+
+struct SignInView: View {
+    @ObservedObject var viewModel: OnboardingViewModel
+    
+    var body: some View {
+        VStack(spacing: 32) {
+            // Logo
+            Image("HotGirlStepsLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150, height: 150)
+            
+            // Welcome Text
+            VStack(spacing: 16) {
+                Text("Welcome to Hot Girl Steps")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                
+                Text("Your daily steps just got a whole lot more interesting.")
+                    .font(.body)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+            }
+            
+            // Sign in with Apple button
+            SignInWithAppleButton(
+                onRequest: viewModel.handleSignInWithAppleRequest,
+                onCompletion: { result in
+                    Task {
+                        await viewModel.handleSignInWithAppleCompletion(result)
+                    }
+                }
+            )
+            .signInWithAppleButtonStyle(.white)
+            .frame(height: 50)
+            .cornerRadius(25)
+            .padding(.horizontal, 40)
+            
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+                    .font(.subheadline)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 8)
+            }
         }
     }
 }
 
-struct SignInWithAppleButton: UIViewRepresentable {
-    let onRequest: (ASAuthorizationAppleIDRequest) -> Void
-    let onCompletion: (Result<ASAuthorization, Error>) -> Void
+struct NameView: View {
+    @ObservedObject var viewModel: OnboardingViewModel
     
-    func makeUIView(context: Context) -> ASAuthorizationAppleIDButton {
-        let button = ASAuthorizationAppleIDButton(type: .signIn, style: .white)
-        button.addTarget(context.coordinator, action: #selector(Coordinator.handleTap), for: .touchUpInside)
-        return button
-    }
-    
-    func updateUIView(_ uiView: ASAuthorizationAppleIDButton, context: Context) {}
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
-        let parent: SignInWithAppleButton
-        
-        init(_ parent: SignInWithAppleButton) {
-            self.parent = parent
-        }
-        
-        @objc func handleTap() {
-            let provider = ASAuthorizationAppleIDProvider()
-            let request = provider.createRequest()
-            parent.onRequest(request)
+    var body: some View {
+        VStack(spacing: 32) {
+            Image(systemName: "person.crop.circle.badge.plus")
+                .font(.system(size: 60))
+                .foregroundColor(.white)
             
-            let controller = ASAuthorizationController(authorizationRequests: [request])
-            controller.delegate = self
-            controller.presentationContextProvider = self
-            controller.performRequests()
+            VStack(spacing: 16) {
+                Text("What should we call you?")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Text("Don't worry, we won't judge if it's your real name or your alter ego. 😉")
+                    .font(.body)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+            }
+            
+            TextField("Your fabulous name", text: $viewModel.displayName)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .autocapitalization(.words)
+                .padding(.horizontal, 40)
+            
+            Button(action: {
+                Task {
+                    await viewModel.saveName()
+                }
+            }) {
+                Text("Next")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color.purple)
+                    .cornerRadius(25)
+            }
+            .padding(.horizontal, 40)
+            .disabled(viewModel.displayName.isEmpty)
+            .opacity(viewModel.displayName.isEmpty ? 0.6 : 1.0)
+            
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+                    .font(.subheadline)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 8)
+            }
         }
-        
-        func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-            UIApplication.shared.windows.first!
+    }
+}
+
+struct EmailView: View {
+    @ObservedObject var viewModel: OnboardingViewModel
+    
+    var body: some View {
+        VStack(spacing: 32) {
+            Image(systemName: "envelope.badge.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.white)
+            
+            VStack(spacing: 16) {
+                Text("Stay in the Loop!")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+            }
+            
+            VStack(spacing: 24) {
+                TextField("Your email address", text: $viewModel.email)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .autocapitalization(.none)
+                    .keyboardType(.emailAddress)
+                    .padding(.horizontal, 40)
+                    .foregroundColor(.black)
+                
+                if viewModel.showEmailError {
+                    Text("Oops! That doesn't look like a real email address. We need the real deal to keep you in the loop! 📧")
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                        .transition(.opacity)
+                } else {
+                    Text("We promise to only send you the good stuff - no spam, just hot girl energy! ✨")
+                        .font(.body)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                }
+                
+                Toggle(isOn: $viewModel.marketingConsent) {
+                    Text("Send me emails about new features and updates")
+                        .foregroundColor(.white)
+                        .font(.subheadline)
+                }
+                .toggleStyle(SwitchToggleStyle(tint: Color(red: 0.7, green: 0.3, blue: 0.7)))
+                .padding(.horizontal, 40)
+            }
+            
+            Button(action: {
+                Task {
+                    await viewModel.saveEmail()
+                }
+            }) {
+                Text("Next")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color(red: 0.7, green: 0.3, blue: 0.7))
+                    .cornerRadius(25)
+            }
+            .padding(.horizontal, 40)
+            .disabled(viewModel.isLoading)
+            .opacity(viewModel.isLoading ? 0.6 : 1.0)
+            
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.white)
+                    .font(.subheadline)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 8)
+            }
         }
-        
-        func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-            parent.onCompletion(.success(authorization))
+    }
+}
+
+struct CountryView: View {
+    @ObservedObject var viewModel: OnboardingViewModel
+    
+    var body: some View {
+        VStack(spacing: 32) {
+            Image(systemName: "globe.americas.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.white)
+            
+            VStack(spacing: 16) {
+                Text("Where's Your Hot Girl Energy Coming From?")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Text("Don't worry, we're not stalking you - we just want to send you the right timezone vibes! 🌍")
+                    .font(.body)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+            }
+            
+            VStack(spacing: 24) {
+                Picker("Select your country", selection: $viewModel.country) {
+                    Text("Select a country").tag("")
+                        .foregroundColor(.white.opacity(0.7))
+                    ForEach(viewModel.countries, id: \.self) { country in
+                        Text(country).tag(country)
+                            .foregroundColor(.white)
+                    }
+                }
+                .pickerStyle(MenuPickerStyle())
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color(red: 0.4, green: 0.2, blue: 0.4))
+                .cornerRadius(10)
+                .padding(.horizontal, 40)
+                .accentColor(.white)
+                .onChange(of: viewModel.country) { newValue in
+                    viewModel.hasSelectedCountry = !newValue.isEmpty
+                }
+                
+                if viewModel.hasSelectedCountry {
+                    Text("Your country is so lucky to have you")
+                        .font(.body)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                        .transition(.opacity)
+                }
+            }
+            
+            Button(action: {
+                Task {
+                    await viewModel.saveCountry()
+                }
+            }) {
+                Text("Next")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color(red: 0.7, green: 0.3, blue: 0.7))
+                    .cornerRadius(25)
+            }
+            .padding(.horizontal, 40)
+            .disabled(viewModel.country.isEmpty)
+            .opacity(viewModel.country.isEmpty ? 0.6 : 1.0)
+            
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.white)
+                    .font(.subheadline)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 8)
+            }
         }
-        
-        func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-            parent.onCompletion(.failure(error))
+    }
+}
+
+struct DateOfBirthView: View {
+    @ObservedObject var viewModel: OnboardingViewModel
+    
+    var body: some View {
+        VStack(spacing: 32) {
+            Image(systemName: "gift.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.white)
+            
+            VStack(spacing: 16) {
+                Text("When's Your Birthday?")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Text("Don't worry, we won't tell anyone your age - it's just between us! 🎂")
+                    .font(.body)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+            }
+            
+            VStack(spacing: 24) {
+                DatePicker("Date of Birth", selection: $viewModel.dateOfBirth, in: ...Date(), displayedComponents: [.date])
+                    .datePickerStyle(WheelDatePickerStyle())
+                    .labelsHidden()
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 15)
+                            .fill(Color(red: 0.4, green: 0.2, blue: 0.4))
+                            .padding(.horizontal, 20)
+                    )
+                    .padding(.vertical, 20)
+                    .colorScheme(.dark)
+                    .accentColor(.white)
+                    .foregroundColor(.white)
+                
+                Text("Swipe to select your birthday")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.9))
+                    .padding(.top, -8)
+            }
+            .padding(.horizontal, 20)
+            
+            Spacer()
+            
+            Button(action: {
+                Task {
+                    await viewModel.saveDateOfBirth()
+                }
+            }) {
+                Text("Next")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color(red: 0.7, green: 0.3, blue: 0.7))
+                    .cornerRadius(25)
+            }
+            .padding(.horizontal, 40)
+            
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.white)
+                    .font(.subheadline)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 8)
+            }
+        }
+    }
+}
+
+struct NotificationsView: View {
+    @ObservedObject var viewModel: OnboardingViewModel
+    
+    var body: some View {
+        VStack(spacing: 32) {
+            Spacer()
+            
+            Image(systemName: "bell.badge.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.white)
+            
+            VStack(spacing: 16) {
+                Text("Stay in the Loop!")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Text("Get reminded to take your daily steps and stay on track with your goals.")
+                    .font(.body)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+            }
+            
+            Spacer()
+            
+            Button(action: {
+                Task {
+                    await viewModel.requestNotifications()
+                }
+            }) {
+                Text("✨ Let's Get Notified! ✨")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(
+                        RoundedRectangle(cornerRadius: 25)
+                            .fill(Color.purple)
+                            .shadow(color: .purple.opacity(0.3), radius: 10, x: 0, y: 5)
+                    )
+            }
+            .padding(.horizontal, 40)
+            .padding(.bottom, 40)
         }
     }
 }

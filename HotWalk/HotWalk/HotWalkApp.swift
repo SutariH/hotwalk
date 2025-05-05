@@ -32,7 +32,9 @@ struct HotWalkApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if appState.isAuthenticated {
+            if !hasCompletedOnboarding {
+                OnboardingView()
+            } else if appState.isAuthenticated {
                 ContentView()
             } else {
                 OnboardingView()
