@@ -25,34 +25,84 @@ class FriendManager: ObservableObject {
     @Published var friends: [Friend] = []
     @Published var pendingInvites: [Friend] = []
     private let db = Firestore.firestore()
-    private var updateTimer: Timer?
     private var shaylaTimer: Timer?
-    private var friendsListener: ListenerRegistration?
-    private var invitesListener: ListenerRegistration?
     private var lastShaylaUpdate: Date = Date()
     private let shaylaUpdateInterval: TimeInterval = 300 // 5 minutes
     
+    // Add UserDefaults keys for caching
+    private enum UserDefaultsKeys {
+        static let friends = "cachedFriends"
+        static let pendingInvites = "cachedPendingInvites"
+        static let lastFriendsUpdate = "lastFriendsUpdate"
+        static let lastInvitesUpdate = "lastInvitesUpdate"
+        static let lastAppOpen = "lastAppOpen"
+    }
+    
     init() {
         setupShayla()
-        fetchFriends()
-        fetchPendingInvites()
-        setupStepUpdateTimer()
+        loadCachedData()
+        checkAndUpdateData()
     }
     
     deinit {
-        friendsListener?.remove()
-        invitesListener?.remove()
-        updateTimer?.invalidate()
         shaylaTimer?.invalidate()
     }
     
-    private func setupStepUpdateTimer() {
-        // Update every hour
-        updateTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
-            self?.updateFriendsSteps()
+    private func checkAndUpdateData() {
+        // Check if we need to update based on last app open
+        if let lastOpen = UserDefaults.standard.object(forKey: UserDefaultsKeys.lastAppOpen) as? Date {
+            let hoursSinceLastOpen = Date().timeIntervalSince(lastOpen) / 3600
+            
+            // Update if more than 4 hours have passed since last open
+            if hoursSinceLastOpen >= 4 {
+                updateAllData()
+            }
+        } else {
+            // First time opening the app
+            updateAllData()
         }
-        // Initial update
+        
+        // Update last app open time
+        UserDefaults.standard.set(Date(), forKey: UserDefaultsKeys.lastAppOpen)
+    }
+    
+    private func updateAllData() {
+        fetchFriends()
+        fetchPendingInvites()
         updateFriendsSteps()
+    }
+    
+    private func loadCachedData() {
+        // Load cached friends
+        if let friendsData = UserDefaults.standard.data(forKey: UserDefaultsKeys.friends),
+           let cachedFriends = try? JSONDecoder().decode([Friend].self, from: friendsData) {
+            self.friends = cachedFriends
+        }
+        
+        // Load cached pending invites
+        if let invitesData = UserDefaults.standard.data(forKey: UserDefaultsKeys.pendingInvites),
+           let cachedInvites = try? JSONDecoder().decode([Friend].self, from: invitesData) {
+            self.pendingInvites = cachedInvites
+        }
+    }
+    
+    private func cacheFriends(_ friends: [Friend]) {
+        if let encodedData = try? JSONEncoder().encode(friends) {
+            UserDefaults.standard.set(encodedData, forKey: UserDefaultsKeys.friends)
+            UserDefaults.standard.set(Date(), forKey: UserDefaultsKeys.lastFriendsUpdate)
+        }
+    }
+    
+    private func cachePendingInvites(_ invites: [Friend]) {
+        if let encodedData = try? JSONEncoder().encode(invites) {
+            UserDefaults.standard.set(encodedData, forKey: UserDefaultsKeys.pendingInvites)
+            UserDefaults.standard.set(Date(), forKey: UserDefaultsKeys.lastInvitesUpdate)
+        }
+    }
+    
+    // Add a manual refresh function
+    func refreshData() {
+        updateAllData()
     }
     
     private func updateFriendsSteps() {
@@ -89,11 +139,14 @@ class FriendManager: ObservableObject {
                            let sum = result.sumQuantity() {
                             let steps = Int(sum.doubleValue(for: HKUnit.count()))
                             
-                            // Update Firestore
-                            self.db.collection("friends").document(friend.id).updateData([
-                                "stepsToday": steps,
-                                "lastStepsUpdate": FieldValue.serverTimestamp()
-                            ])
+                            // Update local cache instead of Firestore
+                            if let index = self.friends.firstIndex(where: { $0.id == friend.id }) {
+                                var updatedFriends = self.friends
+                                updatedFriends[index].stepsToday = steps
+                                updatedFriends[index].lastStepsUpdate = Date()
+                                self.friends = updatedFriends
+                                self.cacheFriends(updatedFriends)
+                            }
                         }
                     }
                     
@@ -125,25 +178,27 @@ class FriendManager: ObservableObject {
             updatedFriends[index].stepsToday = ShaylaBot.shared.stepsToday
             updatedFriends[index].lastStepsUpdate = ShaylaBot.shared.lastStepsUpdate
             friends = updatedFriends
+            cacheFriends(updatedFriends)
         }
     }
     
     func fetchFriends() {
         guard let currentUserId = Auth.auth().currentUser?.uid else { return }
         
-        // Remove existing listener
-        friendsListener?.remove()
+        // Check if we need to update (less than an hour old)
+        if let lastUpdate = UserDefaults.standard.object(forKey: UserDefaultsKeys.lastFriendsUpdate) as? Date,
+           Date().timeIntervalSince(lastUpdate) < 3600 {
+            return
+        }
         
-        friendsListener = db.collection("friends")
-            .whereField("userId", isEqualTo: currentUserId)
-            .whereField("status", isEqualTo: Friend.FriendStatus.accepted.rawValue)
-            .addSnapshotListener { [weak self] snapshot, error in
-                guard let documents = snapshot?.documents else {
-                    print("Error fetching friends: \(error?.localizedDescription ?? "Unknown error")")
-                    return
-                }
+        Task {
+            do {
+                let snapshot = try await db.collection("friends")
+                    .whereField("userId", isEqualTo: currentUserId)
+                    .whereField("status", isEqualTo: Friend.FriendStatus.accepted.rawValue)
+                    .getDocuments()
                 
-                var fetchedFriends = documents.compactMap { document in
+                var fetchedFriends = snapshot.documents.compactMap { document in
                     try? document.data(as: Friend.self)
                 }
                 
@@ -163,26 +218,44 @@ class FriendManager: ObservableObject {
                 // Add her back with current data
                 fetchedFriends.append(shayla)
                 
-                self?.friends = fetchedFriends
+                await MainActor.run {
+                    self.friends = fetchedFriends
+                    self.cacheFriends(fetchedFriends)
+                }
+            } catch {
+                print("Error fetching friends: \(error.localizedDescription)")
             }
+        }
     }
     
     func fetchPendingInvites() {
         guard let currentUserId = Auth.auth().currentUser?.uid else { return }
         
-        db.collection("friends")
-            .whereField("friendId", isEqualTo: currentUserId)
-            .whereField("status", isEqualTo: Friend.FriendStatus.pending.rawValue)
-            .addSnapshotListener { [weak self] snapshot, error in
-                guard let documents = snapshot?.documents else {
-                    print("Error fetching pending invites: \(error?.localizedDescription ?? "Unknown error")")
-                    return
-                }
+        // Check if we need to update (less than an hour old)
+        if let lastUpdate = UserDefaults.standard.object(forKey: UserDefaultsKeys.lastInvitesUpdate) as? Date,
+           Date().timeIntervalSince(lastUpdate) < 3600 {
+            return
+        }
+        
+        Task {
+            do {
+                let snapshot = try await db.collection("friends")
+                    .whereField("friendId", isEqualTo: currentUserId)
+                    .whereField("status", isEqualTo: Friend.FriendStatus.pending.rawValue)
+                    .getDocuments()
                 
-                self?.pendingInvites = documents.compactMap { document in
+                let fetchedInvites = snapshot.documents.compactMap { document in
                     try? document.data(as: Friend.self)
                 }
+                
+                await MainActor.run {
+                    self.pendingInvites = fetchedInvites
+                    self.cachePendingInvites(fetchedInvites)
+                }
+            } catch {
+                print("Error fetching pending invites: \(error.localizedDescription)")
             }
+        }
     }
     
     func sendFriendRequest(to friendId: String) {
