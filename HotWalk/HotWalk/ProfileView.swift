@@ -1,13 +1,18 @@
 import SwiftUI
 import FirebaseFirestore
+import FirebaseAuth
+import StoreKit
 
 struct ProfileView: View {
-    @AppStorage("userID") private var userID: String = ""
     @State private var userData: [String: Any] = [:]
     @State private var isLoading = true
     @State private var errorMessage: String?
     @StateObject private var viewModel = HotGirlStepsViewModel()
     @State private var showingGoalEditor = false
+    
+    private var currentUserID: String {
+        Auth.auth().currentUser?.uid ?? ""
+    }
     
     var body: some View {
         ZStack {
@@ -97,6 +102,60 @@ struct ProfileView: View {
                         .background(Color.white.opacity(0.05))
                         .cornerRadius(16)
                         .padding(.horizontal)
+                        
+                        // Buttons Section
+                        VStack(spacing: 16) {
+                            // Edit Profile Button
+                            Button(action: {
+                                // Add edit profile action here
+                            }) {
+                                HStack {
+                                    Image(systemName: "pencil")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(.white)
+                                    
+                                    Text("Edit Profile")
+                                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                                        .foregroundColor(.white)
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(.white.opacity(0.7))
+                                }
+                                .padding()
+                                .background(Color.white.opacity(0.1))
+                                .cornerRadius(12)
+                            }
+                            
+                            // Leave a Review Button
+                            Button(action: {
+                                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                                    SKStoreReviewController.requestReview(in: windowScene)
+                                }
+                            }) {
+                                HStack {
+                                    Image(systemName: "star.fill")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(.yellow)
+                                    
+                                    Text("Leave a Review")
+                                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                                        .foregroundColor(.white)
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 14, weight: .semibold))
+                                        .foregroundColor(.white.opacity(0.7))
+                                }
+                                .padding()
+                                .background(Color.white.opacity(0.1))
+                                .cornerRadius(12)
+                            }
+                        }
+                        .padding(.horizontal)
                     }
                     .padding(.bottom, 32)
                 }
@@ -111,11 +170,17 @@ struct ProfileView: View {
     }
     
     private func fetchUserData() {
+        guard !currentUserID.isEmpty else {
+            errorMessage = "Please sign in to view your profile"
+            isLoading = false
+            return
+        }
+        
         isLoading = true
         errorMessage = nil
         
         let db = Firestore.firestore()
-        db.collection("users").document(userID).getDocument { document, error in
+        db.collection("users").document(currentUserID).getDocument { document, error in
             isLoading = false
             
             if let error = error {
