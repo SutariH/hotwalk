@@ -59,6 +59,9 @@ class FriendManager: ObservableObject {
         guard let currentUserId = Auth.auth().currentUser?.uid else { return }
         
         for friend in friends {
+            // Skip Shayla bot as she's handled locally
+            if friend.friendId == "shayla_bot" { continue }
+            
             Task {
                 do {
                     // Get friend's steps from HealthKit
@@ -102,24 +105,6 @@ class FriendManager: ObservableObject {
         }
     }
     
-    private func migrateExistingFriends() {
-        let batch = db.batch()
-        
-        for friend in friends {
-            let friendRef = db.collection("friends").document(friend.id)
-            batch.updateData([
-                "stepsToday": 0,
-                "lastStepsUpdate": FieldValue.serverTimestamp()
-            ], forDocument: friendRef)
-        }
-        
-        batch.commit { error in
-            if let error = error {
-                print("Error migrating friends: \(error.localizedDescription)")
-            }
-        }
-    }
-    
     private func setupShayla() {
         // Update Shayla's steps every hour
         shaylaTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
@@ -134,7 +119,7 @@ class FriendManager: ObservableObject {
         ShaylaBot.shared.updateSteps()
         lastShaylaUpdate = now
         
-        // Update Shayla in friends list
+        // Update Shayla in friends list locally
         if let index = friends.firstIndex(where: { $0.friendId == "shayla_bot" }) {
             var updatedFriends = friends
             updatedFriends[index].stepsToday = ShaylaBot.shared.stepsToday
@@ -162,7 +147,7 @@ class FriendManager: ObservableObject {
                     try? document.data(as: Friend.self)
                 }
                 
-                // Add Shayla to the list
+                // Add Shayla to the list locally
                 let shayla = Friend(
                     id: "shayla_bot",
                     userId: currentUserId,
@@ -251,32 +236,15 @@ class FriendManager: ObservableObject {
     }
     
     func rejectFriendRequest(_ friend: Friend) {
-        guard !friend.id.isEmpty else { return }
         db.collection("friends").document(friend.id).updateData([
             "status": Friend.FriendStatus.rejected.rawValue
         ])
     }
     
     func removeFriend(_ friend: Friend) {
-        guard !friend.id.isEmpty else { return }
+        // Skip if it's Shayla bot
+        if friend.friendId == "shayla_bot" { return }
         
-        // Remove both friend entries
-        db.collection("friends")
-            .whereField("userId", isEqualTo: friend.userId)
-            .whereField("friendId", isEqualTo: friend.friendId)
-            .getDocuments { snapshot, error in
-                snapshot?.documents.forEach { document in
-                    document.reference.delete()
-                }
-            }
-        
-        db.collection("friends")
-            .whereField("userId", isEqualTo: friend.friendId)
-            .whereField("friendId", isEqualTo: friend.userId)
-            .getDocuments { snapshot, error in
-                snapshot?.documents.forEach { document in
-                    document.reference.delete()
-                }
-            }
+        db.collection("friends").document(friend.id).delete()
     }
 } 

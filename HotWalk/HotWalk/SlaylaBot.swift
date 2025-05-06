@@ -14,8 +14,13 @@ class ShaylaBot: ObservableObject {
     
     @Published var stepsToday: Int = 0
     @Published var lastStepsUpdate: Date = Date()
+    @Published var todaysMessage: String = ""
+    @Published var showMessageButton: Bool = false
+    private var lastMessageDate: Date?
+    private var lastMessageShown: Bool = false
     private var lastGoalCheck: Date = Date()
-    private let goalCheckInterval: TimeInterval = 300 // Check goal every 5 minutes
+    private let goalCheckInterval: TimeInterval = 3600 // Check every hour for morning time
+    private var morningCheckTimer: Timer?
     
     private init() {
         // Get goal from UserDefaults
@@ -30,18 +35,84 @@ class ShaylaBot: ObservableObject {
         // Set up timer for periodic updates
         Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
             self?.updateSteps()
+            self?.checkForMessage()
+        }
+        
+        // Set up morning check timer
+        setupMorningCheckTimer()
+    }
+    
+    private func setupMorningCheckTimer() {
+        // Check every hour for morning time
+        morningCheckTimer = Timer.scheduledTimer(withTimeInterval: goalCheckInterval, repeats: true) { [weak self] _ in
+            self?.checkForMorningGoalUpdate()
         }
     }
     
-    func checkAndUpdateGoal() {
+    private func checkForMorningGoalUpdate() {
+        let calendar = Calendar.current
         let now = Date()
-        guard now.timeIntervalSince(lastGoalCheck) >= goalCheckInterval else { return }
+        let hour = calendar.component(.hour, from: now)
         
-        let newGoal = UserDefaults.standard.integer(forKey: "dailyGoal")
-        if newGoal != userGoal && newGoal > 0 {
-            userGoal = newGoal
+        // Check if it's morning (between 6 AM and 7 AM)
+        if hour == 6 {
+            // Check if we haven't updated the goal today
+            let lastCheckDay = calendar.component(.day, from: lastGoalCheck)
+            let currentDay = calendar.component(.day, from: now)
+            
+            if lastCheckDay != currentDay {
+                let newGoal = UserDefaults.standard.integer(forKey: "dailyGoal")
+                if newGoal != userGoal && newGoal > 0 {
+                    userGoal = newGoal
+                    lastGoalCheck = now
+                }
+            }
         }
-        lastGoalCheck = now
+    }
+    
+    private func checkForMessage() {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        // Check if we already sent a message today
+        if let lastMessage = lastMessageDate {
+            let lastMessageDay = calendar.component(.day, from: lastMessage)
+            let currentDay = calendar.component(.day, from: now)
+            if lastMessageDay == currentDay {
+                return // Already sent a message today
+            }
+        }
+        
+        let hour = calendar.component(.hour, from: now)
+        let progress = Double(stepsToday) / Double(userGoal)
+        
+        // Send message if it's afternoon (2 PM or later) or user has reached 50% of their goal
+        if hour >= 14 || progress >= 0.5 {
+            todaysMessage = getMotivationalMessage()
+            lastMessageDate = now
+            lastMessageShown = false
+            showMessageButton = true
+        }
+    }
+    
+    func getMessage() -> String? {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        // If no message has been set for today, return nil
+        guard let lastMessage = lastMessageDate else { return nil }
+        
+        // Check if the message is from today
+        let lastMessageDay = calendar.component(.day, from: lastMessage)
+        let currentDay = calendar.component(.day, from: now)
+        
+        if lastMessageDay == currentDay && !lastMessageShown {
+            lastMessageShown = true
+            showMessageButton = false // Hide the button after showing the message
+            return todaysMessage
+        }
+        
+        return nil
     }
     
     func generateSteps() -> Int {
@@ -67,7 +138,19 @@ class ShaylaBot: ObservableObject {
             finalMultiplier = baseProgress * 1.5
         }
         
-        return Int(Double(userGoal) * finalMultiplier)
+        // Generate base steps
+        let baseSteps = Int(Double(userGoal) * finalMultiplier)
+        
+        // Add random variation to make it look more natural
+        let randomVariation = Int.random(in: -247...389) // Random number that doesn't end in 0
+        
+        // Ensure the final number doesn't end in 0
+        var finalSteps = baseSteps + randomVariation
+        while finalSteps % 10 == 0 {
+            finalSteps += Int.random(in: 1...9)
+        }
+        
+        return finalSteps
     }
     
     func updateSteps() {

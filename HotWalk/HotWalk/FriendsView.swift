@@ -233,13 +233,10 @@ struct FriendCard: View {
     let friend: Friend
     let onRemove: () -> Void
     @State private var showingMessage = false
+    @ObservedObject private var shayla = ShaylaBot.shared
     
     private var isShayla: Bool {
         friend.friendId == "shayla_bot"
-    }
-    
-    private func getMotivationalMessage() -> String {
-        return ShaylaBot.shared.getMotivationalMessage()
     }
     
     var body: some View {
@@ -264,8 +261,12 @@ struct FriendCard: View {
                 .foregroundColor(.white.opacity(0.8))
                 .padding(.top, 2)
                 
-                if isShayla {
-                    Button(action: { showingMessage = true }) {
+                if isShayla && shayla.showMessageButton {
+                    Button(action: { 
+                        if let message = shayla.getMessage() {
+                            showingMessage = true
+                        }
+                    }) {
                         Text("Shayla has a message to you 💌")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(.white)
@@ -312,7 +313,7 @@ struct FriendCard: View {
         .alert(isShayla ? "One New Message" : "Friend", isPresented: $showingMessage) {
             Button("OK", role: .cancel) { }
         } message: {
-            Text(getMotivationalMessage())
+            Text(shayla.todaysMessage)
         }
     }
 }
