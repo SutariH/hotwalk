@@ -56,7 +56,9 @@ class BaseInvitationHandler {
             userId: invitation["inviterId"] as! String,
             friendId: currentUser.uid,
             status: .pending,
-            timestamp: Date()
+            timestamp: Date(),
+            stepsToday: 0,
+            lastStepsUpdate: Date()
         )
         
         try await db.collection("friends").document(friend.id).setData(from: friend)

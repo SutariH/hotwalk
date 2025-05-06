@@ -41,18 +41,19 @@ struct RealityShowView: View {
                         .fill(
                             LinearGradient(
                                 gradient: Gradient(colors: [
-                                    Color(red: 0.9, green: 0.6, blue: 0.9),
-                                    Color(red: 0.7, green: 0.3, blue: 0.7)
+                                    Color(red: 44/255, green: 8/255, blue: 52/255), // Dark purple
+                                    Color(red: 0.4, green: 0.2, blue: 0.4), // Medium purple
+                                    Color(hue: 0.83, saturation: 0.4, brightness: 0.8) // Darker purple
                                 ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+                                startPoint: .top,
+                                endPoint: .bottom
                             )
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                .stroke(Color.white.opacity(0.25), lineWidth: 1) // Increased from 0.2
                         )
-                        .shadow(color: .purple.opacity(0.3), radius: 20, x: 0, y: 10)
+                        .shadow(color: .purple.opacity(0.4), radius: 20, x: 0, y: 10) // Increased from 0.3
                 )
                 
                 // Episodes Section
@@ -86,18 +87,19 @@ struct RealityShowView: View {
                         .fill(
                             LinearGradient(
                                 gradient: Gradient(colors: [
-                                    Color(red: 0.9, green: 0.6, blue: 0.9),
-                                    Color(red: 0.7, green: 0.3, blue: 0.7)
+                                    Color(red: 44/255, green: 8/255, blue: 52/255), // Dark purple
+                                    Color(red: 0.4, green: 0.2, blue: 0.4), // Medium purple
+                                    Color(hue: 0.83, saturation: 0.4, brightness: 0.8) // Darker purple
                                 ]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+                                startPoint: .top,
+                                endPoint: .bottom
                             )
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                .stroke(Color.white.opacity(0.25), lineWidth: 1) // Increased from 0.2
                         )
-                        .shadow(color: .purple.opacity(0.3), radius: 20, x: 0, y: 10)
+                        .shadow(color: .purple.opacity(0.4), radius: 20, x: 0, y: 10) // Increased from 0.3
                 )
             }
             .padding(.horizontal, 16)
@@ -106,9 +108,9 @@ struct RealityShowView: View {
         .background(
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(red: 44/255, green: 8/255, blue: 52/255),
-                    Color.purple.opacity(0.3),
-                    Color(hue: 0.83, saturation: 0.3, brightness: 0.9)
+                    Color(red: 44/255, green: 8/255, blue: 52/255), // Dark purple
+                    Color(red: 0.4, green: 0.2, blue: 0.4), // Medium purple
+                    Color(hue: 0.83, saturation: 0.4, brightness: 0.8) // Darker purple
                 ]),
                 startPoint: .top,
                 endPoint: .bottom
@@ -228,13 +230,13 @@ struct EpisodeCard: View {
     private var backgroundColor: Color {
         switch episode.unlockType {
         case .steps:
-            return isUnlocked ? Color(hex: "3cb9d6") : Color(hex: "aae4fc") // Darker blue when unlocked, light blue when locked
+            return isUnlocked ? Color(hex: "2a9db6") : Color(hex: "8ac4d6") // Darker blue when unlocked, darker light blue when locked
         case .streak:
-            return isUnlocked ? Color(hex: "ab67db") : Color(hex: "D8A6ED") // Darker purple when unlocked, light purple when locked
+            return isUnlocked ? Color(hex: "8b47bb") : Color(hex: "b886d3") // Darker purple when unlocked, darker light purple when locked
         case .invite:
-            return isUnlocked ? Color(hex: "e06ebd") : Color(hex: "ec9aca") // Darker pink when unlocked, light pink when locked
+            return isUnlocked ? Color(hex: "c05e9d") : Color(hex: "d489b2") // Darker pink when unlocked, darker light pink when locked
         case .returnAfterMiss:
-            return isUnlocked ? Color(hex: "ab67db") : Color(hex: "D8A6ED") // Darker purple when unlocked, light purple when locked
+            return isUnlocked ? Color(hex: "8b47bb") : Color(hex: "b886d3") // Darker purple when unlocked, darker light purple when locked
         }
     }
     
@@ -293,13 +295,13 @@ struct EpisodePopupCard: View {
     private var backgroundColor: Color {
         switch episode.unlockType {
         case .steps:
-            return Color(hex: "3cb9d6") // Darker blue
+            return Color(hex: "2a9db6") // Darker blue
         case .streak:
-            return Color(hex: "ab67db") // Darker purple
+            return Color(hex: "8b47bb") // Darker purple
         case .invite:
-            return Color(hex: "e06ebd") // Darker pink
+            return Color(hex: "c05e9d") // Darker pink
         case .returnAfterMiss:
-            return Color(hex: "ab67db") // Darker purple
+            return Color(hex: "8b47bb") // Darker purple
         }
     }
     

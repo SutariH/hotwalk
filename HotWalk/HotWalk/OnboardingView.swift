@@ -258,7 +258,7 @@ class OnboardingViewModel: ObservableObject {
                 errorMessage = "No user found. Please sign in again."
                 isLoading = false
             }
-            return
+                return
         }
         
         do {

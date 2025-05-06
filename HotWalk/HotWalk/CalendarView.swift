@@ -141,9 +141,9 @@ struct CalendarView: View {
         ZStack {
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(red: 44/255, green: 8/255, blue: 52/255),
-                    Color.purple.opacity(0.3),
-                    Color(hue: 0.83, saturation: 0.3, brightness: 0.9)
+                    Color(red: 44/255, green: 8/255, blue: 52/255), // Dark purple
+                    Color(red: 0.4, green: 0.2, blue: 0.4), // Medium purple
+                    Color(hue: 0.83, saturation: 0.4, brightness: 0.8) // Darker purple
                 ]),
                 startPoint: .top,
                 endPoint: .bottom
@@ -251,9 +251,9 @@ struct CalendarView: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(Color.purple.opacity(0.2))
+                        .background(Color.purple.opacity(0.25))
                         .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .shadow(color: Color.purple.opacity(0.3), radius: 5, x: 0, y: 2)
+                        .shadow(color: Color.purple.opacity(0.4), radius: 5, x: 0, y: 2)
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel("Current streak: \(viewModel.streakText)")
                         
@@ -268,9 +268,9 @@ struct CalendarView: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(Color.pink.opacity(0.2))
+                        .background(Color.pink.opacity(0.25))
                         .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .shadow(color: Color.pink.opacity(0.3), radius: 5, x: 0, y: 2)
+                        .shadow(color: Color.pink.opacity(0.4), radius: 5, x: 0, y: 2)
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel("\(HotGirlPassManager.shared.currentPassCount) Hot Girl Passes remaining")
                     }
@@ -303,7 +303,7 @@ struct CalendarView: View {
                             .frame(width: 200)
                         }
                         .padding()
-                        .background(Color.purple.opacity(0.2))
+                        .background(Color.purple.opacity(0.25))
                         .cornerRadius(15)
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel("\(selectedDate == nil ? todaySteps : selectedDateSteps) steps out of \(viewModel.dailyGoal) goal")
@@ -368,8 +368,8 @@ struct CalendarView: View {
                             RoundedRectangle(cornerRadius: 15)
                                 .fill(
                                     selectedDate == nil ? 
-                                        (todaySteps >= viewModel.dailyGoal ? Color.purple.opacity(0.2) : Color.gray.opacity(0.2)) :
-                                        (selectedDateSteps >= viewModel.dailyGoal ? Color.purple.opacity(0.2) : Color.gray.opacity(0.2))
+                                        (todaySteps >= viewModel.dailyGoal ? Color.purple.opacity(0.25) : Color.gray.opacity(0.25)) :
+                                        (selectedDateSteps >= viewModel.dailyGoal ? Color.purple.opacity(0.25) : Color.gray.opacity(0.25))
                                 )
                         )
                         .accessibilityElement(children: .combine)
@@ -388,9 +388,9 @@ struct CalendarView: View {
                             .padding(.horizontal, 16)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.white.opacity(0.1))
+                                    .fill(Color.white.opacity(0.15))
                             )
-                            .shadow(color: Color.purple.opacity(0.3), radius: 5, x: 0, y: 0)
+                            .shadow(color: Color.purple.opacity(0.4), radius: 5, x: 0, y: 0)
                             .padding(.top, 5)
                             .accessibilityLabel(getReactionMessage(for: selectedDate == nil ? .today : selectedDateStatus))
                     }
@@ -704,20 +704,20 @@ struct DayCell: View {
     
     private var backgroundColor: Color {
         if isGoalMet {
-            return Color.purple.opacity(0.3)
+            return Color.purple.opacity(0.35)
         } else if wasPassUsed {
-            return Color.pink.opacity(0.3)
+            return Color.pink.opacity(0.35)
         }
         return Color.clear
     }
     
     private var borderColor: Color {
         if isGoalMet {
-            return Color.purple
+            return Color.purple.opacity(0.9)
         } else if wasPassUsed {
-            return Color.pink
+            return Color.pink.opacity(0.9)
         }
-        return Color.gray.opacity(0.3)
+        return Color.gray.opacity(0.4)
     }
     
     private var borderWidth: CGFloat {

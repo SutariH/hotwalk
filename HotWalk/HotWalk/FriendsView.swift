@@ -18,8 +18,8 @@ struct FriendsView: View {
                 LinearGradient(
                     gradient: Gradient(colors: [
                         Color(red: 44/255, green: 8/255, blue: 52/255),
-                        Color.purple.opacity(0.3),
-                        Color(hue: 0.83, saturation: 0.3, brightness: 0.9)
+                        Color(red: 0.4, green: 0.2, blue: 0.4), // Medium purple
+                        Color(hue: 0.83, saturation: 0.4, brightness: 0.8) // Darker purple
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
@@ -45,7 +45,7 @@ struct FriendsView: View {
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .padding()
-                                    .background(Color.white.opacity(0.1))
+                                    .background(Color.white.opacity(0.15))
                                     .cornerRadius(12)
                                 }
                                 
@@ -101,11 +101,11 @@ struct FriendsView: View {
                             if friendManager.friends.isEmpty {
                                 Text("No friends yet. Invite someone to start walking together!")
                                     .font(.system(size: 16, weight: .medium, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.8))
+                                    .foregroundColor(.white)
                                     .multilineTextAlignment(.center)
                                     .padding()
                                     .frame(maxWidth: .infinity)
-                                    .background(Color.white.opacity(0.1))
+                                    .background(Color.white.opacity(0.15))
                                     .cornerRadius(12)
                             } else {
                                 ForEach(friendManager.friends) { friend in
@@ -204,7 +204,7 @@ struct PendingInviteCard: View {
                 
                 Text("From: \(invite.userId)")
                     .font(.system(size: 14, weight: .regular, design: .rounded))
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(.white.opacity(0.9))
             }
             
             Spacer()
@@ -212,19 +212,19 @@ struct PendingInviteCard: View {
             HStack(spacing: 12) {
                 Button(action: { onResponse(true) }) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
+                        .foregroundColor(Color(red: 0.2, green: 0.8, blue: 0.2)) // Darker green
                         .font(.system(size: 24))
                 }
                 
                 Button(action: { onResponse(false) }) {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.red)
+                        .foregroundColor(Color(red: 0.8, green: 0.2, blue: 0.2)) // Darker red
                         .font(.system(size: 24))
                 }
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.white.opacity(0.15)) // Increased from 0.1
         .cornerRadius(12)
     }
 }
@@ -232,30 +232,88 @@ struct PendingInviteCard: View {
 struct FriendCard: View {
     let friend: Friend
     let onRemove: () -> Void
+    @State private var showingMessage = false
+    
+    private var isShayla: Bool {
+        friend.friendId == "shayla_bot"
+    }
+    
+    private func getMotivationalMessage() -> String {
+        return ShaylaBot.shared.getMotivationalMessage()
+    }
     
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Friend")
+                Text(isShayla ? "Shayla (Your Step Bestie Bot)" : "Friend")
                     .font(.system(size: 16, weight: .medium, design: .rounded))
                     .foregroundColor(.white)
                 
-                Text("ID: \(friend.friendId)")
-                    .font(.system(size: 14, weight: .regular, design: .rounded))
-                    .foregroundColor(.white.opacity(0.8))
+                if !isShayla {
+                    Text("ID: \(friend.friendId)")
+                        .font(.system(size: 14, weight: .regular, design: .rounded))
+                        .foregroundColor(.white.opacity(0.9))
+                }
+                
+                HStack(spacing: 4) {
+                    Image(systemName: "figure.walk")
+                        .font(.system(size: 12))
+                    Text("\(friend.stepsToday) steps today")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                }
+                .foregroundColor(.white.opacity(0.8))
+                .padding(.top, 2)
+                
+                if isShayla {
+                    Button(action: { showingMessage = true }) {
+                        Text("Shayla has a message to you 💌")
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.purple.opacity(0.3))
+                            .cornerRadius(8)
+                    }
+                    .padding(.top, 4)
+                }
             }
             
             Spacer()
             
-            Button(action: onRemove) {
-                Image(systemName: "person.fill.xmark")
-                    .foregroundColor(.red)
-                    .font(.system(size: 20))
+            if !isShayla {
+                Button(action: onRemove) {
+                    Image(systemName: "person.fill.xmark")
+                        .foregroundColor(Color(red: 0.8, green: 0.2, blue: 0.2))
+                        .font(.system(size: 20))
+                }
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(
+            isShayla ?
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.purple.opacity(0.3),
+                    Color.pink.opacity(0.2)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ) :
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.white.opacity(0.15),
+                    Color.white.opacity(0.15)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
         .cornerRadius(12)
+        .alert(isShayla ? "One New Message" : "Friend", isPresented: $showingMessage) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(getMotivationalMessage())
+        }
     }
 }
 
@@ -270,8 +328,8 @@ struct InviteFriendView: View {
                 LinearGradient(
                     gradient: Gradient(colors: [
                         Color(red: 44/255, green: 8/255, blue: 52/255),
-                        Color.purple.opacity(0.3),
-                        Color(hue: 0.83, saturation: 0.3, brightness: 0.9)
+                        Color(red: 0.4, green: 0.2, blue: 0.4), // Medium purple
+                        Color(hue: 0.83, saturation: 0.4, brightness: 0.8) // Darker purple
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
@@ -298,8 +356,8 @@ struct InviteFriendView: View {
                             .background(
                                 LinearGradient(
                                     gradient: Gradient(colors: [
-                                        Color.purple.opacity(0.8),
-                                        Color.purple.opacity(0.6)
+                                        Color(red: 0.5, green: 0.2, blue: 0.5), // Darker purple
+                                        Color(red: 0.4, green: 0.1, blue: 0.4) // Even darker purple
                                     ]),
                                     startPoint: .leading,
                                     endPoint: .trailing

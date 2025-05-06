@@ -67,7 +67,7 @@ struct ContentView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
-                .background(Color.white.opacity(0.1))
+                .background(Color.white.opacity(0.15))
                 .cornerRadius(12)
                 .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
             
@@ -106,9 +106,9 @@ struct ContentView: View {
             ZStack {
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color(red: 44/255, green: 8/255, blue: 52/255),
-                        Color.purple.opacity(0.3),
-                        Color(hue: 0.83, saturation: 0.3, brightness: 0.9)
+                        Color(red: 44/255, green: 8/255, blue: 52/255), // Dark purple
+                        Color(red: 0.4, green: 0.2, blue: 0.4), // Medium purple
+                        Color(hue: 0.83, saturation: 0.4, brightness: 0.8) // Darker purple
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
@@ -145,7 +145,7 @@ struct ContentView: View {
                             Text("\(Int((Double(healthManager.steps) / Double(viewModel.dailyGoal)) * 100))% of goal")
                                 .font(.system(size: 20, weight: .medium, design: .rounded))
                                 .foregroundColor(.white)
-                                .opacity(0.9)
+                                .opacity(1.0)
                             
                             Text(viewModel.currentMessage)
                                 .font(.system(size: 18, weight: .medium, design: .rounded))
@@ -154,7 +154,7 @@ struct ContentView: View {
                                 .padding(.horizontal, 24)
                                 .padding(.vertical, 16)
                                 .frame(maxWidth: .infinity)
-                                .background(Color.white.opacity(0.1))
+                                .background(Color.white.opacity(0.15))
                                 .cornerRadius(12)
                                 .padding(.horizontal)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -164,10 +164,10 @@ struct ContentView: View {
                             
                             Text(viewModel.streakText)
                                 .font(.system(size: 16, weight: .medium, design: .rounded))
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundColor(.white.opacity(0.9))
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 12)
-                                .background(Color.white.opacity(0.05))
+                                .background(Color.white.opacity(0.1))
                                 .cornerRadius(8)
                         }
                         .padding(.top, 20)

@@ -21,7 +21,7 @@ class BackgroundHealthManager: ObservableObject {
     // Motivational messages for each milestone
     private let motivationalMessages: [Double: [String]] = [
         0.5: [
-            "You're 50% there and already 100% iconic.",
+        "You're 50% there and already 100% iconic.",
             "Halfway, honey. Time to sashay the rest of that sidewalk.",
             "Midway through the walk, fully in your power.",
             "50% done? Baby, the glow-up is in motion.",
@@ -131,7 +131,7 @@ class BackgroundHealthManager: ObservableObject {
                 let threshold = Double(dailyGoal) * percentage
                 let lastNotificationDate = self.userDefaults.object(forKey: key) as? Date
                 let hasNotifiedToday = calendar.isDate(lastNotificationDate ?? Date.distantPast, inSameDayAs: now)
-                
+            
                 if steps >= threshold && !hasNotifiedToday {
                     // Save the notification date before sending
                     self.userDefaults.set(now, forKey: key)
