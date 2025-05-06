@@ -1,224 +1,316 @@
 import SwiftUI
-import FirebaseFirestore
 import FirebaseAuth
-import StoreKit
+import FirebaseFirestore
 
 struct ProfileView: View {
-    @State private var userData: [String: Any] = [:]
+    @State private var showingEditSheet = false
+    @State private var showingLogoutAlert = false
+    @State private var userProfile: UserProfile?
     @State private var isLoading = true
-    @State private var errorMessage: String?
-    @StateObject private var viewModel = HotGirlStepsViewModel()
-    @State private var showingGoalEditor = false
-    
-    private var currentUserID: String {
-        Auth.auth().currentUser?.uid ?? ""
-    }
+    private let db = Firestore.firestore()
     
     var body: some View {
-        ZStack {
-            // Background gradient
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 44/255, green: 8/255, blue: 52/255),
-                    Color.purple.opacity(0.3),
-                    Color(hue: 0.83, saturation: 0.3, brightness: 0.9)
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-            
-            if isLoading {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    .scaleEffect(1.5)
-            } else if let error = errorMessage {
-                VStack(spacing: 16) {
-                    Text("Oops! Something went wrong")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                    Text(error)
-                        .foregroundColor(.white.opacity(0.8))
-                    Button("Try Again") {
-                        fetchUserData()
+        NavigationView {
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 44/255, green: 8/255, blue: 52/255),
+                        Color(red: 0.4, green: 0.2, blue: 0.4),
+                        Color(hue: 0.83, saturation: 0.4, brightness: 0.8)
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+                
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                } else {
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            // Profile Header
+                            VStack(spacing: 16) {
+                                Image(systemName: "person.circle.fill")
+                                    .font(.system(size: 80))
+                                    .foregroundColor(.white)
+                                
+                                Text(userProfile?.displayName ?? "User")
+                                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                
+                                Text(userProfile?.email ?? "")
+                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                            .padding()
+                            
+                            // Stats Section
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("Your Stats")
+                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                
+                                HStack(spacing: 20) {
+                                    StatCard(
+                                        title: "Total Steps",
+                                        value: "\(userProfile?.totalSteps ?? 0)",
+                                        icon: "figure.walk"
+                                    )
+                                    
+                                    StatCard(
+                                        title: "Friends",
+                                        value: "\(userProfile?.friendCount ?? 0)",
+                                        icon: "person.2.fill"
+                                    )
+                                }
+                            }
+                            .padding(.horizontal)
+                            
+                            // Settings Section
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("Settings")
+                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                
+                                Button(action: { showingEditSheet = true }) {
+                                    SettingsRow(
+                                        title: "Edit Profile",
+                                        icon: "pencil",
+                                        color: .blue
+                                    )
+                                }
+                                
+                                Button(action: { showingLogoutAlert = true }) {
+                                    SettingsRow(
+                                        title: "Log Out",
+                                        icon: "arrow.right.square",
+                                        color: .red
+                                    )
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                        .padding(.vertical)
                     }
-                    .buttonStyle(ScaleButtonStyle())
                 }
-                .padding()
-            } else {
-                ScrollView {
-                    VStack(spacing: 24) {
-                        // Profile Header
-                        VStack(spacing: 16) {
-                            Text("Your Profile")
-                                .font(.system(size: 28, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
-                            
-                            // Profile Image Placeholder
-                            Circle()
-                                .fill(Color.white.opacity(0.1))
-                                .frame(width: 100, height: 100)
-                                .overlay(
-                                    Text(String((userData["name"] as? String ?? "U").prefix(1)))
-                                        .font(.system(size: 40, weight: .bold, design: .rounded))
-                                        .foregroundColor(.white)
-                                )
-                        }
-                        .padding(.top, 32)
-                        
-                        // User Information Card
-                        VStack(spacing: 20) {
-                            InfoRow(title: "Name", value: userData["name"] as? String ?? "Not set")
-                            
-                            if let createdAt = userData["createdAt"] as? Timestamp {
-                                InfoRow(
-                                    title: "Member Since",
-                                    value: formatDate(createdAt.dateValue())
-                                )
-                            }
-                            
-                            // Goal Editor Link
-                            Button(action: {
-                                showingGoalEditor = true
-                            }) {
-                                HStack {
-                                    Text("Daily Step Goal")
-                                        .font(.system(size: 16, weight: .medium, design: .rounded))
-                                        .foregroundColor(.white.opacity(0.7))
-                                    
-                                    Spacer()
-                                    
-                                    Text("\(viewModel.dailyGoal) steps")
-                                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                                        .foregroundColor(.white)
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundColor(.white.opacity(0.7))
-                                }
-                            }
-                        }
-                        .padding(24)
-                        .background(Color.white.opacity(0.05))
-                        .cornerRadius(16)
-                        .padding(.horizontal)
-                        
-                        // Buttons Section
-                        VStack(spacing: 16) {
-                            // Edit Profile Button
-                            Button(action: {
-                                // Add edit profile action here
-                            }) {
-                                HStack {
-                                    Image(systemName: "pencil")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.white)
-                                    
-                                    Text("Edit Profile")
-                                        .font(.system(size: 16, weight: .medium, design: .rounded))
-                                        .foregroundColor(.white)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundColor(.white.opacity(0.7))
-                                }
-                                .padding()
-                                .background(Color.white.opacity(0.1))
-                                .cornerRadius(12)
-                            }
-                            
-                            // Leave a Review Button
-                            Button(action: {
-                                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                                    SKStoreReviewController.requestReview(in: windowScene)
-                                }
-                            }) {
-                                HStack {
-                                    Image(systemName: "star.fill")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.yellow)
-                                    
-                                    Text("Leave a Review")
-                                        .font(.system(size: 16, weight: .medium, design: .rounded))
-                                        .foregroundColor(.white)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundColor(.white.opacity(0.7))
-                                }
-                                .padding()
-                                .background(Color.white.opacity(0.1))
-                                .cornerRadius(12)
-                            }
-                        }
-                        .padding(.horizontal)
+            }
+            .navigationTitle("Profile")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showingEditSheet) {
+                EditProfileView(profile: userProfile) { updatedProfile in
+                    userProfile = updatedProfile
+                }
+            }
+            .alert("Log Out", isPresented: $showingLogoutAlert) {
+                Button("Cancel", role: .cancel) { }
+                Button("Log Out", role: .destructive) {
+                    do {
+                        try Auth.auth().signOut()
+                    } catch {
+                        print("Error signing out: \(error.localizedDescription)")
                     }
-                    .padding(.bottom, 32)
                 }
+            } message: {
+                Text("Are you sure you want to log out?")
             }
         }
         .onAppear {
-            fetchUserData()
-        }
-        .sheet(isPresented: $showingGoalEditor) {
-            GoalEditorView(viewModel: viewModel)
+            fetchUserProfile()
         }
     }
     
-    private func fetchUserData() {
-        guard !currentUserID.isEmpty else {
-            errorMessage = "Please sign in to view your profile"
+    private func fetchUserProfile() {
+        guard let userId = Auth.auth().currentUser?.uid, !userId.isEmpty else {
+            print("Error: No valid user ID found")
             isLoading = false
             return
         }
         
-        isLoading = true
-        errorMessage = nil
-        
-        let db = Firestore.firestore()
-        db.collection("users").document(currentUserID).getDocument { document, error in
-            isLoading = false
-            
+        db.collection("users").document(userId).getDocument { snapshot, error in
             if let error = error {
-                errorMessage = error.localizedDescription
+                print("Error fetching user profile: \(error.localizedDescription)")
+                isLoading = false
                 return
             }
             
-            if let document = document, document.exists {
-                userData = document.data() ?? [:]
+            if let data = snapshot?.data() {
+                userProfile = UserProfile(
+                    id: userId,
+                    email: data["email"] as? String ?? "",
+                    displayName: data["displayName"] as? String ?? "",
+                    totalSteps: data["totalSteps"] as? Int ?? 0,
+                    friendCount: data["friendCount"] as? Int ?? 0
+                )
             } else {
-                errorMessage = "No user data found"
+                // Create new profile if it doesn't exist
+                createNewProfile(userId: userId)
+            }
+            isLoading = false
+        }
+    }
+    
+    private func createNewProfile(userId: String) {
+        guard let email = Auth.auth().currentUser?.email else { return }
+        
+        let newProfile = UserProfile(
+            id: userId,
+            email: email,
+            displayName: email.components(separatedBy: "@").first ?? "User",
+            totalSteps: 0,
+            friendCount: 0
+        )
+        
+        do {
+            try db.collection("users").document(userId).setData(from: newProfile)
+            userProfile = newProfile
+        } catch {
+            print("Error creating user profile: \(error.localizedDescription)")
+        }
+    }
+}
+
+struct StatCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 24))
+            Text(value)
+                .font(.system(size: 20, weight: .bold, design: .rounded))
+            Text(title)
+                .font(.system(size: 14, weight: .medium, design: .rounded))
+        }
+        .foregroundColor(.white)
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color.white.opacity(0.15))
+        .cornerRadius(12)
+    }
+}
+
+struct SettingsRow: View {
+    let title: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .font(.system(size: 20))
+            Text(title)
+                .font(.system(size: 16, weight: .medium, design: .rounded))
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.system(size: 14, weight: .semibold))
+        }
+        .foregroundColor(.white)
+        .padding()
+        .background(Color.white.opacity(0.15))
+        .cornerRadius(12)
+    }
+}
+
+struct UserProfile: Codable {
+    let id: String
+    let email: String
+    let displayName: String
+    var totalSteps: Int
+    var friendCount: Int
+}
+
+struct EditProfileView: View {
+    let profile: UserProfile?
+    let onSave: (UserProfile) -> Void
+    @State private var displayName: String
+    @Environment(\.dismiss) private var dismiss
+    private let db = Firestore.firestore()
+    
+    init(profile: UserProfile?, onSave: @escaping (UserProfile) -> Void) {
+        self.profile = profile
+        self.onSave = onSave
+        _displayName = State(initialValue: profile?.displayName ?? "")
+    }
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 44/255, green: 8/255, blue: 52/255),
+                        Color(red: 0.4, green: 0.2, blue: 0.4),
+                        Color(hue: 0.83, saturation: 0.4, brightness: 0.8)
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+                
+                VStack(spacing: 24) {
+                    TextField("Display Name", text: $displayName)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                    
+                    Button(action: saveProfile) {
+                        Text("Save Changes")
+                            .font(.system(size: 18, weight: .medium, design: .rounded))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color(red: 0.5, green: 0.2, blue: 0.5),
+                                        Color(red: 0.4, green: 0.1, blue: 0.4)
+                                    ]),
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .cornerRadius(12)
+                    }
+                    .disabled(displayName.isEmpty)
+                    .opacity(displayName.isEmpty ? 0.6 : 1)
+                    
+                    Spacer()
+                }
+                .padding(.top, 40)
+            }
+            .navigationTitle("Edit Profile")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                }
             }
         }
     }
     
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: date)
-    }
-}
-
-struct InfoRow: View {
-    let title: String
-    let value: String
-    
-    var body: some View {
-        HStack {
-            Text(title)
-                .font(.system(size: 16, weight: .medium, design: .rounded))
-                .foregroundColor(.white.opacity(0.7))
-            
-            Spacer()
-            
-            Text(value)
-                .font(.system(size: 16, weight: .semibold, design: .rounded))
-                .foregroundColor(.white)
+    private func saveProfile() {
+        guard let userId = Auth.auth().currentUser?.uid,
+              !userId.isEmpty,
+              let email = Auth.auth().currentUser?.email else { return }
+        
+        let updatedProfile = UserProfile(
+            id: userId,
+            email: email,
+            displayName: displayName,
+            totalSteps: profile?.totalSteps ?? 0,
+            friendCount: profile?.friendCount ?? 0
+        )
+        
+        do {
+            try db.collection("users").document(userId).setData(from: updatedProfile)
+            onSave(updatedProfile)
+            dismiss()
+        } catch {
+            print("Error updating profile: \(error.localizedDescription)")
         }
     }
 }

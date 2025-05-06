@@ -23,6 +23,7 @@
 		744E654F2DA705B800E7730C /* AffirmationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744E654D2DA705B700E7730C /* AffirmationManager.swift */; };
 		744E65522DA706CE00E7730C /* StepRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744E65512DA706CE00E7730C /* StepRingView.swift */; };
 		744E65542DA70DC100E7730C /* AnimatedProgressRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744E65532DA70DC100E7730C /* AnimatedProgressRing.swift */; };
+		7481E9D62DCA8E7400BD706C /* SlaylaBot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7481E9D52DCA8E7400BD706C /* SlaylaBot.swift */; };
 		74BC993A2DBAB26600FA1049 /* BackgroundHealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74BC99392DBAB26500FA1049 /* BackgroundHealthManager.swift */; };
 		74BC993F2DBABC9A00FA1049 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 74BC993E2DBABC9A00FA1049 /* FirebaseAnalytics */; };
 		74BC99412DBABC9A00FA1049 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 74BC99402DBABC9A00FA1049 /* FirebaseAuth */; };
@@ -67,6 +68,7 @@
 		744E654D2DA705B700E7730C /* AffirmationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationManager.swift; sourceTree = "<group>"; };
 		744E65512DA706CE00E7730C /* StepRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepRingView.swift; sourceTree = "<group>"; };
 		744E65532DA70DC100E7730C /* AnimatedProgressRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedProgressRing.swift; sourceTree = "<group>"; };
+		7481E9D52DCA8E7400BD706C /* SlaylaBot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlaylaBot.swift; sourceTree = "<group>"; };
 		74BC99392DBAB26500FA1049 /* BackgroundHealthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundHealthManager.swift; sourceTree = "<group>"; };
 		74BC99482DBAC0DC00FA1049 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		74BC994A2DBAC7D200FA1049 /* NotificationPermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissionView.swift; sourceTree = "<group>"; };
@@ -147,6 +149,7 @@
 				74C582612DC7E2110088920D /* EpisodeManager.swift */,
 				74C582622DC7E2110088920D /* RealityShowView.swift */,
 				74C5825E2DC7D8D70088920D /* ProfileView.swift */,
+				7481E9D52DCA8E7400BD706C /* SlaylaBot.swift */,
 				7447F07C2DAD63C600E9AA92 /* Assets.xcassets */,
 				74DAAC1A2DA7E43700B3AA7D /* ShareCardView.swift */,
 				744E65512DA706CE00E7730C /* StepRingView.swift */,
@@ -243,6 +246,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				74DAAC242DA85AD000B3AA7D /* MilestoneType.swift in Sources */,
+				7481E9D62DCA8E7400BD706C /* SlaylaBot.swift in Sources */,
 				744E65522DA706CE00E7730C /* StepRingView.swift in Sources */,
 				74DAAC1B2DA7E43700B3AA7D /* ShareCardView.swift in Sources */,
 				744928C62DA55C18008E5010 /* MotivationalMessageManager.swift in Sources */,
