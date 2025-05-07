@@ -7,87 +7,85 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1A1A1A1A1A1A1A1A1A1A1A1A /* HotWalkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1A1A1A1A1A1A1A1A1A1A1B /* HotWalkApp.swift */; };
-		1A1A1A1A1A1A1A1A1A1A1A1C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1A1A1A1A1A1A1A1A1A1A1D /* ContentView.swift */; };
-		1A1A1A1A1A1A1A1A1A1A1A1E /* HealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1A1A1A1A1A1A1A1A1A1A1F /* HealthManager.swift */; };
-		1A1A1A1A1A1A1A1A1A1A1A20 /* HotWalkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1A1A1A1A1A1A1A1A1A1A21 /* HotWalkViewModel.swift */; };
-		74094E792DC944D800B6FD3C /* SlaylaBot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74094E782DC944D700B6FD3C /* SlaylaBot.swift */; };
-		7447F07D2DAD63C600E9AA92 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7447F07C2DAD63C600E9AA92 /* Assets.xcassets */; };
-		744928C62DA55C18008E5010 /* MotivationalMessageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928C52DA55C18008E5010 /* MotivationalMessageManager.swift */; };
-		744928C82DA55E60008E5010 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928C72DA55E60008E5010 /* StreakManager.swift */; };
-		744928CA2DA56320008E5010 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928C92DA56320008E5010 /* CalendarView.swift */; };
-		744928CC2DA567AA008E5010 /* HotGirlPassManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928CB2DA567AA008E5010 /* HotGirlPassManager.swift */; };
-		744928CF2DA5709D008E5010 /* MilestoneManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928CE2DA5709D008E5010 /* MilestoneManager.swift */; };
-		744928D02DA5709D008E5010 /* MilestoneCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928CD2DA5709D008E5010 /* MilestoneCardView.swift */; };
-		744928D32DA5A361008E5010 /* CelebrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744928D22DA5A361008E5010 /* CelebrationView.swift */; };
-		744E654E2DA705B800E7730C /* AffirmationCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744E654C2DA705B700E7730C /* AffirmationCardView.swift */; };
-		744E654F2DA705B800E7730C /* AffirmationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744E654D2DA705B700E7730C /* AffirmationManager.swift */; };
-		744E65522DA706CE00E7730C /* StepRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744E65512DA706CE00E7730C /* StepRingView.swift */; };
-		744E65542DA70DC100E7730C /* AnimatedProgressRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744E65532DA70DC100E7730C /* AnimatedProgressRing.swift */; };
-		74B854302DC95B5700AA37AB /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74B8542F2DC95B5700AA37AB /* AuthManager.swift */; };
-		74BC993A2DBAB26600FA1049 /* BackgroundHealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74BC99392DBAB26500FA1049 /* BackgroundHealthManager.swift */; };
 		74BC993F2DBABC9A00FA1049 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 74BC993E2DBABC9A00FA1049 /* FirebaseAnalytics */; };
 		74BC99412DBABC9A00FA1049 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 74BC99402DBABC9A00FA1049 /* FirebaseAuth */; };
 		74BC99432DBABC9A00FA1049 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 74BC99422DBABC9A00FA1049 /* FirebaseFirestore */; };
 		74BC99452DBABC9A00FA1049 /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 74BC99442DBABC9A00FA1049 /* FirebaseInAppMessaging-Beta */; };
 		74BC99472DBABC9A00FA1049 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 74BC99462DBABC9A00FA1049 /* FirebaseMessaging */; };
-		74BC99492DBAC0DC00FA1049 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74BC99482DBAC0DC00FA1049 /* OnboardingView.swift */; };
-		74BC994B2DBAC7D200FA1049 /* NotificationPermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74BC994A2DBAC7D200FA1049 /* NotificationPermissionView.swift */; };
-		74C5825F2DC7D8D80088920D /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C5825E2DC7D8D70088920D /* ProfileView.swift */; };
-		74C582632DC7E2110088920D /* Episode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C582602DC7E2110088920D /* Episode.swift */; };
-		74C582642DC7E2110088920D /* EpisodeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C582612DC7E2110088920D /* EpisodeManager.swift */; };
-		74C582652DC7E2110088920D /* RealityShowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C582622DC7E2110088920D /* RealityShowView.swift */; };
-		74C582762DC809D60088920D /* Friend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C582742DC809D50088920D /* Friend.swift */; };
-		74C582772DC809D60088920D /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C582752DC809D50088920D /* FriendsView.swift */; };
-		74C5827A2DC8100C0088920D /* InvitationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C582782DC8100B0088920D /* InvitationService.swift */; };
-		74C5827B2DC8100C0088920D /* LinkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74C582792DC8100B0088920D /* LinkService.swift */; };
-		74C5827E2DC8FB8D0088920D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 74C5827D2DC8FB8D0088920D /* GoogleService-Info.plist */; };
-		74DAAC172DA7D84400B3AA7D /* DateFormatterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74DAAC162DA7D84300B3AA7D /* DateFormatterManager.swift */; };
-		74DAAC1B2DA7E43700B3AA7D /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74DAAC1A2DA7E43700B3AA7D /* ShareCardView.swift */; };
-		74DAAC232DA85AD000B3AA7D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 74DAAC202DA85AD000B3AA7D /* LaunchScreen.storyboard */; };
-		74DAAC242DA85AD000B3AA7D /* MilestoneType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74DAAC212DA85AD000B3AA7D /* MilestoneType.swift */; };
-		74DAAC282DA91FDB00B3AA7D /* GoalEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74DAAC272DA91FDB00B3AA7D /* GoalEditorView.swift */; };
+		74F24F7A2DCB75B800C744B2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 74F24F6B2DCB75B800C744B2 /* LaunchScreen.storyboard */; };
+		74F24F7B2DCB75B800C744B2 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 74F24F632DCB75B800C744B2 /* GoogleService-Info.plist */; };
+		74F24F7C2DCB75B800C744B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 74F24F572DCB75B800C744B2 /* Assets.xcassets */; };
+		74F24F7E2DCB75B800C744B2 /* BackgroundHealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F582DCB75B800C744B2 /* BackgroundHealthManager.swift */; };
+		74F24F7F2DCB75B800C744B2 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F612DCB75B800C744B2 /* FriendsView.swift */; };
+		74F24F802DCB75B800C744B2 /* AffirmationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F552DCB75B800C744B2 /* AffirmationManager.swift */; };
+		74F24F812DCB75B800C744B2 /* MilestoneCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F6D2DCB75B800C744B2 /* MilestoneCardView.swift */; };
+		74F24F822DCB75B800C744B2 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F782DCB75B800C744B2 /* StreakManager.swift */; };
+		74F24F832DCB75B800C744B2 /* Episode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F5D2DCB75B800C744B2 /* Episode.swift */; };
+		74F24F842DCB75B800C744B2 /* AnimatedProgressRing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F562DCB75B800C744B2 /* AnimatedProgressRing.swift */; };
+		74F24F852DCB75B800C744B2 /* SlaylaBot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F762DCB75B800C744B2 /* SlaylaBot.swift */; };
+		74F24F862DCB75B800C744B2 /* AffirmationCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F542DCB75B800C744B2 /* AffirmationCardView.swift */; };
+		74F24F872DCB75B800C744B2 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F732DCB75B800C744B2 /* ProfileView.swift */; };
+		74F24F882DCB75B800C744B2 /* Friend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F602DCB75B800C744B2 /* Friend.swift */; };
+		74F24F892DCB75B800C744B2 /* LinkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F6C2DCB75B800C744B2 /* LinkService.swift */; };
+		74F24F8A2DCB75B800C744B2 /* InvitationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F6A2DCB75B800C744B2 /* InvitationService.swift */; };
+		74F24F8B2DCB75B800C744B2 /* MotivationalMessageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F702DCB75B800C744B2 /* MotivationalMessageManager.swift */; };
+		74F24F8C2DCB75B800C744B2 /* StepRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F772DCB75B800C744B2 /* StepRingView.swift */; };
+		74F24F8D2DCB75B800C744B2 /* GoalEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F622DCB75B800C744B2 /* GoalEditorView.swift */; };
+		74F24F8E2DCB75B800C744B2 /* MilestoneType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F6F2DCB75B800C744B2 /* MilestoneType.swift */; };
+		74F24F8F2DCB75B800C744B2 /* DateFormatterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F5C2DCB75B800C744B2 /* DateFormatterManager.swift */; };
+		74F24F902DCB75B800C744B2 /* HotWalkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F672DCB75B800C744B2 /* HotWalkApp.swift */; };
+		74F24F912DCB75B800C744B2 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F722DCB75B800C744B2 /* OnboardingView.swift */; };
+		74F24F922DCB75B800C744B2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F5B2DCB75B800C744B2 /* ContentView.swift */; };
+		74F24F932DCB75B800C744B2 /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F752DCB75B800C744B2 /* ShareCardView.swift */; };
+		74F24F942DCB75B800C744B2 /* HealthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F642DCB75B800C744B2 /* HealthManager.swift */; };
+		74F24F952DCB75B800C744B2 /* HotWalkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F682DCB75B800C744B2 /* HotWalkViewModel.swift */; };
+		74F24F962DCB75B800C744B2 /* HotGirlPassManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F652DCB75B800C744B2 /* HotGirlPassManager.swift */; };
+		74F24F972DCB75B800C744B2 /* CelebrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F5A2DCB75B800C744B2 /* CelebrationView.swift */; };
+		74F24F982DCB75B800C744B2 /* RealityShowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F742DCB75B800C744B2 /* RealityShowView.swift */; };
+		74F24F992DCB75B800C744B2 /* NotificationPermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F712DCB75B800C744B2 /* NotificationPermissionView.swift */; };
+		74F24F9A2DCB75B800C744B2 /* EpisodeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F5E2DCB75B800C744B2 /* EpisodeManager.swift */; };
+		74F24F9B2DCB75B800C744B2 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F592DCB75B800C744B2 /* CalendarView.swift */; };
+		74F24F9C2DCB75B800C744B2 /* MilestoneManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74F24F6E2DCB75B800C744B2 /* MilestoneManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1A1A1A1A1A1A1A1A1A1A1A1B /* HotWalkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotWalkApp.swift; sourceTree = "<group>"; };
-		1A1A1A1A1A1A1A1A1A1A1A1D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		1A1A1A1A1A1A1A1A1A1A1A1F /* HealthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthManager.swift; sourceTree = "<group>"; };
-		1A1A1A1A1A1A1A1A1A1A1A21 /* HotWalkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotWalkViewModel.swift; sourceTree = "<group>"; };
 		1A1A1A1A1A1A1A1A1A1A1A22 /* HotWalk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HotWalk.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1A1A1A1A1A1A1A1A1A1A1A23 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1A1A1A1A1A1A1A1A1A1A1A32 /* HotWalk.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HotWalk.entitlements; sourceTree = "<group>"; };
-		74094E782DC944D700B6FD3C /* SlaylaBot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlaylaBot.swift; sourceTree = "<group>"; };
-		7447F07C2DAD63C600E9AA92 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		744928C52DA55C18008E5010 /* MotivationalMessageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotivationalMessageManager.swift; sourceTree = "<group>"; };
-		744928C72DA55E60008E5010 /* StreakManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
-		744928C92DA56320008E5010 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
-		744928CB2DA567AA008E5010 /* HotGirlPassManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotGirlPassManager.swift; sourceTree = "<group>"; };
-		744928CD2DA5709D008E5010 /* MilestoneCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneCardView.swift; sourceTree = "<group>"; };
-		744928CE2DA5709D008E5010 /* MilestoneManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneManager.swift; sourceTree = "<group>"; };
-		744928D22DA5A361008E5010 /* CelebrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrationView.swift; sourceTree = "<group>"; };
-		744E654C2DA705B700E7730C /* AffirmationCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationCardView.swift; sourceTree = "<group>"; };
-		744E654D2DA705B700E7730C /* AffirmationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationManager.swift; sourceTree = "<group>"; };
-		744E65512DA706CE00E7730C /* StepRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepRingView.swift; sourceTree = "<group>"; };
-		744E65532DA70DC100E7730C /* AnimatedProgressRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedProgressRing.swift; sourceTree = "<group>"; };
-		74B8542F2DC95B5700AA37AB /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
-		74BC99392DBAB26500FA1049 /* BackgroundHealthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundHealthManager.swift; sourceTree = "<group>"; };
-		74BC99482DBAC0DC00FA1049 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
-		74BC994A2DBAC7D200FA1049 /* NotificationPermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissionView.swift; sourceTree = "<group>"; };
-		74C5825E2DC7D8D70088920D /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
-		74C582602DC7E2110088920D /* Episode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Episode.swift; sourceTree = "<group>"; };
-		74C582612DC7E2110088920D /* EpisodeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeManager.swift; sourceTree = "<group>"; };
-		74C582622DC7E2110088920D /* RealityShowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityShowView.swift; sourceTree = "<group>"; };
-		74C582742DC809D50088920D /* Friend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friend.swift; sourceTree = "<group>"; };
-		74C582752DC809D50088920D /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
-		74C582782DC8100B0088920D /* InvitationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitationService.swift; sourceTree = "<group>"; };
-		74C582792DC8100B0088920D /* LinkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkService.swift; sourceTree = "<group>"; };
-		74C5827D2DC8FB8D0088920D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		74DAAC162DA7D84300B3AA7D /* DateFormatterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatterManager.swift; sourceTree = "<group>"; };
-		74DAAC1A2DA7E43700B3AA7D /* ShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardView.swift; sourceTree = "<group>"; };
-		74DAAC202DA85AD000B3AA7D /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
-		74DAAC212DA85AD000B3AA7D /* MilestoneType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneType.swift; sourceTree = "<group>"; };
-		74DAAC272DA91FDB00B3AA7D /* GoalEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalEditorView.swift; sourceTree = "<group>"; };
+		74F24F542DCB75B800C744B2 /* AffirmationCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationCardView.swift; sourceTree = "<group>"; };
+		74F24F552DCB75B800C744B2 /* AffirmationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AffirmationManager.swift; sourceTree = "<group>"; };
+		74F24F562DCB75B800C744B2 /* AnimatedProgressRing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedProgressRing.swift; sourceTree = "<group>"; };
+		74F24F572DCB75B800C744B2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		74F24F582DCB75B800C744B2 /* BackgroundHealthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundHealthManager.swift; sourceTree = "<group>"; };
+		74F24F592DCB75B800C744B2 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		74F24F5A2DCB75B800C744B2 /* CelebrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelebrationView.swift; sourceTree = "<group>"; };
+		74F24F5B2DCB75B800C744B2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		74F24F5C2DCB75B800C744B2 /* DateFormatterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatterManager.swift; sourceTree = "<group>"; };
+		74F24F5D2DCB75B800C744B2 /* Episode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Episode.swift; sourceTree = "<group>"; };
+		74F24F5E2DCB75B800C744B2 /* EpisodeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeManager.swift; sourceTree = "<group>"; };
+		74F24F602DCB75B800C744B2 /* Friend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friend.swift; sourceTree = "<group>"; };
+		74F24F612DCB75B800C744B2 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
+		74F24F622DCB75B800C744B2 /* GoalEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalEditorView.swift; sourceTree = "<group>"; };
+		74F24F632DCB75B800C744B2 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		74F24F642DCB75B800C744B2 /* HealthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthManager.swift; sourceTree = "<group>"; };
+		74F24F652DCB75B800C744B2 /* HotGirlPassManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotGirlPassManager.swift; sourceTree = "<group>"; };
+		74F24F662DCB75B800C744B2 /* HotWalk.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HotWalk.entitlements; sourceTree = "<group>"; };
+		74F24F672DCB75B800C744B2 /* HotWalkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotWalkApp.swift; sourceTree = "<group>"; };
+		74F24F682DCB75B800C744B2 /* HotWalkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotWalkViewModel.swift; sourceTree = "<group>"; };
+		74F24F692DCB75B800C744B2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		74F24F6A2DCB75B800C744B2 /* InvitationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitationService.swift; sourceTree = "<group>"; };
+		74F24F6B2DCB75B800C744B2 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		74F24F6C2DCB75B800C744B2 /* LinkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkService.swift; sourceTree = "<group>"; };
+		74F24F6D2DCB75B800C744B2 /* MilestoneCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneCardView.swift; sourceTree = "<group>"; };
+		74F24F6E2DCB75B800C744B2 /* MilestoneManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneManager.swift; sourceTree = "<group>"; };
+		74F24F6F2DCB75B800C744B2 /* MilestoneType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilestoneType.swift; sourceTree = "<group>"; };
+		74F24F702DCB75B800C744B2 /* MotivationalMessageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotivationalMessageManager.swift; sourceTree = "<group>"; };
+		74F24F712DCB75B800C744B2 /* NotificationPermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissionView.swift; sourceTree = "<group>"; };
+		74F24F722DCB75B800C744B2 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		74F24F732DCB75B800C744B2 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		74F24F742DCB75B800C744B2 /* RealityShowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityShowView.swift; sourceTree = "<group>"; };
+		74F24F752DCB75B800C744B2 /* ShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardView.swift; sourceTree = "<group>"; };
+		74F24F762DCB75B800C744B2 /* SlaylaBot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlaylaBot.swift; sourceTree = "<group>"; };
+		74F24F772DCB75B800C744B2 /* StepRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepRingView.swift; sourceTree = "<group>"; };
+		74F24F782DCB75B800C744B2 /* StreakManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,7 +115,42 @@
 		1A1A1A1A1A1A1A1A1A1A1A26 /* HotWalk */ = {
 			isa = PBXGroup;
 			children = (
-				1A1A1A1A1A1A1A1A1A1A1A33 /* HotWalk */,
+				74F24F542DCB75B800C744B2 /* AffirmationCardView.swift */,
+				74F24F552DCB75B800C744B2 /* AffirmationManager.swift */,
+				74F24F562DCB75B800C744B2 /* AnimatedProgressRing.swift */,
+				74F24F572DCB75B800C744B2 /* Assets.xcassets */,
+				74F24F582DCB75B800C744B2 /* BackgroundHealthManager.swift */,
+				74F24F592DCB75B800C744B2 /* CalendarView.swift */,
+				74F24F5A2DCB75B800C744B2 /* CelebrationView.swift */,
+				74F24F5B2DCB75B800C744B2 /* ContentView.swift */,
+				74F24F5C2DCB75B800C744B2 /* DateFormatterManager.swift */,
+				74F24F5D2DCB75B800C744B2 /* Episode.swift */,
+				74F24F5E2DCB75B800C744B2 /* EpisodeManager.swift */,
+				74F24F602DCB75B800C744B2 /* Friend.swift */,
+				74F24F612DCB75B800C744B2 /* FriendsView.swift */,
+				74F24F622DCB75B800C744B2 /* GoalEditorView.swift */,
+				74F24F642DCB75B800C744B2 /* HealthManager.swift */,
+				74F24F652DCB75B800C744B2 /* HotGirlPassManager.swift */,
+				74F24F662DCB75B800C744B2 /* HotWalk.entitlements */,
+				74F24F672DCB75B800C744B2 /* HotWalkApp.swift */,
+				74F24F682DCB75B800C744B2 /* HotWalkViewModel.swift */,
+				74F24F6A2DCB75B800C744B2 /* InvitationService.swift */,
+				74F24F6B2DCB75B800C744B2 /* LaunchScreen.storyboard */,
+				74F24F6C2DCB75B800C744B2 /* LinkService.swift */,
+				74F24F6D2DCB75B800C744B2 /* MilestoneCardView.swift */,
+				74F24F6E2DCB75B800C744B2 /* MilestoneManager.swift */,
+				74F24F6F2DCB75B800C744B2 /* MilestoneType.swift */,
+				74F24F702DCB75B800C744B2 /* MotivationalMessageManager.swift */,
+				74F24F712DCB75B800C744B2 /* NotificationPermissionView.swift */,
+				74F24F722DCB75B800C744B2 /* OnboardingView.swift */,
+				74F24F732DCB75B800C744B2 /* ProfileView.swift */,
+				74F24F742DCB75B800C744B2 /* RealityShowView.swift */,
+				74F24F752DCB75B800C744B2 /* ShareCardView.swift */,
+				74F24F762DCB75B800C744B2 /* SlaylaBot.swift */,
+				74F24F772DCB75B800C744B2 /* StepRingView.swift */,
+				74F24F782DCB75B800C744B2 /* StreakManager.swift */,
+				74F24F632DCB75B800C744B2 /* GoogleService-Info.plist */,
+				74F24F692DCB75B800C744B2 /* Info.plist */,
 			);
 			path = HotWalk;
 			sourceTree = "<group>";
@@ -128,50 +161,6 @@
 				1A1A1A1A1A1A1A1A1A1A1A22 /* HotWalk.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		1A1A1A1A1A1A1A1A1A1A1A33 /* HotWalk */ = {
-			isa = PBXGroup;
-			children = (
-				744928D22DA5A361008E5010 /* CelebrationView.swift */,
-				74B8542F2DC95B5700AA37AB /* AuthManager.swift */,
-				744E654C2DA705B700E7730C /* AffirmationCardView.swift */,
-				74DAAC202DA85AD000B3AA7D /* LaunchScreen.storyboard */,
-				74DAAC212DA85AD000B3AA7D /* MilestoneType.swift */,
-				744E654D2DA705B700E7730C /* AffirmationManager.swift */,
-				744928C52DA55C18008E5010 /* MotivationalMessageManager.swift */,
-				1A1A1A1A1A1A1A1A1A1A1A1B /* HotWalkApp.swift */,
-				74094E782DC944D700B6FD3C /* SlaylaBot.swift */,
-				74C582782DC8100B0088920D /* InvitationService.swift */,
-				74C582792DC8100B0088920D /* LinkService.swift */,
-				74C582742DC809D50088920D /* Friend.swift */,
-				74C582752DC809D50088920D /* FriendsView.swift */,
-				74BC99482DBAC0DC00FA1049 /* OnboardingView.swift */,
-				74BC994A2DBAC7D200FA1049 /* NotificationPermissionView.swift */,
-				1A1A1A1A1A1A1A1A1A1A1A1D /* ContentView.swift */,
-				74C582602DC7E2110088920D /* Episode.swift */,
-				74C582612DC7E2110088920D /* EpisodeManager.swift */,
-				74C582622DC7E2110088920D /* RealityShowView.swift */,
-				74C5825E2DC7D8D70088920D /* ProfileView.swift */,
-				7447F07C2DAD63C600E9AA92 /* Assets.xcassets */,
-				74DAAC1A2DA7E43700B3AA7D /* ShareCardView.swift */,
-				744E65512DA706CE00E7730C /* StepRingView.swift */,
-				74DAAC162DA7D84300B3AA7D /* DateFormatterManager.swift */,
-				744E65532DA70DC100E7730C /* AnimatedProgressRing.swift */,
-				1A1A1A1A1A1A1A1A1A1A1A1F /* HealthManager.swift */,
-				1A1A1A1A1A1A1A1A1A1A1A21 /* HotWalkViewModel.swift */,
-				744928CD2DA5709D008E5010 /* MilestoneCardView.swift */,
-				74BC99392DBAB26500FA1049 /* BackgroundHealthManager.swift */,
-				744928CE2DA5709D008E5010 /* MilestoneManager.swift */,
-				744928CB2DA567AA008E5010 /* HotGirlPassManager.swift */,
-				744928C92DA56320008E5010 /* CalendarView.swift */,
-				74DAAC272DA91FDB00B3AA7D /* GoalEditorView.swift */,
-				744928C72DA55E60008E5010 /* StreakManager.swift */,
-				74C5827D2DC8FB8D0088920D /* GoogleService-Info.plist */,
-				1A1A1A1A1A1A1A1A1A1A1A23 /* Info.plist */,
-				1A1A1A1A1A1A1A1A1A1A1A32 /* HotWalk.entitlements */,
-			);
-			path = HotWalk;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -235,9 +224,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7447F07D2DAD63C600E9AA92 /* Assets.xcassets in Resources */,
-				74DAAC232DA85AD000B3AA7D /* LaunchScreen.storyboard in Resources */,
-				74C5827E2DC8FB8D0088920D /* GoogleService-Info.plist in Resources */,
+				74F24F7A2DCB75B800C744B2 /* LaunchScreen.storyboard in Resources */,
+				74F24F7B2DCB75B800C744B2 /* GoogleService-Info.plist in Resources */,
+				74F24F7C2DCB75B800C744B2 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -248,38 +237,37 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				74DAAC242DA85AD000B3AA7D /* MilestoneType.swift in Sources */,
-				74094E792DC944D800B6FD3C /* SlaylaBot.swift in Sources */,
-				744E65522DA706CE00E7730C /* StepRingView.swift in Sources */,
-				74DAAC1B2DA7E43700B3AA7D /* ShareCardView.swift in Sources */,
-				744928C62DA55C18008E5010 /* MotivationalMessageManager.swift in Sources */,
-				74DAAC172DA7D84400B3AA7D /* DateFormatterManager.swift in Sources */,
-				744928CA2DA56320008E5010 /* CalendarView.swift in Sources */,
-				74BC99492DBAC0DC00FA1049 /* OnboardingView.swift in Sources */,
-				1A1A1A1A1A1A1A1A1A1A1A1C /* ContentView.swift in Sources */,
-				1A1A1A1A1A1A1A1A1A1A1A1E /* HealthManager.swift in Sources */,
-				1A1A1A1A1A1A1A1A1A1A1A20 /* HotWalkViewModel.swift in Sources */,
-				74C582632DC7E2110088920D /* Episode.swift in Sources */,
-				74C582642DC7E2110088920D /* EpisodeManager.swift in Sources */,
-				74C582652DC7E2110088920D /* RealityShowView.swift in Sources */,
-				744E654E2DA705B800E7730C /* AffirmationCardView.swift in Sources */,
-				744E654F2DA705B800E7730C /* AffirmationManager.swift in Sources */,
-				1A1A1A1A1A1A1A1A1A1A1A1A /* HotWalkApp.swift in Sources */,
-				744928CC2DA567AA008E5010 /* HotGirlPassManager.swift in Sources */,
-				74BC993A2DBAB26600FA1049 /* BackgroundHealthManager.swift in Sources */,
-				744928D32DA5A361008E5010 /* CelebrationView.swift in Sources */,
-				74BC994B2DBAC7D200FA1049 /* NotificationPermissionView.swift in Sources */,
-				74C5825F2DC7D8D80088920D /* ProfileView.swift in Sources */,
-				74C5827A2DC8100C0088920D /* InvitationService.swift in Sources */,
-				74C5827B2DC8100C0088920D /* LinkService.swift in Sources */,
-				744928CF2DA5709D008E5010 /* MilestoneManager.swift in Sources */,
-				74B854302DC95B5700AA37AB /* AuthManager.swift in Sources */,
-				744928D02DA5709D008E5010 /* MilestoneCardView.swift in Sources */,
-				744E65542DA70DC100E7730C /* AnimatedProgressRing.swift in Sources */,
-				74DAAC282DA91FDB00B3AA7D /* GoalEditorView.swift in Sources */,
-				744928C82DA55E60008E5010 /* StreakManager.swift in Sources */,
-				74C582762DC809D60088920D /* Friend.swift in Sources */,
-				74C582772DC809D60088920D /* FriendsView.swift in Sources */,
+				74F24F7E2DCB75B800C744B2 /* BackgroundHealthManager.swift in Sources */,
+				74F24F7F2DCB75B800C744B2 /* FriendsView.swift in Sources */,
+				74F24F802DCB75B800C744B2 /* AffirmationManager.swift in Sources */,
+				74F24F812DCB75B800C744B2 /* MilestoneCardView.swift in Sources */,
+				74F24F822DCB75B800C744B2 /* StreakManager.swift in Sources */,
+				74F24F832DCB75B800C744B2 /* Episode.swift in Sources */,
+				74F24F842DCB75B800C744B2 /* AnimatedProgressRing.swift in Sources */,
+				74F24F852DCB75B800C744B2 /* SlaylaBot.swift in Sources */,
+				74F24F862DCB75B800C744B2 /* AffirmationCardView.swift in Sources */,
+				74F24F872DCB75B800C744B2 /* ProfileView.swift in Sources */,
+				74F24F882DCB75B800C744B2 /* Friend.swift in Sources */,
+				74F24F892DCB75B800C744B2 /* LinkService.swift in Sources */,
+				74F24F8A2DCB75B800C744B2 /* InvitationService.swift in Sources */,
+				74F24F8B2DCB75B800C744B2 /* MotivationalMessageManager.swift in Sources */,
+				74F24F8C2DCB75B800C744B2 /* StepRingView.swift in Sources */,
+				74F24F8D2DCB75B800C744B2 /* GoalEditorView.swift in Sources */,
+				74F24F8E2DCB75B800C744B2 /* MilestoneType.swift in Sources */,
+				74F24F8F2DCB75B800C744B2 /* DateFormatterManager.swift in Sources */,
+				74F24F902DCB75B800C744B2 /* HotWalkApp.swift in Sources */,
+				74F24F912DCB75B800C744B2 /* OnboardingView.swift in Sources */,
+				74F24F922DCB75B800C744B2 /* ContentView.swift in Sources */,
+				74F24F932DCB75B800C744B2 /* ShareCardView.swift in Sources */,
+				74F24F942DCB75B800C744B2 /* HealthManager.swift in Sources */,
+				74F24F952DCB75B800C744B2 /* HotWalkViewModel.swift in Sources */,
+				74F24F962DCB75B800C744B2 /* HotGirlPassManager.swift in Sources */,
+				74F24F972DCB75B800C744B2 /* CelebrationView.swift in Sources */,
+				74F24F982DCB75B800C744B2 /* RealityShowView.swift in Sources */,
+				74F24F992DCB75B800C744B2 /* NotificationPermissionView.swift in Sources */,
+				74F24F9A2DCB75B800C744B2 /* EpisodeManager.swift in Sources */,
+				74F24F9B2DCB75B800C744B2 /* CalendarView.swift in Sources */,
+				74F24F9C2DCB75B800C744B2 /* MilestoneManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -408,14 +396,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_ENTITLEMENTS = HotWalk/HotWalk/HotWalk.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HotWalk/HotWalk.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 7A2Z4NZF9X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = HotWalk/HotWalk/Info.plist;
+				INFOPLIST_FILE = HotWalk/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Hot Girl Steps ";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Hot Girl Steps needs access to your camera to take photos for sharing achievements.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Hot Girl Steps needs access to your step count to track your daily progress and provide motivation.";
@@ -452,14 +440,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_ENTITLEMENTS = HotWalk/HotWalk/HotWalk.entitlements;
+				CODE_SIGN_ENTITLEMENTS = HotWalk/HotWalk.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 7A2Z4NZF9X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = HotWalk/HotWalk/Info.plist;
+				INFOPLIST_FILE = HotWalk/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Hot Girl Steps ";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Hot Girl Steps needs access to your camera to take photos for sharing achievements.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Hot Girl Steps needs access to your step count to track your daily progress and provide motivation.";
