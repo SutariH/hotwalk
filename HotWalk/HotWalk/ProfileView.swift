@@ -5,6 +5,10 @@ struct ProfileView: View {
     @State private var showingLogoutAlert = false
     @State private var userProfile: UserProfile
     @State private var selectedUnit: String = UserDefaults.standard.bool(forKey: UserDefaultsKeys.useMetricSystem) ? "Metric" : "Imperial"
+    @State private var bioText: String = UserDefaults.standard.string(forKey: UserDefaultsKeys.userBio) ?? ""
+    @State private var isEditingBio: Bool = false
+    @State private var isEditingName: Bool = false
+    @State private var nameText: String = UserDefaults.standard.string(forKey: UserDefaultsKeys.userName) ?? ""
     
     // Add UserDefaults keys
     private enum UserDefaultsKeys {
@@ -16,6 +20,7 @@ struct ProfileView: View {
         static let friendCount = "friendCount"
         static let userCountry = "userCountry"
         static let useMetricSystem = "useMetricSystem"
+        static let userBio = "userBio"
     }
     
     private let unitOptions = ["Metric", "Imperial"]
@@ -65,12 +70,74 @@ struct ProfileView: View {
                             Text(userProfile.displayName)
                                 .font(.system(size: 24, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
-                            
-                            Text(userProfile.email)
-                                .font(.system(size: 16, weight: .medium, design: .rounded))
-                                .foregroundColor(.white.opacity(0.8))
                         }
                         .padding()
+                        
+                        // Name Section
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("Name")
+                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.8))
+                                Spacer()
+                                Button(action: { isEditingName.toggle() }) {
+                                    Image(systemName: isEditingName ? "checkmark" : "pencil")
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            if isEditingName {
+                                TextEditor(text: $nameText)
+                                    .frame(minHeight: 32, maxHeight: 60)
+                                    .background(Color.white.opacity(0.1))
+                                    .cornerRadius(8)
+                                    .foregroundColor(Color(red: 44/255, green: 8/255, blue: 52/255))
+                                    .onChange(of: nameText) { _ in
+                                        saveName()
+                                    }
+                            } else {
+                                Text(nameText.isEmpty ? "Add your name" : nameText)
+                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .padding(.top, 2)
+                            }
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.white.opacity(0.15))
+                        .cornerRadius(12)
+                        
+                        // Bio Section
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("Bio")
+                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.8))
+                                Spacer()
+                                Button(action: { isEditingBio.toggle() }) {
+                                    Image(systemName: isEditingBio ? "checkmark" : "pencil")
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            if isEditingBio {
+                                TextEditor(text: $bioText)
+                                    .frame(minHeight: 60, maxHeight: 120)
+                                    .background(Color.white.opacity(0.1))
+                                    .cornerRadius(8)
+                                    .foregroundColor(Color(red: 44/255, green: 8/255, blue: 52/255))
+                                    .onChange(of: bioText) { _ in
+                                        saveBio()
+                                    }
+                            } else {
+                                Text(bioText.isEmpty ? "Add a short bio about yourself" : bioText)
+                                    .font(.system(size: 15, weight: .regular, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .padding(.top, 2)
+                            }
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.white.opacity(0.15))
+                        .cornerRadius(12)
                         
                         // Member Since Section
                         VStack(alignment: .leading, spacing: 8) {
@@ -120,22 +187,6 @@ struct ProfileView: View {
                     }
                     .padding(.horizontal)
                     
-                    // Edit Profile Button
-                    Button(action: { showingEditSheet = true }) {
-                        HStack {
-                            Image(systemName: "person.fill")
-                                .font(.system(size: 20))
-                            Text("Edit Profile")
-                                .font(.system(size: 16, weight: .medium, design: .rounded))
-                        }
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.white.opacity(0.15))
-                        .cornerRadius(12)
-                    }
-                    .padding(.horizontal)
-                    
                     // Logout Button
                     Button(action: { showingLogoutAlert = true }) {
                         HStack {
@@ -151,17 +202,32 @@ struct ProfileView: View {
                         .cornerRadius(12)
                     }
                     .padding(.horizontal)
+                    
+                    // Legal Links Section
+                    VStack(spacing: 12) {
+                        Divider().background(Color.white.opacity(0.2))
+                        HStack(spacing: 24) {
+                            Link(destination: URL(string: "https://hotgirlsteps.com/privacy")!) {
+                                Text("Privacy Policy")
+                                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .underline()
+                            }
+                            Link(destination: URL(string: "https://hotgirlsteps.com/terms")!) {
+                                Text("Terms of Use")
+                                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .underline()
+                            }
+                        }
+                    }
+                    .padding(.top, 24)
+                    .padding(.bottom, 12)
                 }
                 .padding(.vertical)
             }
-            .navigationTitle("Profile")
+            .navigationTitle(Text(LocalizedStringKey("Profile")).foregroundColor(.clear))
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showingEditSheet) {
-                EditProfileView(profile: userProfile) { updatedProfile in
-                    userProfile = updatedProfile
-                    saveProfile(updatedProfile)
-                }
-            }
             .alert("Log Out", isPresented: $showingLogoutAlert) {
                 Button("Cancel", role: .cancel) { }
                 Button("Log Out", role: .destructive) {
@@ -200,6 +266,23 @@ struct ProfileView: View {
         formatter.timeStyle = .none
         return formatter.string(from: date)
     }
+    
+    private func saveBio() {
+        UserDefaults.standard.set(bioText, forKey: UserDefaultsKeys.userBio)
+    }
+    
+    private func saveName() {
+        UserDefaults.standard.set(nameText, forKey: UserDefaultsKeys.userName)
+        userProfile = UserProfile(
+            id: userProfile.id,
+            email: userProfile.email,
+            displayName: nameText,
+            totalSteps: userProfile.totalSteps,
+            friendCount: userProfile.friendCount,
+            memberSince: userProfile.memberSince,
+            bio: userProfile.bio
+        )
+    }
 }
 
 struct StatCard: View {
@@ -231,14 +314,16 @@ struct UserProfile: Codable {
     var totalSteps: Int
     var friendCount: Int
     let memberSince: Date
+    var bio: String? = nil
     
-    init(id: String, email: String, displayName: String, totalSteps: Int, friendCount: Int, memberSince: Date = Date()) {
+    init(id: String, email: String, displayName: String, totalSteps: Int, friendCount: Int, memberSince: Date = Date(), bio: String? = nil) {
         self.id = id
         self.email = email
         self.displayName = displayName
         self.totalSteps = totalSteps
         self.friendCount = friendCount
         self.memberSince = memberSince
+        self.bio = bio
     }
 }
 
@@ -318,7 +403,8 @@ struct EditProfileView: View {
             displayName: displayName,
             totalSteps: profile.totalSteps,
             friendCount: profile.friendCount,
-            memberSince: profile.memberSince
+            memberSince: profile.memberSince,
+            bio: profile.bio
         )
         
         onSave(updatedProfile)
