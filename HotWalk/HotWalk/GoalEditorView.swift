@@ -59,19 +59,24 @@ struct GoalEditorView: View {
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                         .padding(.horizontal)
-                    VStack(spacing: 12) {
-                        HStack(spacing: 12) {
-                            ForEach(presets[0...2], id: \.self) { preset in
-                                presetButton(preset: preset)
-                            }
-                        }
-                        HStack(spacing: 12) {
-                            ForEach(presets[3...4], id: \.self) { preset in
-                                presetButton(preset: preset)
-                            }
-                        }
+                    
+                    // Custom grid for 3+2 layout, bottom row centered
+                    HStack(spacing: 12) {
+                        presetButton(preset: presets[0])
+                        presetButton(preset: presets[1])
+                        presetButton(preset: presets[2])
                     }
-                    .padding(.horizontal)
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 12)
+                    HStack(spacing: 12) {
+                        Spacer(minLength: 0)
+                        presetButton(preset: presets[3])
+                        presetButton(preset: presets[4])
+                        Spacer(minLength: 0)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 61)
+                    .padding(.top, 0)
                 }
                 .padding()
                 .background(Color.white.opacity(0.15))
@@ -134,6 +139,9 @@ struct GoalEditorView: View {
                 }
             }
             .padding(.top, 8)
+            .frame(maxWidth: 340)
+            .padding(.horizontal)
+            .frame(maxWidth: .infinity, alignment: .center)
         }
     }
     
@@ -167,18 +175,25 @@ struct GoalEditorView: View {
                 Text("\(preset)")
                     .font(.system(size: 18, weight: .medium))
                     .foregroundColor(selectedPreset == preset ? .white : .white.opacity(0.8))
-                
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
                 Text(presetLabel(for: preset))
                     .font(.system(size: 14))
                     .foregroundColor(.white.opacity(0.6))
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.7)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
+            .frame(width: 110, height: 76)
             .background(
                 RoundedRectangle(cornerRadius: 20)
                     .fill(selectedPreset == preset ? Color.purple : Color.white.opacity(0.1))
             )
         }
+        .buttonStyle(PlainButtonStyle())
+        .contentShape(RoundedRectangle(cornerRadius: 20))
+        .accessibilityElement(children: .combine)
     }
 }
 
