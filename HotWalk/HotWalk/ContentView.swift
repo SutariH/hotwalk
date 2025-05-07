@@ -224,6 +224,7 @@ struct ContentView: View {
         .accentColor(.purple)
         .onAppear {
             setupNavigationBar()
+            setupTabBar()
             healthManager.requestAuthorization { success in
                 if success {
                     healthManager.fetchTodayData()
@@ -274,6 +275,25 @@ struct ContentView: View {
         UINavigationBar.appearance().standardAppearance = navBarAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
         UINavigationBar.appearance().compactAppearance = navBarAppearance
+    }
+    
+    private func setupTabBar() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor.white
+        
+        // Set the text color for both selected and unselected states
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor(red: 44/255, green: 8/255, blue: 52/255, alpha: 0.6)]
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor(red: 44/255, green: 8/255, blue: 52/255, alpha: 1.0)]
+        
+        // Set the icon color for both selected and unselected states
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor(red: 44/255, green: 8/255, blue: 52/255, alpha: 0.6)
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(red: 44/255, green: 8/255, blue: 52/255, alpha: 1.0)
+        
+        UITabBar.appearance().standardAppearance = appearance
+        if #available(iOS 15.0, *) {
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
     }
     
     private func setupStepUpdateTimer() {

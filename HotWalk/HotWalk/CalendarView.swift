@@ -207,6 +207,8 @@ struct CalendarView: View {
                     }
                     .pickerStyle(SegmentedPickerStyle())
                     .padding(.horizontal)
+                    .accentColor(Color(red: 44/255, green: 8/255, blue: 52/255)) // Dark purple for selected segment
+                    .foregroundColor(.white) // White text for unselected segments
                     
                     // Month navigation
                     HStack {

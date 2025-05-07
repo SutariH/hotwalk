@@ -38,17 +38,7 @@ struct RealityShowView: View {
                 .padding(24)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color(red: 44/255, green: 8/255, blue: 52/255), // Dark purple
-                                    Color(red: 0.4, green: 0.2, blue: 0.4), // Medium purple
-                                    Color(hue: 0.83, saturation: 0.4, brightness: 0.8) // Darker purple
-                                ]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
+                        .fill(Color(hue: 0.83, saturation: 0.4, brightness: 0.8))
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
                                 .stroke(Color.white.opacity(0.25), lineWidth: 1) // Increased from 0.2
@@ -84,17 +74,7 @@ struct RealityShowView: View {
                 .padding(24)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color(red: 44/255, green: 8/255, blue: 52/255), // Dark purple
-                                    Color(red: 0.4, green: 0.2, blue: 0.4), // Medium purple
-                                    Color(hue: 0.83, saturation: 0.4, brightness: 0.8) // Darker purple
-                                ]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
+                        .fill(Color(hue: 0.83, saturation: 0.4, brightness: 0.8))
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
                                 .stroke(Color.white.opacity(0.25), lineWidth: 1) // Increased from 0.2

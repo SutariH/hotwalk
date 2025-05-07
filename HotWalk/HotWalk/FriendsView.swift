@@ -120,8 +120,14 @@ struct FriendsView: View {
                     .padding(.vertical)
                 }
             }
-            .navigationTitle("Friends")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Friends")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                }
+            }
             .sheet(isPresented: $showingInviteSheet) {
                 InviteFriendView(
                     inviteEmail: $inviteEmail,

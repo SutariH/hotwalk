@@ -9,6 +9,8 @@ struct ProfileView: View {
     @State private var isEditingBio: Bool = false
     @State private var isEditingName: Bool = false
     @State private var nameText: String = UserDefaults.standard.string(forKey: UserDefaultsKeys.userName) ?? ""
+    @State private var isShowingGoalEditor = false
+    @StateObject private var goalViewModel = HotGirlStepsViewModel()
     
     // Add UserDefaults keys
     private enum UserDefaultsKeys {
@@ -67,7 +69,7 @@ struct ProfileView: View {
                                 .font(.system(size: 80))
                                 .foregroundColor(.white)
                             
-                            Text(userProfile.displayName)
+                            Text(nameText.isEmpty ? "Add your name" : nameText)
                                 .font(.system(size: 24, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
                         }
@@ -138,6 +140,24 @@ struct ProfileView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.white.opacity(0.15))
                         .cornerRadius(12)
+                        // Goal Editor Link
+                        Button(action: { isShowingGoalEditor = true }) {
+                            HStack {
+                                Image(systemName: "target")
+                                    .foregroundColor(.purple)
+                                Text("Edit Daily Step Goal")
+                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white.opacity(0.12))
+                            .cornerRadius(10)
+                        }
+                        .padding(.top, 4)
+                        .sheet(isPresented: $isShowingGoalEditor) {
+                            GoalEditorView(viewModel: goalViewModel)
+                        }
                         
                         // Member Since Section
                         VStack(alignment: .leading, spacing: 8) {
@@ -226,17 +246,25 @@ struct ProfileView: View {
                 }
                 .padding(.vertical)
             }
-            .navigationTitle(Text(LocalizedStringKey("Profile")).foregroundColor(.clear))
-            .navigationBarTitleDisplayMode(.inline)
-            .alert("Log Out", isPresented: $showingLogoutAlert) {
-                Button("Cancel", role: .cancel) { }
-                Button("Log Out", role: .destructive) {
-                    clearLocalData()
+            .navigationTitle("")
+            .sheet(isPresented: $showingEditSheet) {
+                EditProfileView(profile: userProfile) { updatedProfile in
+                    userProfile = updatedProfile
+                    saveProfile(updatedProfile)
                 }
-            } message: {
-                Text("Are you sure you want to log out?")
+            }
+            .alert(isPresented: $showingLogoutAlert) {
+                Alert(
+                    title: Text("Log Out"),
+                    message: Text("Are you sure you want to log out?"),
+                    primaryButton: .destructive(Text("Log Out")) {
+                        logout()
+                    },
+                    secondaryButton: .cancel()
+                )
             }
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
     
     private func saveProfile(_ profile: UserProfile) {
@@ -282,6 +310,10 @@ struct ProfileView: View {
             memberSince: userProfile.memberSince,
             bio: userProfile.bio
         )
+    }
+    
+    private func logout() {
+        clearLocalData()
     }
 }
 
