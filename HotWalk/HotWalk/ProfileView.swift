@@ -203,6 +203,26 @@ struct ProfileView: View {
                     }
                     .padding(.horizontal)
                     
+                    // Send Message Button
+                    Button(action: {
+                        if let url = URL(string: "mailto:hello@hotgirlsteps.com") {
+                            UIApplication.shared.open(url)
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "envelope.fill")
+                                .font(.system(size: 20))
+                            Text("Send us love letters 💌")
+                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                        }
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.white.opacity(0.15))
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
+                    
                     // Logout Button
                     Button(action: { showingLogoutAlert = true }) {
                         HStack {
