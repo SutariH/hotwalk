@@ -72,108 +72,87 @@ struct ProfileView: View {
                         }
                         .padding()
                         
-                        // Stats Section
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("Your Stats")
-                                .font(.system(size: 20, weight: .bold, design: .rounded))
+                        // Member Since Section
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Member Since")
+                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.8))
+                            
+                            Text(formatDate(userProfile.memberSince))
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
-                            
-                            HStack(spacing: 20) {
-                                StatCard(
-                                    title: "Total Steps",
-                                    value: "\(userProfile.totalSteps)",
-                                    icon: "figure.walk"
-                                )
-                                
-                                StatCard(
-                                    title: "Friends",
-                                    value: "\(userProfile.friendCount)",
-                                    icon: "person.2.fill"
-                                )
-                            }
-                            
-                            // Member Since Section
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Member Since")
-                                    .font(.system(size: 16, weight: .medium, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.8))
-                                
-                                Text(formatDate(userProfile.memberSince))
-                                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white)
-                            }
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.white.opacity(0.15))
-                            .cornerRadius(12)
-                            
-                            // Unit Preference Section
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Distance Units")
-                                    .font(.system(size: 16, weight: .medium, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.8))
-                                
-                                Picker("Select Unit System", selection: $selectedUnit) {
-                                    ForEach(unitOptions, id: \.self) { unit in
-                                        Text(unit).tag(unit)
-                                    }
-                                }
-                                .pickerStyle(MenuPickerStyle())
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color(red: 0.4, green: 0.2, blue: 0.4))
-                                .cornerRadius(10)
-                                .accentColor(.white)
-                                .onChange(of: selectedUnit) { newValue in
-                                    let useMetric = newValue == "Metric"
-                                    UserDefaults.standard.set(useMetric, forKey: UserDefaultsKeys.useMetricSystem)
-                                }
-                                
-                                Text(selectedUnit == "Metric" ? "Distances shown in kilometers" : "Distances shown in miles")
-                                    .font(.system(size: 14, weight: .regular, design: .rounded))
-                                    .foregroundColor(.white.opacity(0.7))
-                            }
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.white.opacity(0.15))
-                            .cornerRadius(12)
                         }
-                        .padding(.horizontal)
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.white.opacity(0.15))
+                        .cornerRadius(12)
                         
-                        // Edit Profile Button
-                        Button(action: { showingEditSheet = true }) {
-                            HStack {
-                                Image(systemName: "person.fill")
-                                    .font(.system(size: 20))
-                                Text("Edit Profile")
-                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                        // Unit Preference Section
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Distance Units")
+                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                                .foregroundColor(.white.opacity(0.8))
+                            
+                            Picker("Select Unit System", selection: $selectedUnit) {
+                                ForEach(unitOptions, id: \.self) { unit in
+                                    Text(unit).tag(unit)
+                                }
                             }
-                            .foregroundColor(.white)
-                            .padding()
+                            .pickerStyle(MenuPickerStyle())
                             .frame(maxWidth: .infinity)
-                            .background(Color.white.opacity(0.15))
-                            .cornerRadius(12)
-                        }
-                        .padding(.horizontal)
-                        
-                        // Logout Button
-                        Button(action: { showingLogoutAlert = true }) {
-                            HStack {
-                                Image(systemName: "arrow.right.square")
-                                    .font(.system(size: 20))
-                                Text("Log Out")
-                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .padding()
+                            .background(Color(red: 0.4, green: 0.2, blue: 0.4))
+                            .cornerRadius(10)
+                            .accentColor(.white)
+                            .onChange(of: selectedUnit) { newValue in
+                                let useMetric = newValue == "Metric"
+                                UserDefaults.standard.set(useMetric, forKey: UserDefaultsKeys.useMetricSystem)
                             }
-                            .foregroundColor(.red)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.white.opacity(0.15))
-                            .cornerRadius(12)
+                            
+                            Text(selectedUnit == "Metric" ? "Distances shown in kilometers" : "Distances shown in miles")
+                                .font(.system(size: 14, weight: .regular, design: .rounded))
+                                .foregroundColor(.white.opacity(0.7))
                         }
-                        .padding(.horizontal)
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.white.opacity(0.15))
+                        .cornerRadius(12)
                     }
-                    .padding(.vertical)
+                    .padding(.horizontal)
+                    
+                    // Edit Profile Button
+                    Button(action: { showingEditSheet = true }) {
+                        HStack {
+                            Image(systemName: "person.fill")
+                                .font(.system(size: 20))
+                            Text("Edit Profile")
+                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                        }
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.white.opacity(0.15))
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
+                    
+                    // Logout Button
+                    Button(action: { showingLogoutAlert = true }) {
+                        HStack {
+                            Image(systemName: "arrow.right.square")
+                                .font(.system(size: 20))
+                            Text("Log Out")
+                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                        }
+                        .foregroundColor(.red)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.white.opacity(0.15))
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
                 }
+                .padding(.vertical)
             }
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)

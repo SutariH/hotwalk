@@ -10,6 +10,12 @@ enum DayStatus {
     case none
 }
 
+enum ViewType {
+    case day
+    case week
+    case month
+}
+
 struct CalendarView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = HotGirlStepsViewModel()
@@ -25,9 +31,13 @@ struct CalendarView: View {
     @State private var todayActiveTime: TimeInterval = 0
     @State private var isTransitioning: Bool = false
     @State private var stepCountCache: [Date: Int] = [:]
+    @State private var distanceCache: [Date: Double] = [:]
+    @State private var activeTimeCache: [Date: TimeInterval] = [:]
     @State private var isFetchingData: Bool = false
     @State private var isInitialLoadComplete: Bool = false
     @State private var visibleDays: Set<Date> = []
+    @State private var selectedViewType: ViewType = .day
+    @State private var selectedMonthDate: Date = Calendar.current.startOfMonth(for: Date())
     
     private let calendar = Calendar.current
     private let daysInWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -189,6 +199,15 @@ struct CalendarView: View {
             
             ScrollView {
                 VStack(spacing: 24) {
+                    // View Type Selector
+                    Picker("View Type", selection: $selectedViewType) {
+                        Text("Day").tag(ViewType.day)
+                        Text("Week").tag(ViewType.week)
+                        Text("Month").tag(ViewType.month)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding(.horizontal)
+                    
                     // Month navigation
                     HStack {
                         Button(action: previousMonth) {
@@ -232,11 +251,15 @@ struct CalendarView: View {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 10) {
                         ForEach(daysInMonth(), id: \.self) { date in
                             if let date = date {
+                                let isInSelectedMonth = selectedViewType == .month && calendar.isDate(date, equalTo: selectedMonthDate, toGranularity: .month)
                                 DayCell(
                                     date: date,
                                     isGoalMet: isGoalMet(for: date),
                                     wasPassUsed: HotGirlPassManager.shared.wasPassUsed(on: date),
-                                    stepCount: getStepCount(for: date)
+                                    stepCount: getStepCount(for: date),
+                                    isSelected: selectedDate != nil && calendar.isDate(selectedDate!, inSameDayAs: date),
+                                    isInSelectedWeek: selectedViewType == .week && isDateInSelectedWeek(date),
+                                    isInSelectedMonth: isInSelectedMonth
                                 )
                                 .onAppear {
                                     if isInitialLoadComplete {
@@ -246,18 +269,8 @@ struct CalendarView: View {
                                 .onTapGesture {
                                     withAnimation(.easeInOut(duration: 0.3)) {
                                         isTransitioning = true
-                                        
-                                        if let selectedDate = selectedDate, calendar.isDate(selectedDate, inSameDayAs: date) {
-                                            self.selectedDate = nil
-                                            selectedDateStatus = .none
-                                        } else {
-                                            self.selectedDate = date
-                                            fetchDailySteps(for: date) { steps in
-                                                selectedDateSteps = steps
-                                                selectedDateStatus = getStatus(for: date)
-                                            }
-                                        }
-                                        
+                                        selectedDate = date
+                                        fetchDailyData(for: date)
                                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                             isTransitioning = false
                                         }
@@ -275,202 +288,44 @@ struct CalendarView: View {
                     }
                     .padding(.horizontal)
                     
-                    // Streak and Passes Cards
-                    HStack(spacing: 12) {
-                        // Streak Card
-                        VStack(spacing: 4) {
-                            Text("🔥 Streak")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            Text(viewModel.streakText)
-                                .font(.title3.bold())
-                                .foregroundColor(.white)
-                        }
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.purple.opacity(0.25))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .shadow(color: Color.purple.opacity(0.4), radius: 5, x: 0, y: 2)
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("Current streak: \(viewModel.streakText)")
-                        
-                        // Passes Card
-                        VStack(spacing: 4) {
-                            Text("💌 Hot Girl Passes")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            Text("\(HotGirlPassManager.shared.currentPassCount) left")
-                                .font(.title3.bold())
-                                .foregroundColor(.white)
-                        }
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.pink.opacity(0.25))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .shadow(color: Color.pink.opacity(0.4), radius: 5, x: 0, y: 2)
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("\(HotGirlPassManager.shared.currentPassCount) Hot Girl Passes remaining")
-                    }
-                    .padding(.horizontal)
-                    
-                    // Day details section
-                    VStack(spacing: 15) {
-                        // Date header
-                        Text(formatDate(selectedDate ?? Date()))
-                            .font(.title3.bold())
-                            .foregroundColor(.white)
-                            .padding(.top, 5)
-                            .accessibilityAddTraits(.isHeader)
-                        
-                        // Steps and goal
-                        VStack(spacing: 10) {
-                            Text("\(selectedDate == nil ? todaySteps : selectedDateSteps) steps")
-                                .font(.title2.bold())
-                                .foregroundColor(.white)
-                            
-                            Text("Goal: \(viewModel.dailyGoal)")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.9))
-                            
-                            ProgressView(
-                                value: Double(selectedDate == nil ? todaySteps : selectedDateSteps), 
-                                total: Double(viewModel.dailyGoal)
-                            )
-                            .progressViewStyle(LinearProgressViewStyle(tint: .purple))
-                            .frame(width: 200)
-                        }
-                        .padding()
-                        .background(Color.purple.opacity(0.25))
-                        .cornerRadius(15)
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("\(selectedDate == nil ? todaySteps : selectedDateSteps) steps out of \(viewModel.dailyGoal) goal")
-                        
-                        // Distance and Active Time
-                        HStack(spacing: 20) {
-                            // Distance
-                            VStack(spacing: 8) {
-                                Text("Distance")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                Text(formatDistance(selectedDate == nil ? todayDistance : selectedDateDistance))
-                                    .font(.title3.bold())
-                                    .foregroundColor(.white)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue.opacity(0.25))
-                            .cornerRadius(15)
-                            
-                            // Active Time
-                            VStack(spacing: 8) {
-                                Text("Active Time")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                Text(formatTime(selectedDate == nil ? todayActiveTime : selectedDateActiveTime))
-                                    .font(.title3.bold())
-                                    .foregroundColor(.white)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.green.opacity(0.25))
-                            .cornerRadius(15)
-                        }
-                        .padding(.horizontal)
-                        
-                        // Status card
-                        VStack(spacing: 10) {
-                            if let date = selectedDate {
-                                // Selected date status
-                                if selectedDateSteps >= viewModel.dailyGoal {
-                                    Text("🔥 Goal Achieved!")
-                                        .font(.title3.bold())
-                                        .foregroundColor(.white)
-                                    
-                                    Text("You crushed your step goal this day!")
-                                        .font(.body)
-                                        .multilineTextAlignment(.center)
-                                        .foregroundColor(.white.opacity(0.9))
-                                } else if HotGirlPassManager.shared.wasPassUsed(on: date) {
-                                    Text("💌 Hot Girl Pass Used")
-                                        .font(.title3.bold())
-                                        .foregroundColor(.white)
-                                    
-                                    Text("You used a pass to preserve your streak!")
-                                        .font(.body)
-                                        .multilineTextAlignment(.center)
-                                        .foregroundColor(.white.opacity(0.9))
-                                } else {
-                                    Text("Goal Not Met")
-                                        .font(.title3.bold())
-                                        .foregroundColor(.white)
-                                    
-                                    Text("You didn't meet your step goal this day.")
-                                        .font(.body)
-                                        .multilineTextAlignment(.center)
-                                        .foregroundColor(.white.opacity(0.9))
-                                }
-                            } else {
-                                // Today's status
-                                if todaySteps >= viewModel.dailyGoal {
-                                    Text("🔥 Goal Achieved!")
-                                        .font(.title3.bold())
-                                        .foregroundColor(.white)
-                                    
-                                    Text("You crushed your step goal today!")
-                                        .font(.body)
-                                        .multilineTextAlignment(.center)
-                                        .foregroundColor(.white.opacity(0.9))
-                                } else {
-                                    Text("Goal Not Met")
-                                        .font(.title3.bold())
-                                        .foregroundColor(.white)
-                                    
-                                    Text("Still time to reach your step goal!")
-                                        .font(.body)
-                                        .multilineTextAlignment(.center)
-                                        .foregroundColor(.white.opacity(0.9))
-                                }
-                            }
-                        }
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(
-                                    selectedDate == nil ? 
-                                        (todaySteps >= viewModel.dailyGoal ? Color.purple.opacity(0.25) : Color.gray.opacity(0.25)) :
-                                        (selectedDateSteps >= viewModel.dailyGoal ? Color.purple.opacity(0.25) : Color.gray.opacity(0.25))
-                                )
+                    // Stats View based on selected type
+                    switch selectedViewType {
+                    case .day:
+                        DayStatsView(
+                            date: selectedDate ?? Date(),
+                            steps: selectedDate == nil ? todaySteps : selectedDateSteps,
+                            distance: selectedDate == nil ? todayDistance : selectedDateDistance,
+                            activeTime: selectedDate == nil ? todayActiveTime : selectedDateActiveTime,
+                            isTransitioning: isTransitioning
                         )
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel(
-                            selectedDate == nil ? 
-                                (todaySteps >= viewModel.dailyGoal ? "Goal achieved" : "Goal not met yet") :
-                                (selectedDateSteps >= viewModel.dailyGoal ? "Goal achieved" : "Goal not met")
+                    case .week:
+                        WeekStatsView(
+                            startDate: calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: selectedDate ?? Date())) ?? Date(),
+                            stepCountCache: stepCountCache,
+                            distanceCache: distanceCache,
+                            activeTimeCache: activeTimeCache
                         )
-                        
-                        // Affirmation message
-                        Text(getReactionMessage(for: selectedDate == nil ? .today : selectedDateStatus))
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 16)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.white.opacity(0.15))
-                            )
-                            .shadow(color: Color.purple.opacity(0.4), radius: 5, x: 0, y: 0)
-                            .padding(.top, 5)
-                            .accessibilityLabel(getReactionMessage(for: selectedDate == nil ? .today : selectedDateStatus))
+                    case .month:
+                        MonthStatsView(
+                            selectedMonthDate: selectedMonthDate,
+                            stepCountCache: stepCountCache,
+                            distanceCache: distanceCache,
+                            activeTimeCache: activeTimeCache,
+                            onSelectMonth: { date in
+                                selectedMonthDate = date
+                                currentDate = date
+                            }
+                        )
                     }
-                    .padding(.horizontal)
-                    .opacity(isTransitioning ? 0 : 1)
-                    .animation(.easeInOut(duration: 0.3), value: selectedDate)
-                    .animation(.easeInOut(duration: 0.3), value: todaySteps)
-                    .animation(.easeInOut(duration: 0.3), value: selectedDateSteps)
                 }
                 .padding(.top, 32)
                 .padding(.bottom, 24)
+            }
+            .refreshable {
+                let today = Date()
+                currentDate = today
+                selectedDate = today
+                selectedMonthDate = calendar.startOfMonth(for: today)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -482,6 +337,14 @@ struct CalendarView: View {
         }
         .onChange(of: currentDate) { _ in
             prefetchMonthData()
+            if selectedViewType == .week {
+                fetchAndCacheWeekDistanceAndTime()
+            }
+        }
+        .onChange(of: selectedViewType) { newValue in
+            if newValue == .week {
+                fetchAndCacheWeekDistanceAndTime()
+            }
         }
     }
     
@@ -539,47 +402,40 @@ struct CalendarView: View {
         return 0
     }
     
-    // Updated HealthKit query to fetch only the selected day's steps
-    private func fetchDailySteps(for date: Date, completion: @escaping (Int) -> Void) {
-        // Check if we already have the data cached
-        let startOfDay = Calendar.current.startOfDay(for: date)
+    private func fetchDailyData(for date: Date) {
+        let startOfDay = calendar.startOfDay(for: date)
+        
+        // Fetch steps
         if let cachedSteps = stepCountCache[startOfDay] {
-            updateStepsForDate(startOfDay, steps: cachedSteps)
-            completion(cachedSteps)
-            return
+            selectedDateSteps = cachedSteps
+        } else {
+            healthManager.fetchStepsForDate(date) { steps in
+                self.selectedDateSteps = steps
+                self.stepCountCache[startOfDay] = steps
+            }
         }
         
-        // If not cached, fetch from HealthKit
-        healthManager.fetchStepsForDate(date) { steps in
-            self.updateStepsForDate(startOfDay, steps: steps)
-            completion(steps)
-        }
-    }
-    
-    private func fetchDailyDistance(for date: Date) {
-        let startOfDay = Calendar.current.startOfDay(for: date)
-        let cachedDistance = healthManager.getDistanceForDate(startOfDay)
-        if cachedDistance > 0 {
-            updateDistanceForDate(startOfDay, distance: cachedDistance)
-            return
+        // Fetch distance
+        if let cachedDistance = distanceCache[startOfDay] {
+            selectedDateDistance = cachedDistance
+        } else {
+            healthManager.fetchDistanceForDate(date) { distance in
+                self.selectedDateDistance = distance
+                self.distanceCache[startOfDay] = distance
+            }
         }
         
-        healthManager.fetchDistanceForDate(date) { distance in
-            self.updateDistanceForDate(startOfDay, distance: distance)
-        }
-    }
-    
-    private func fetchDailyActiveTime(for date: Date) {
-        let startOfDay = Calendar.current.startOfDay(for: date)
-        let cachedTime = healthManager.getActiveTimeForDate(startOfDay)
-        if cachedTime > 0 {
-            updateActiveTimeForDate(startOfDay, activeTime: cachedTime)
-            return
+        // Fetch active time
+        if let cachedTime = activeTimeCache[startOfDay] {
+            selectedDateActiveTime = cachedTime
+        } else {
+            healthManager.fetchActiveTimeForDate(date) { activeTime in
+                self.selectedDateActiveTime = activeTime
+                self.activeTimeCache[startOfDay] = activeTime
+            }
         }
         
-        healthManager.fetchActiveTimeForDate(date) { activeTime in
-            self.updateActiveTimeForDate(startOfDay, activeTime: activeTime)
-        }
+        selectedDateStatus = getStatus(for: date)
     }
     
     private func previousMonth() {
@@ -685,6 +541,38 @@ struct CalendarView: View {
             todayActiveTime = activeTime
         }
     }
+    
+    // Helper to check if a date is in the selected week
+    private func isDateInSelectedWeek(_ date: Date) -> Bool {
+        guard selectedViewType == .week else { return false }
+        let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: selectedDate ?? Date())) ?? Date()
+        let weekEnd = calendar.date(byAdding: .day, value: 6, to: weekStart) ?? weekStart
+        return (date >= calendar.startOfDay(for: weekStart) && date <= calendar.startOfDay(for: weekEnd))
+    }
+    
+    // Helper to fetch and cache distance and time for all days in the selected week
+    private func fetchAndCacheWeekDistanceAndTime() {
+        let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: selectedDate ?? Date())) ?? Date()
+        for offset in 0..<7 {
+            if let day = calendar.date(byAdding: .day, value: offset, to: weekStart) {
+                let startOfDay = calendar.startOfDay(for: day)
+                if distanceCache[startOfDay] == nil {
+                    healthManager.fetchDistanceForDate(day) { distance in
+                        DispatchQueue.main.async {
+                            distanceCache[startOfDay] = distance
+                        }
+                    }
+                }
+                if activeTimeCache[startOfDay] == nil {
+                    healthManager.fetchActiveTimeForDate(day) { activeTime in
+                        DispatchQueue.main.async {
+                            activeTimeCache[startOfDay] = activeTime
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 struct DayCell: View {
@@ -692,6 +580,9 @@ struct DayCell: View {
     let isGoalMet: Bool
     let wasPassUsed: Bool
     let stepCount: Int
+    let isSelected: Bool
+    let isInSelectedWeek: Bool
+    let isInSelectedMonth: Bool
     
     private let calendar = Calendar.current
     
@@ -705,6 +596,13 @@ struct DayCell: View {
                         .strokeBorder(borderColor, lineWidth: borderWidth)
                 )
                 .shadow(color: shadowColor, radius: shadowRadius)
+                .scaleEffect(isSelected ? 1.18 : 1.0)
+                .overlay(
+                    // White border and glow for selected day (in day view), all days in selected week (in week view), or all days in selected month (in month view)
+                    Circle()
+                        .stroke((isSelected && !isInSelectedWeek && !isInSelectedMonth) || isInSelectedWeek || isInSelectedMonth ? Color.white : Color.clear, lineWidth: ((isSelected && !isInSelectedWeek && !isInSelectedMonth) || isInSelectedWeek || isInSelectedMonth) ? 4 : 0)
+                        .shadow(color: ((isSelected && !isInSelectedWeek && !isInSelectedMonth) || isInSelectedWeek || isInSelectedMonth) ? Color.purple.opacity(0.7) : Color.clear, radius: ((isSelected && !isInSelectedWeek && !isInSelectedMonth) || isInSelectedWeek || isInSelectedMonth) ? 8 : 0)
+                )
             
             // Day number
             Text("\(calendar.component(.day, from: date))")
@@ -783,6 +681,620 @@ struct DayCell: View {
             return 3
         }
         return 0
+    }
+}
+
+// Add new view for day stats
+struct DayStatsView: View {
+    let date: Date
+    let steps: Int
+    let distance: Double
+    let activeTime: TimeInterval
+    let isTransitioning: Bool
+    
+    private var useMetricSystem: Bool {
+        UserDefaults.standard.bool(forKey: "useMetricSystem")
+    }
+    
+    private var distanceUnit: String {
+        useMetricSystem ? "km" : "mi"
+    }
+    
+    private func convertDistance(_ kilometers: Double) -> Double {
+        if !useMetricSystem {
+            return kilometers * 0.621371
+        }
+        return kilometers
+    }
+    
+    private func formatDistance(_ kilometers: Double) -> String {
+        let convertedDistance = convertDistance(kilometers)
+        return String(format: "%.1f %@", convertedDistance, distanceUnit)
+    }
+    
+    private func formatTime(_ timeInterval: TimeInterval) -> String {
+        let hours = Int(timeInterval) / 3600
+        let minutes = Int(timeInterval) / 60 % 60
+        
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else {
+            return "\(minutes)m"
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: 15) {
+            // Date header
+            Text(formatDate(date))
+                .font(.title3.bold())
+                .foregroundColor(.white)
+                .padding(.top, 5)
+            
+            // Stats cards
+            VStack(spacing: 12) {
+                StatCard(title: "Steps", value: "\(steps)", icon: "figure.walk")
+                StatCard(title: "Distance", value: formatDistance(distance), icon: "map")
+                StatCard(title: "Active Time", value: formatTime(activeTime), icon: "clock")
+            }
+            .padding()
+            .background(Color.white.opacity(0.15))
+            .cornerRadius(15)
+        }
+        .padding(.horizontal)
+        .opacity(isTransitioning ? 0 : 1)
+        .animation(.easeInOut(duration: 0.3), value: isTransitioning)
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMMM d, yyyy"
+        return formatter.string(from: date)
+    }
+}
+
+// Add new view for week stats
+struct WeekStatsView: View {
+    let startDate: Date
+    let stepCountCache: [Date: Int]
+    let distanceCache: [Date: Double]
+    let activeTimeCache: [Date: TimeInterval]
+    
+    private let calendar = Calendar.current
+    
+    private var weekDates: [Date] {
+        (0..<7).compactMap { day in
+            calendar.date(byAdding: .day, value: day, to: startDate)
+        }
+    }
+    
+    private var totalSteps: Int {
+        weekDates.reduce(0) { total, date in
+            total + (stepCountCache[calendar.startOfDay(for: date)] ?? 0)
+        }
+    }
+    
+    private var totalDistance: Double {
+        weekDates.reduce(0.0) { total, date in
+            total + (distanceCache[calendar.startOfDay(for: date)] ?? 0)
+        }
+    }
+    
+    private var totalActiveTime: TimeInterval {
+        weekDates.reduce(0.0) { total, date in
+            total + (activeTimeCache[calendar.startOfDay(for: date)] ?? 0)
+        }
+    }
+    
+    private var useMetricSystem: Bool {
+        UserDefaults.standard.bool(forKey: "useMetricSystem")
+    }
+    
+    private var distanceUnit: String {
+        useMetricSystem ? "km" : "mi"
+    }
+    
+    private func convertDistance(_ kilometers: Double) -> Double {
+        if !useMetricSystem {
+            return kilometers * 0.621371
+        }
+        return kilometers
+    }
+    
+    private func formatDistance(_ kilometers: Double) -> String {
+        let convertedDistance = convertDistance(kilometers)
+        return String(format: "%.1f %@", convertedDistance, distanceUnit)
+    }
+    
+    private func formatTime(_ timeInterval: TimeInterval) -> String {
+        let hours = Int(timeInterval) / 3600
+        let minutes = Int(timeInterval) / 60 % 60
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else {
+            return "\(minutes)m"
+        }
+    }
+    
+    // For bar graph
+    private var maxSteps: Int {
+        (weekDates.map { stepCountCache[calendar.startOfDay(for: $0)] ?? 0 }.max() ?? 1)
+    }
+    
+    // Highlight the selected week
+    private var isSelectedWeek: Bool {
+        // Always true for now, as this is the week being viewed
+        true
+    }
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            // Large total steps
+            Text("\(totalSteps)")
+                .font(.system(size: 44, weight: .bold, design: .rounded))
+                .foregroundColor(.white)
+                .padding(.top, 8)
+            // Subtitle
+            Text(weekSubtitle())
+                .font(.headline)
+                .foregroundColor(.white.opacity(0.7))
+            // Bar graph for each day
+            HStack(alignment: .bottom, spacing: 12) {
+                ForEach(weekDates, id: \.self) { date in
+                    let steps = stepCountCache[calendar.startOfDay(for: date)] ?? 0
+                    VStack {
+                        Text("\(steps)")
+                            .font(.caption2)
+                            .foregroundColor(.white.opacity(0.8))
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(LinearGradient(gradient: Gradient(colors: [Color.purple, Color.purple.opacity(0.7)]), startPoint: .bottom, endPoint: .top))
+                            .frame(width: 24, height: barHeight(for: steps))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.clear, lineWidth: 0)
+                            )
+                        Text(shortWeekday(for: date))
+                            .font(.caption2)
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                }
+            }
+            .frame(height: 100)
+            // Summary row
+            HStack(spacing: 32) {
+                VStack {
+                    Image(systemName: "arrow.right")
+                        .foregroundColor(.purple)
+                    Text(formatDistance(totalDistance))
+                        .font(.headline)
+                        .foregroundColor(.white)
+                }
+                VStack {
+                    Image(systemName: "clock")
+                        .foregroundColor(.purple)
+                    Text(formatTime(totalActiveTime))
+                        .font(.headline)
+                        .foregroundColor(.white)
+                }
+            }
+            .padding(.top, 8)
+        }
+        .padding()
+        .background(Color.white.opacity(0.08))
+        .cornerRadius(20)
+        .padding(.horizontal)
+    }
+    
+    private func weekSubtitle() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM yyyy"
+        let start = formatter.string(from: weekDates.first ?? Date())
+        let end = formatter.string(from: weekDates.last ?? Date())
+        return "\(start) – \(end)"
+    }
+    
+    private func shortWeekday(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        return formatter.string(from: date)
+    }
+    
+    private func barHeight(for steps: Int) -> CGFloat {
+        let minHeight: CGFloat = 16
+        let maxHeight: CGFloat = 80
+        guard maxSteps > 0 else { return minHeight }
+        let ratio = CGFloat(steps) / CGFloat(maxSteps)
+        return max(minHeight, ratio * maxHeight)
+    }
+}
+
+// Add new view for month stats
+struct MonthStatsView: View {
+    let selectedMonthDate: Date
+    let stepCountCache: [Date: Int]
+    let distanceCache: [Date: Double]
+    let activeTimeCache: [Date: TimeInterval]
+    let onSelectMonth: (Date) -> Void
+    
+    private let calendar = Calendar.current
+    
+    // Get the last 6 months including the selected month
+    private var lastSixMonths: [Date] {
+        (0..<6).compactMap { offset in
+            calendar.date(byAdding: .month, value: -offset, to: calendar.startOfMonth(for: selectedMonthDate))
+        }.reversed()
+    }
+    
+    // Get totals for a given month
+    private func totals(for month: Date) -> (steps: Int, distance: Double, activeTime: TimeInterval) {
+        guard let monthInterval = calendar.dateInterval(of: .month, for: month) else { return (0, 0, 0) }
+        let days = calendar.generateDates(
+            inside: monthInterval,
+            matching: DateComponents(hour: 0, minute: 0, second: 0)
+        )
+        let steps = days.reduce(0) { $0 + (stepCountCache[calendar.startOfDay(for: $1)] ?? 0) }
+        let distance = days.reduce(0.0) { $0 + (distanceCache[calendar.startOfDay(for: $1)] ?? 0) }
+        let activeTime = days.reduce(0.0) { $0 + (activeTimeCache[calendar.startOfDay(for: $1)] ?? 0) }
+        return (steps, distance, activeTime)
+    }
+    
+    private var selectedTotals: (steps: Int, distance: Double, activeTime: TimeInterval) {
+        totals(for: selectedMonthDate)
+    }
+    
+    private var useMetricSystem: Bool {
+        UserDefaults.standard.bool(forKey: "useMetricSystem")
+    }
+    
+    private var distanceUnit: String {
+        useMetricSystem ? "km" : "mi"
+    }
+    
+    private func convertDistance(_ kilometers: Double) -> Double {
+        if !useMetricSystem {
+            return kilometers * 0.621371
+        }
+        return kilometers
+    }
+    
+    private func formatDistance(_ kilometers: Double) -> String {
+        let convertedDistance = convertDistance(kilometers)
+        return String(format: "%.1f %@", convertedDistance, distanceUnit)
+    }
+    
+    private func formatTime(_ timeInterval: TimeInterval) -> String {
+        let hours = Int(timeInterval) / 3600
+        let minutes = Int(timeInterval) / 60 % 60
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else {
+            return "\(minutes)m"
+        }
+    }
+    
+    // For bar chart
+    private var maxSteps: Int {
+        lastSixMonths.map { totals(for: $0).steps }.max() ?? 1
+    }
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            // Large total steps
+            Text("\(selectedTotals.steps)")
+                .font(.system(size: 44, weight: .bold, design: .rounded))
+                .foregroundColor(.white)
+                .padding(.top, 8)
+            // Subtitle
+            Text(monthSubtitle(for: selectedMonthDate))
+                .font(.headline)
+                .foregroundColor(.white.opacity(0.7))
+            // Bar chart for last 6 months
+            HStack(alignment: .bottom, spacing: 16) {
+                ForEach(lastSixMonths, id: \.self) { month in
+                    let totals = totals(for: month)
+                    VStack {
+                        Text("\(totals.steps)")
+                            .font(.caption2)
+                            .foregroundColor(.white.opacity(0.8))
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(LinearGradient(gradient: Gradient(colors: [Color.purple, Color.purple.opacity(0.7)]), startPoint: .bottom, endPoint: .top))
+                            .frame(width: 24, height: barHeight(for: totals.steps))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(calendar.isDate(month, equalTo: selectedMonthDate, toGranularity: .month) ? Color.white : Color.clear, lineWidth: calendar.isDate(month, equalTo: selectedMonthDate, toGranularity: .month) ? 4 : 0)
+                                    .shadow(color: calendar.isDate(month, equalTo: selectedMonthDate, toGranularity: .month) ? Color.purple.opacity(0.7) : Color.clear, radius: calendar.isDate(month, equalTo: selectedMonthDate, toGranularity: .month) ? 8 : 0)
+                            )
+                            .onTapGesture {
+                                onSelectMonth(month)
+                            }
+                        Text(shortMonth(for: month))
+                            .font(.caption2)
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                }
+            }
+            .frame(height: 100)
+            // Summary row
+            HStack(spacing: 32) {
+                VStack {
+                    Image(systemName: "arrow.right")
+                        .foregroundColor(.purple)
+                    Text(formatDistance(selectedTotals.distance))
+                        .font(.headline)
+                        .foregroundColor(.white)
+                }
+                VStack {
+                    Image(systemName: "clock")
+                        .foregroundColor(.purple)
+                    Text(formatTime(selectedTotals.activeTime))
+                        .font(.headline)
+                        .foregroundColor(.white)
+                }
+            }
+            .padding(.top, 8)
+        }
+        .padding()
+        .background(Color.white.opacity(0.08))
+        .cornerRadius(20)
+        .padding(.horizontal)
+    }
+    
+    private func monthSubtitle(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.string(from: date)
+    }
+    
+    private func shortMonth(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM"
+        return formatter.string(from: date)
+    }
+    
+    private func barHeight(for steps: Int) -> CGFloat {
+        let minHeight: CGFloat = 16
+        let maxHeight: CGFloat = 80
+        guard maxSteps > 0 else { return minHeight }
+        let ratio = CGFloat(steps) / CGFloat(maxSteps)
+        return max(minHeight, ratio * maxHeight)
+    }
+}
+
+// Simple SwiftUI line graph for steps
+struct LineGraph: View {
+    let data: [Int]
+    let maxValue: Int
+    
+    var body: some View {
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            let height = geometry.size.height
+            let count = data.count
+            let points: [CGPoint] = data.enumerated().map { (i, value) in
+                let x = CGFloat(i) / CGFloat(max(count - 1, 1)) * width
+                let y = height - (CGFloat(value) / CGFloat(maxValue)) * (height - 16)
+                return CGPoint(x: x, y: y)
+            }
+            ZStack {
+                // Line
+                Path { path in
+                    guard let first = points.first else { return }
+                    path.move(to: first)
+                    for point in points.dropFirst() {
+                        path.addLine(to: point)
+                    }
+                }
+                .stroke(LinearGradient(gradient: Gradient(colors: [Color.purple, Color.purple.opacity(0.7)]), startPoint: .bottom, endPoint: .top), lineWidth: 3)
+                // Dots
+                ForEach(points.indices, id: \.self) { i in
+                    Circle()
+                        .fill(Color.white)
+                        .frame(width: 8, height: 8)
+                        .position(points[i])
+                }
+            }
+        }
+    }
+}
+
+// Add helper views for breakdowns
+struct DailyBreakdownRow: View {
+    let date: Date
+    let steps: Int
+    let distance: Double
+    let activeTime: TimeInterval
+    
+    private let calendar = Calendar.current
+    
+    private var useMetricSystem: Bool {
+        UserDefaults.standard.bool(forKey: "useMetricSystem")
+    }
+    
+    private var distanceUnit: String {
+        useMetricSystem ? "km" : "mi"
+    }
+    
+    private func convertDistance(_ kilometers: Double) -> Double {
+        if !useMetricSystem {
+            return kilometers * 0.621371
+        }
+        return kilometers
+    }
+    
+    private func formatDistance(_ kilometers: Double) -> String {
+        let convertedDistance = convertDistance(kilometers)
+        return String(format: "%.1f %@", convertedDistance, distanceUnit)
+    }
+    
+    private func formatTime(_ timeInterval: TimeInterval) -> String {
+        let hours = Int(timeInterval) / 3600
+        let minutes = Int(timeInterval) / 60 % 60
+        
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else {
+            return "\(minutes)m"
+        }
+    }
+    
+    var body: some View {
+        HStack {
+            Text(formatDate(date))
+                .font(.subheadline)
+                .foregroundColor(.white)
+            
+            Spacer()
+            
+            VStack(alignment: .trailing) {
+                Text("\(steps) steps")
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                Text(formatDistance(distance))
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                Text(formatTime(activeTime))
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE, MMM d"
+        return formatter.string(from: date)
+    }
+}
+
+struct WeeklyBreakdownRow: View {
+    let startDate: Date
+    let stepCountCache: [Date: Int]
+    let distanceCache: [Date: Double]
+    let activeTimeCache: [Date: TimeInterval]
+    
+    private let calendar = Calendar.current
+    
+    private var weekDates: [Date] {
+        (0..<7).compactMap { day in
+            calendar.date(byAdding: .day, value: day, to: startDate)
+        }
+    }
+    
+    private var totalSteps: Int {
+        weekDates.reduce(0) { total, date in
+            total + (stepCountCache[calendar.startOfDay(for: date)] ?? 0)
+        }
+    }
+    
+    private var totalDistance: Double {
+        weekDates.reduce(0.0) { total, date in
+            total + (distanceCache[calendar.startOfDay(for: date)] ?? 0)
+        }
+    }
+    
+    private var totalActiveTime: TimeInterval {
+        weekDates.reduce(0.0) { total, date in
+            total + (activeTimeCache[calendar.startOfDay(for: date)] ?? 0)
+        }
+    }
+    
+    private var useMetricSystem: Bool {
+        UserDefaults.standard.bool(forKey: "useMetricSystem")
+    }
+    
+    private var distanceUnit: String {
+        useMetricSystem ? "km" : "mi"
+    }
+    
+    private func convertDistance(_ kilometers: Double) -> Double {
+        if !useMetricSystem {
+            return kilometers * 0.621371
+        }
+        return kilometers
+    }
+    
+    private func formatDistance(_ kilometers: Double) -> String {
+        let convertedDistance = convertDistance(kilometers)
+        return String(format: "%.1f %@", convertedDistance, distanceUnit)
+    }
+    
+    private func formatTime(_ timeInterval: TimeInterval) -> String {
+        let hours = Int(timeInterval) / 3600
+        let minutes = Int(timeInterval) / 60 % 60
+        
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else {
+            return "\(minutes)m"
+        }
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Week of \(formatDate(startDate))")
+                .font(.subheadline)
+                .foregroundColor(.white)
+            
+            HStack {
+                Text("\(totalSteps) steps")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.8))
+                
+                Spacer()
+                
+                Text(formatDistance(totalDistance))
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.8))
+                
+                Spacer()
+                
+                Text(formatTime(totalActiveTime))
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.8))
+            }
+        }
+        .padding(.vertical, 4)
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
+        return formatter.string(from: date)
+    }
+}
+
+// Add Calendar extension for date generation
+extension Calendar {
+    func generateDates(
+        inside interval: DateInterval,
+        matching components: DateComponents
+    ) -> [Date] {
+        var dates: [Date] = []
+        dates.append(interval.start)
+        
+        enumerateDates(
+            startingAfter: interval.start,
+            matching: components,
+            matchingPolicy: .nextTime
+        ) { date, _, stop in
+            if let date = date {
+                if date <= interval.end {
+                    dates.append(date)
+                } else {
+                    stop = true
+                }
+            }
+        }
+        
+        return dates
+    }
+}
+
+// Calendar extension for startOfMonth
+extension Calendar {
+    func startOfMonth(for date: Date) -> Date {
+        return self.date(from: self.dateComponents([.year, .month], from: date)) ?? date
     }
 }
 
