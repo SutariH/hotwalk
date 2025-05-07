@@ -58,7 +58,6 @@ struct GoalEditorView: View {
                     Text("Quick Presets")
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
-                        .padding(.horizontal)
                     
                     // Custom grid for 3+2 layout, bottom row centered
                     HStack(spacing: 12) {
@@ -66,29 +65,25 @@ struct GoalEditorView: View {
                         presetButton(preset: presets[1])
                         presetButton(preset: presets[2])
                     }
-                    .frame(maxWidth: .infinity)
                     .padding(.bottom, 12)
+                    
                     HStack(spacing: 12) {
                         Spacer(minLength: 0)
                         presetButton(preset: presets[3])
                         presetButton(preset: presets[4])
                         Spacer(minLength: 0)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 61)
-                    .padding(.top, 0)
                 }
                 .padding()
                 .background(Color.white.opacity(0.15))
                 .cornerRadius(12)
-                .padding(.horizontal)
 
                 // Custom Goal Input
                 VStack(alignment: .leading, spacing: 16) {
                     Text("Manifest Your Steps")
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
-                        .padding(.horizontal)
+                    
                     HStack {
                         TextField("Type your fierce number here...", text: $tempGoal)
                             .keyboardType(.numberPad)
@@ -109,12 +104,10 @@ struct GoalEditorView: View {
                             .font(.system(size: 18))
                             .foregroundColor(.white.opacity(0.8))
                     }
-                    .padding(.horizontal)
                 }
                 .padding()
                 .background(Color.white.opacity(0.15))
                 .cornerRadius(12)
-                .padding(.horizontal)
 
                 Spacer()
 
@@ -129,19 +122,18 @@ struct GoalEditorView: View {
                             .background(Color.purple)
                             .cornerRadius(12)
                     }
-                    .padding(.horizontal)
                     .disabled(tempGoal.isEmpty || Int(tempGoal) == nil)
                     .opacity(tempGoal.isEmpty || Int(tempGoal) == nil ? 0.6 : 1)
+                    
                     Text("Your future self is already proud")
                         .font(.system(size: 14))
                         .foregroundColor(.white.opacity(0.6))
                         .padding(.bottom, 24)
                 }
             }
-            .padding(.top, 8)
-            .frame(maxWidth: 340)
             .padding(.horizontal)
-            .frame(maxWidth: .infinity, alignment: .center)
+            .frame(maxWidth: 400)
+            .frame(maxWidth: .infinity)
         }
     }
     
@@ -185,7 +177,8 @@ struct GoalEditorView: View {
                     .lineLimit(2)
                     .minimumScaleFactor(0.7)
             }
-            .frame(width: 110, height: 76)
+            .frame(maxWidth: .infinity)
+            .frame(height: 76)
             .background(
                 RoundedRectangle(cornerRadius: 20)
                     .fill(selectedPreset == preset ? Color.purple : Color.white.opacity(0.1))

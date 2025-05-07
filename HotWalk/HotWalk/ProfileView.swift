@@ -140,24 +140,6 @@ struct ProfileView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.white.opacity(0.15))
                         .cornerRadius(12)
-                        // Goal Editor Link
-                        Button(action: { isShowingGoalEditor = true }) {
-                            HStack {
-                                Image(systemName: "target")
-                                    .foregroundColor(.purple)
-                                Text("Edit Daily Step Goal")
-                                    .font(.system(size: 16, weight: .medium, design: .rounded))
-                                    .foregroundColor(.white)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.white.opacity(0.12))
-                            .cornerRadius(10)
-                        }
-                        .padding(.top, 4)
-                        .sheet(isPresented: $isShowingGoalEditor) {
-                            GoalEditorView(viewModel: goalViewModel)
-                        }
                         
                         // Member Since Section
                         VStack(alignment: .leading, spacing: 8) {
@@ -173,6 +155,20 @@ struct ProfileView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.white.opacity(0.15))
                         .cornerRadius(12)
+                        
+                        // Goal Editor Link
+                        Button(action: { isShowingGoalEditor = true }) {
+                            Text("Edit Daily Step Goal")
+                                .font(.system(size: 16, weight: .medium, design: .rounded))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding()
+                                .background(Color.white.opacity(0.12))
+                                .cornerRadius(10)
+                        }
+                        .sheet(isPresented: $isShowingGoalEditor) {
+                            GoalEditorView(viewModel: goalViewModel)
+                        }
                         
                         // Unit Preference Section
                         VStack(alignment: .leading, spacing: 8) {
