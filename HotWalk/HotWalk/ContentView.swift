@@ -2,6 +2,7 @@ import SwiftUI
 import FirebaseFirestore
 import UserNotifications
 import FirebaseAuth
+import StoreKit
 
 struct ContentView: View {
     @StateObject private var healthManager = HealthManager()
@@ -15,6 +16,7 @@ struct ContentView: View {
     @State private var rotationAngle: Double = 0
     @State private var currentAffirmation = ""
     @State private var hasRequestedNotifications = false
+    @Environment(\.scenePhase) private var scenePhase
     
     // Share CTA messages - moved to static property
     private static let shareCTAMessages = [
@@ -243,6 +245,14 @@ struct ContentView: View {
         }
         .onChange(of: healthManager.steps) { newSteps in
             viewModel.steps = newSteps
+        }
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active {
+                if UserDefaults.standard.bool(forKey: "shouldPromptForReview") {
+                    SKStoreReviewController.requestReview()
+                    UserDefaults.standard.set(false, forKey: "shouldPromptForReview")
+                }
+            }
         }
     }
     

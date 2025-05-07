@@ -169,6 +169,10 @@ class BackgroundHealthManager: ObservableObject {
                     print("Error scheduling notification: \(error.localizedDescription)")
                 }
             }
+            // Set review prompt flag if 100% goal notification
+            if percentage == 1.0 {
+                UserDefaults.standard.set(true, forKey: "shouldPromptForReview")
+            }
         }
     }
     
