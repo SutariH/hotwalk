@@ -172,6 +172,12 @@ struct ContentView: View {
                         }
                         .padding(.top, 20)
                         
+                        ActivityRingsView(
+                            distance: healthManager.distance,
+                            activeTime: healthManager.activeTime
+                        )
+                        .padding(.horizontal)
+                        
                         Spacer()
                         
                         shareSection
@@ -218,7 +224,11 @@ struct ContentView: View {
         .accentColor(.purple)
         .onAppear {
             setupNavigationBar()
-            healthManager.fetchTodaySteps()
+            healthManager.requestAuthorization { success in
+                if success {
+                    healthManager.fetchTodayData()
+                }
+            }
             setupStepUpdateTimer()
             
             // Request notification permissions if not already requested
@@ -268,7 +278,7 @@ struct ContentView: View {
     
     private func setupStepUpdateTimer() {
         Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
-            healthManager.fetchTodaySteps()
+            healthManager.fetchTodayData()
             checkForMilestones()
         }
     }

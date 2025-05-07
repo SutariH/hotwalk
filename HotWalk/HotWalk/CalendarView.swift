@@ -17,8 +17,12 @@ struct CalendarView: View {
     @State private var currentDate = Date()
     @State private var selectedDate: Date? = nil
     @State private var selectedDateSteps: Int = 0
+    @State private var selectedDateDistance: Double = 0
+    @State private var selectedDateActiveTime: TimeInterval = 0
     @State private var selectedDateStatus: DayStatus = .none
     @State private var todaySteps: Int = 0
+    @State private var todayDistance: Double = 0
+    @State private var todayActiveTime: TimeInterval = 0
     @State private var isTransitioning: Bool = false
     @State private var stepCountCache: [Date: Int] = [:]
     @State private var isFetchingData: Bool = false
@@ -27,6 +31,30 @@ struct CalendarView: View {
     
     private let calendar = Calendar.current
     private let daysInWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    
+    // Add property to check user's unit preference
+    private var useMetricSystem: Bool {
+        UserDefaults.standard.bool(forKey: "useMetricSystem")
+    }
+    
+    // Add property to get distance unit
+    private var distanceUnit: String {
+        useMetricSystem ? "km" : "mi"
+    }
+    
+    // Add property to convert distance
+    private func convertDistance(_ kilometers: Double) -> Double {
+        if !useMetricSystem {
+            return kilometers * 0.621371 // Convert km to miles
+        }
+        return kilometers
+    }
+    
+    // Add property to format distance
+    private func formatDistance(_ kilometers: Double) -> String {
+        let convertedDistance = convertDistance(kilometers)
+        return String(format: "%.1f %@", convertedDistance, distanceUnit)
+    }
     
     // Month subheadings dictionary
     private let monthSubheadings: [Int: String] = [
@@ -84,16 +112,25 @@ struct CalendarView: View {
     
     private func loadInitialData() {
         // First, load today's data
-        fetchDailySteps(for: Date()) { steps in
-            todaySteps = Int(steps)
-            stepCountCache[Date()] = Int(steps)
-            
-            // Then start loading the current month's data in the background
-            DispatchQueue.global(qos: .userInitiated).async {
-                prefetchMonthData()
-                DispatchQueue.main.async {
-                    isInitialLoadComplete = true
-                }
+        let today = Date()
+        healthManager.fetchStepsForDate(today) { steps in
+            self.todaySteps = steps
+            self.stepCountCache[today] = steps
+        }
+        
+        healthManager.fetchDistanceForDate(today) { distance in
+            self.todayDistance = distance
+        }
+        
+        healthManager.fetchActiveTimeForDate(today) { activeTime in
+            self.todayActiveTime = activeTime
+        }
+        
+        // Then start loading the current month's data in the background
+        DispatchQueue.global(qos: .userInitiated).async {
+            prefetchMonthData()
+            DispatchQueue.main.async {
+                isInitialLoadComplete = true
             }
         }
     }
@@ -118,9 +155,9 @@ struct CalendarView: View {
                 
                 for date in batchDates {
                     group.enter()
-                    fetchDailySteps(for: date) { steps in
+                    healthManager.fetchStepsForDate(date) { steps in
                         DispatchQueue.main.async {
-                            stepCountCache[date] = Int(steps)
+                            self.stepCountCache[date] = steps
                         }
                         group.leave()
                     }
@@ -216,7 +253,7 @@ struct CalendarView: View {
                                         } else {
                                             self.selectedDate = date
                                             fetchDailySteps(for: date) { steps in
-                                                selectedDateSteps = Int(steps)
+                                                selectedDateSteps = steps
                                                 selectedDateStatus = getStatus(for: date)
                                             }
                                         }
@@ -307,6 +344,38 @@ struct CalendarView: View {
                         .cornerRadius(15)
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel("\(selectedDate == nil ? todaySteps : selectedDateSteps) steps out of \(viewModel.dailyGoal) goal")
+                        
+                        // Distance and Active Time
+                        HStack(spacing: 20) {
+                            // Distance
+                            VStack(spacing: 8) {
+                                Text("Distance")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                Text(formatDistance(selectedDate == nil ? todayDistance : selectedDateDistance))
+                                    .font(.title3.bold())
+                                    .foregroundColor(.white)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue.opacity(0.25))
+                            .cornerRadius(15)
+                            
+                            // Active Time
+                            VStack(spacing: 8) {
+                                Text("Active Time")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                Text(formatTime(selectedDate == nil ? todayActiveTime : selectedDateActiveTime))
+                                    .font(.title3.bold())
+                                    .foregroundColor(.white)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.green.opacity(0.25))
+                            .cornerRadius(15)
+                        }
+                        .padding(.horizontal)
                         
                         // Status card
                         VStack(spacing: 10) {
@@ -471,79 +540,46 @@ struct CalendarView: View {
     }
     
     // Updated HealthKit query to fetch only the selected day's steps
-    private func fetchDailySteps(for date: Date, completion: @escaping (Double) -> Void) {
-        // Check if we already have cached data
-        if let cachedSteps = stepCountCache[date] {
-            completion(Double(cachedSteps))
-            return
-        }
-
-        // Check if HealthKit is available
-        guard HKHealthStore.isHealthDataAvailable() else {
-            print("HealthKit is not available on this device")
-            completion(0)
+    private func fetchDailySteps(for date: Date, completion: @escaping (Int) -> Void) {
+        // Check if we already have the data cached
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        if let cachedSteps = stepCountCache[startOfDay] {
+            updateStepsForDate(startOfDay, steps: cachedSteps)
+            completion(cachedSteps)
             return
         }
         
-        // Get the step count type
-        guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
-            print("Step count type is not available")
-            completion(0)
+        // If not cached, fetch from HealthKit
+        healthManager.fetchStepsForDate(date) { steps in
+            self.updateStepsForDate(startOfDay, steps: steps)
+            completion(steps)
+        }
+    }
+    
+    private func fetchDailyDistance(for date: Date) {
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        let cachedDistance = healthManager.getDistanceForDate(startOfDay)
+        if cachedDistance > 0 {
+            updateDistanceForDate(startOfDay, distance: cachedDistance)
             return
         }
         
-        // Create the day range with proper boundaries
-        let calendar = Calendar.current
-        guard
-            let startOfDay = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: date),
-            let endOfDay = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: date)
-        else {
-            print("Could not create date boundaries")
-            completion(0)
+        healthManager.fetchDistanceForDate(date) { distance in
+            self.updateDistanceForDate(startOfDay, distance: distance)
+        }
+    }
+    
+    private func fetchDailyActiveTime(for date: Date) {
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        let cachedTime = healthManager.getActiveTimeForDate(startOfDay)
+        if cachedTime > 0 {
+            updateActiveTimeForDate(startOfDay, activeTime: cachedTime)
             return
         }
         
-        // Create a predicate that only includes samples from the selected day
-        let predicate = HKQuery.predicateForSamples(
-            withStart: startOfDay,
-            end: endOfDay,
-            options: .strictStartDate
-        )
-        
-        // Create the statistics query
-        let query = HKStatisticsQuery(
-            quantityType: stepType,
-            quantitySamplePredicate: predicate,
-            options: .cumulativeSum
-        ) { _, result, error in
-            if let error = error {
-                print("Error fetching step data: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    completion(0)
-                }
-                return
-            }
-            
-            guard let stats = result,
-                  let quantity = stats.sumQuantity() else {
-                DispatchQueue.main.async {
-                    completion(0)
-                }
-                return
-            }
-            
-            // Get the step count as a double
-            let stepCount = quantity.doubleValue(for: HKUnit.count())
-            
-            // Cache the result
-            DispatchQueue.main.async {
-                stepCountCache[date] = Int(stepCount)
-                completion(stepCount)
-            }
+        healthManager.fetchActiveTimeForDate(date) { activeTime in
+            self.updateActiveTimeForDate(startOfDay, activeTime: activeTime)
         }
-        
-        // Execute the query
-        healthManager.healthStore.execute(query)
     }
     
     private func previousMonth() {
@@ -569,70 +605,30 @@ struct CalendarView: View {
         guard !isFetchingData else { return }
         isFetchingData = true
         
-        // Get the date range for the current month
         let calendar = Calendar.current
         guard let monthInterval = calendar.dateInterval(of: .month, for: currentDate) else {
             isFetchingData = false
             return
         }
         
-        // Create a predicate for the entire month
-        let predicate = HKQuery.predicateForSamples(
-            withStart: monthInterval.start,
-            end: monthInterval.end,
-            options: .strictStartDate
-        )
+        // Fetch data for each day in the month
+        let group = DispatchGroup()
         
-        // Get the step count type
-        guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
+        for day in 0..<calendar.range(of: .day, in: .month, for: currentDate)!.count {
+            guard let date = calendar.date(byAdding: .day, value: day, to: monthInterval.start) else { continue }
+            
+            group.enter()
+            healthManager.fetchStepsForDate(date) { steps in
+                DispatchQueue.main.async {
+                    self.stepCountCache[date] = steps
+                }
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
             isFetchingData = false
-            return
         }
-        
-        // Create a collection query for the month
-        let query = HKStatisticsCollectionQuery(
-            quantityType: stepType,
-            quantitySamplePredicate: predicate,
-            options: .cumulativeSum,
-            anchorDate: monthInterval.start,
-            intervalComponents: DateComponents(day: 1)
-        )
-        
-        query.initialResultsHandler = { query, results, error in
-            if let error = error {
-                print("Error fetching month data: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    isFetchingData = false
-                }
-                return
-            }
-            
-            guard let statsCollection = results else {
-                DispatchQueue.main.async {
-                    isFetchingData = false
-                }
-                return
-            }
-            
-            // Process each day's statistics
-            statsCollection.enumerateStatistics(from: monthInterval.start, to: monthInterval.end) { statistics, _ in
-                if let quantity = statistics.sumQuantity() {
-                    let steps = Int(quantity.doubleValue(for: HKUnit.count()))
-                    let date = statistics.startDate
-                    
-                    DispatchQueue.main.async {
-                        stepCountCache[date] = steps
-                    }
-                }
-            }
-            
-            DispatchQueue.main.async {
-                isFetchingData = false
-            }
-        }
-        
-        // Execute the query
-        healthManager.healthStore.execute(query)
     }
     
     private func getDailyKey(for date: Date) -> String {
@@ -658,6 +654,36 @@ struct CalendarView: View {
             return index - 1
         }
         return 0
+    }
+    
+    private func formatTime(_ timeInterval: TimeInterval) -> String {
+        let hours = Int(timeInterval) / 3600
+        let minutes = Int(timeInterval) / 60 % 60
+        
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else {
+            return "\(minutes)m"
+        }
+    }
+    
+    private func updateStepsForDate(_ date: Date, steps: Int) {
+        if calendar.isDateInToday(date) {
+            todaySteps = steps
+        }
+        stepCountCache[date] = steps
+    }
+    
+    private func updateDistanceForDate(_ date: Date, distance: Double) {
+        if calendar.isDateInToday(date) {
+            todayDistance = distance
+        }
+    }
+    
+    private func updateActiveTimeForDate(_ date: Date, activeTime: TimeInterval) {
+        if calendar.isDateInToday(date) {
+            todayActiveTime = activeTime
+        }
     }
 }
 

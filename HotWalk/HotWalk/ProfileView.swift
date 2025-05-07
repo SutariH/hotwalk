@@ -4,6 +4,7 @@ struct ProfileView: View {
     @State private var showingEditSheet = false
     @State private var showingLogoutAlert = false
     @State private var userProfile: UserProfile
+    @State private var selectedUnit: String = UserDefaults.standard.bool(forKey: UserDefaultsKeys.useMetricSystem) ? "Metric" : "Imperial"
     
     // Add UserDefaults keys
     private enum UserDefaultsKeys {
@@ -13,7 +14,11 @@ struct ProfileView: View {
         static let userName = "userName"
         static let totalSteps = "totalSteps"
         static let friendCount = "friendCount"
+        static let userCountry = "userCountry"
+        static let useMetricSystem = "useMetricSystem"
     }
+    
+    private let unitOptions = ["Metric", "Imperial"]
     
     init() {
         // Load profile synchronously during initialization
@@ -96,6 +101,37 @@ struct ProfileView: View {
                                 Text(formatDate(userProfile.memberSince))
                                     .font(.system(size: 18, weight: .bold, design: .rounded))
                                     .foregroundColor(.white)
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.white.opacity(0.15))
+                            .cornerRadius(12)
+                            
+                            // Unit Preference Section
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Distance Units")
+                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.8))
+                                
+                                Picker("Select Unit System", selection: $selectedUnit) {
+                                    ForEach(unitOptions, id: \.self) { unit in
+                                        Text(unit).tag(unit)
+                                    }
+                                }
+                                .pickerStyle(MenuPickerStyle())
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color(red: 0.4, green: 0.2, blue: 0.4))
+                                .cornerRadius(10)
+                                .accentColor(.white)
+                                .onChange(of: selectedUnit) { newValue in
+                                    let useMetric = newValue == "Metric"
+                                    UserDefaults.standard.set(useMetric, forKey: UserDefaultsKeys.useMetricSystem)
+                                }
+                                
+                                Text(selectedUnit == "Metric" ? "Distances shown in kilometers" : "Distances shown in miles")
+                                    .font(.system(size: 14, weight: .regular, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.7))
                             }
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)

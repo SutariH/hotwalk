@@ -269,6 +269,9 @@ class OnboardingViewModel: ObservableObject {
             
             try await db.collection("users").document(user.uid).setData(userData, merge: true)
             
+            // Save country to UserDefaults
+            UserDefaults.standard.set(country, forKey: "userCountry")
+            
             await MainActor.run {
                 currentStep = .dateOfBirth
                 isLoading = false
