@@ -37,14 +37,10 @@ Badges are cute. But episodes? Iconic.
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(24)
                 .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(hue: 0.83, saturation: 0.4, brightness: 0.8))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.white.opacity(0.25), lineWidth: 1) // Increased from 0.2
-                        )
-                        .shadow(color: .purple.opacity(0.4), radius: 20, x: 0, y: 10) // Increased from 0.3
+                    Color.white.opacity(0.15)
                 )
+                .cornerRadius(12)
+                .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                 
                 // Episodes Section
                 VStack(alignment: .leading, spacing: 20) {
@@ -73,14 +69,10 @@ Badges are cute. But episodes? Iconic.
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(24)
                 .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(hue: 0.83, saturation: 0.4, brightness: 0.8))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.white.opacity(0.25), lineWidth: 1) // Increased from 0.2
-                        )
-                        .shadow(color: .purple.opacity(0.4), radius: 20, x: 0, y: 10) // Increased from 0.3
+                    Color.white.opacity(0.15)
                 )
+                .cornerRadius(12)
+                .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 20)
