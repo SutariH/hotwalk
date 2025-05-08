@@ -1,10 +1,12 @@
 import SwiftUI
+import StoreKit
+import Mixpanel
 
 struct ProfileView: View {
     @State private var showingEditSheet = false
     @State private var showingLogoutAlert = false
     @State private var userProfile: UserProfile
-    @State private var selectedUnit: String = UserDefaults.standard.bool(forKey: UserDefaultsKeys.useMetricSystem) ? "Metric" : "Imperial"
+    @State private var selectedUnit: String = UserDefaults.standard.bool(forKey: UserDefaultsKeys.useMetricSystem) ? "Kilometers" : "Miles"
     @State private var bioText: String = UserDefaults.standard.string(forKey: UserDefaultsKeys.userBio) ?? ""
     @State private var isEditingBio: Bool = false
     @State private var isEditingName: Bool = false
@@ -25,7 +27,38 @@ struct ProfileView: View {
         static let userBio = "userBio"
     }
     
-    private let unitOptions = ["Metric", "Imperial"]
+    private let unitOptions = ["Kilometers", "Miles"]
+    
+    // Review CTA lines
+    private let reviewCTALines = [
+        "Put It in Writing, Babe ✍️⭐️⭐️⭐️⭐️⭐️",
+        "Tell the World You Believe in Me 🕊️",
+        "Hype Me Like I'm Your Bestie's Business 🛍️💕",
+        "Tell the App Store We're the Moment 📱✨",
+        "Declare Your Loyalty, Hot Girl Style 👑",
+        "Let's Make It Official 💍 (Write the Review)",
+        "Review Me Like One of Your French Apps 🎨📱",
+        "Tell Apple I Deserve a Raise 🍏💼",
+        "Leave Your Glowing Review, Babe 💅💭",
+        "Give Us Stars or Give Us Drama (We Love Both) 💥⭐️",
+        "Be the Main Character. Write the Review 📝✨",
+        "Tell the App Store I Ate and Left No Crumbs 🍽️⭐️"
+    ]
+    private let reviewCTAIndexKey = "reviewCTAIndexKey"
+    private let reviewCTADateKey = "reviewCTADateKey"
+    
+    private var todayReviewCTA: String {
+        let today = Calendar.current.startOfDay(for: Date())
+        let lastDate = UserDefaults.standard.object(forKey: reviewCTADateKey) as? Date
+        var index = UserDefaults.standard.integer(forKey: reviewCTAIndexKey)
+        if lastDate == nil || !Calendar.current.isDate(today, inSameDayAs: lastDate!) {
+            // New day, increment index
+            index = (index + 1) % reviewCTALines.count
+            UserDefaults.standard.set(index, forKey: reviewCTAIndexKey)
+            UserDefaults.standard.set(today, forKey: reviewCTADateKey)
+        }
+        return reviewCTALines[index]
+    }
     
     init() {
         // Load profile synchronously during initialization
@@ -178,10 +211,9 @@ struct ProfileView: View {
                         
                         // Unit Preference Section
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Distance Units")
+                            Text("Pick Your Units, Babe")
                                 .font(.system(size: 16, weight: .medium, design: .rounded))
                                 .foregroundColor(.white.opacity(0.8))
-                            
                             Picker("Select Unit System", selection: $selectedUnit) {
                                 ForEach(unitOptions, id: \.self) { unit in
                                     Text(unit).tag(unit)
@@ -194,18 +226,30 @@ struct ProfileView: View {
                             .cornerRadius(10)
                             .accentColor(.white)
                             .onChange(of: selectedUnit) { newValue in
-                                let useMetric = newValue == "Metric"
+                                let useMetric = newValue == "Kilometers"
                                 UserDefaults.standard.set(useMetric, forKey: UserDefaultsKeys.useMetricSystem)
                             }
-                            
-                            Text(selectedUnit == "Metric" ? "Distances shown in kilometers" : "Distances shown in miles")
+                            Text(selectedUnit == "Kilometers" ? "Distances shown in kilometers" : "Distances shown in miles")
                                 .font(.system(size: 14, weight: .regular, design: .rounded))
                                 .foregroundColor(.white.opacity(0.7))
                         }
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.white.opacity(0.15))
-                        .cornerRadius(12)
+                        // Leave a Review Button
+                        Button(action: {
+                            Mixpanel.mainInstance().track(event: "Review CTA Clicked", properties: ["cta": todayReviewCTA])
+                            SKStoreReviewController.requestReview()
+                        }) {
+                            Text(todayReviewCTA)
+                                .font(.system(size: 18, weight: .medium, design: .rounded))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                                .padding()
+                                .background(Color.purple.opacity(0.85))
+                                .cornerRadius(12)
+                                .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
+                        }
+                        .padding(.top, 8)
                     }
                     .padding(.horizontal)
                     
