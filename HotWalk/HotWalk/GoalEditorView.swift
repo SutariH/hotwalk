@@ -1,4 +1,5 @@
 import SwiftUI
+import Mixpanel
 
 struct GoalEditorView: View {
     @Environment(\.dismiss) private var dismiss
@@ -140,6 +141,7 @@ struct GoalEditorView: View {
     private func saveGoal() {
         if let newGoal = Int(tempGoal), newGoal > 0 {
             viewModel.dailyGoal = newGoal
+            Mixpanel.mainInstance().track(event: "Goal Saved", properties: ["goal": newGoal])
             dismiss()
         }
     }

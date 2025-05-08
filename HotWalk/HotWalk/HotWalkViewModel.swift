@@ -20,7 +20,7 @@ class HotGirlStepsViewModel: ObservableObject {
     init() {
         self.dailyGoal = UserDefaults.standard.integer(forKey: "dailyGoal")
         if self.dailyGoal == 0 {
-            self.dailyGoal = 10000 // Default goal
+            self.dailyGoal = 5000 // Default goal changed from 10000 to 5000
         }
         self.streakText = StreakManager.shared.getStreakText()
         self.currentMessage = MotivationalMessageManager.shared.getMessage(for: 0.0)

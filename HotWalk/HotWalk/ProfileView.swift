@@ -158,13 +158,19 @@ struct ProfileView: View {
                         
                         // Goal Editor Link
                         Button(action: { isShowingGoalEditor = true }) {
-                            Text("Edit Daily Step Goal")
-                                .font(.system(size: 16, weight: .medium, design: .rounded))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding()
-                                .background(Color.white.opacity(0.12))
-                                .cornerRadius(10)
+                            HStack {
+                                Text("Edit Daily Step Goal")
+                                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Text("\(goalViewModel.dailyGoal) steps")
+                                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white.opacity(0.85))
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                            .background(Color.white.opacity(0.12))
+                            .cornerRadius(10)
                         }
                         .sheet(isPresented: $isShowingGoalEditor) {
                             GoalEditorView(viewModel: goalViewModel)

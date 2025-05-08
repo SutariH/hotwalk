@@ -2,20 +2,28 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>Associated Domains</key>
+	<array>
+		<string>applinks:hotgirlsteps.com</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>hotwalk</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-	<key>NSHealthShareUsageDescription</key>
-	<string>Hot Girl Steps needs access to your step count to track your progress and send you notifications when you reach your goals.</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>Hot Girl Steps needs access to your step count to track your progress and send you notifications when you reach your goals.</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>processing</string>
-	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -33,41 +41,15 @@
 			</array>
 		</dict>
 	</dict>
-	<key>CFBundleURLTypes</key>
+	<key>UIBackgroundModes</key>
 	<array>
-		<dict>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>hotwalk</string>
-			</array>
-			<key>CFBundleURLName</key>
-			<string>com.hotwalk.app</string>
-		</dict>
+		<string>fetch</string>
+		<string>processing</string>
+		<string>remote-notification</string>
 	</array>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:hotgirlsteps.com</string>
 	</array>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>hotwalk</string>
-			</array>
-		</dict>
-	</array>
-	<key>Associated Domains</key>
-	<array>
-		<string>applinks:hotgirlsteps.com</string>
-	</array>
-	<key>NSFaceIDUsageDescription</key>
-	<string>We use Face ID to securely sign you in to your account.</string>
 </dict>
 </plist>

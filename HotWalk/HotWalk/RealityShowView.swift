@@ -12,26 +12,26 @@ struct RealityShowView: View {
             VStack(spacing: 24) {
                 // Header Section
                 VStack(alignment: .center, spacing: 16) {
-                    Text("The Camera's Rolling.\nYou're Already Late.")
+                    Text("You Walk, the Plot Thickens.")
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 4)
                         .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                     
-                    Text("You thought this was just a walk? Think again.")
+                    Text("""
+You thought you were walking for your health? Sweetie, you're walking for the storyline.
+
+Each day you get to your goal, another episode drops.
+Think fake friends, real betrayal, and love triangles that don't quit.
+
+Badges are cute. But episodes? Iconic.
+""")
                         .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 8)
-                        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
-                    
-                    Text("Every step writes a new episode in the most iconic fake reality show the internet's never seen.\n\nClaudia's spiraling. Diego's watching. You're walking straight into your main character era.")
-                        .font(.body)
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(6)
                         .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)

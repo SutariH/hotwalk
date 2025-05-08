@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		748223B02DCCE5EC003C1475 /* Mixpanel in Frameworks */ = {isa = PBXBuildFile; productRef = 748223AF2DCCE5EC003C1475 /* Mixpanel */; };
 		74BC993F2DBABC9A00FA1049 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 74BC993E2DBABC9A00FA1049 /* FirebaseAnalytics */; };
 		74BC99412DBABC9A00FA1049 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 74BC99402DBABC9A00FA1049 /* FirebaseAuth */; };
 		74BC99432DBABC9A00FA1049 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 74BC99422DBABC9A00FA1049 /* FirebaseFirestore */; };
@@ -95,6 +96,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				748223B02DCCE5EC003C1475 /* Mixpanel in Frameworks */,
 				74BC993F2DBABC9A00FA1049 /* FirebaseAnalytics in Frameworks */,
 				74BC99412DBABC9A00FA1049 /* FirebaseAuth in Frameworks */,
 				74BC99472DBABC9A00FA1049 /* FirebaseMessaging in Frameworks */,
@@ -212,6 +214,7 @@
 			mainGroup = 1A1A1A1A1A1A1A1A1A1A1A25;
 			packageReferences = (
 				74BC993D2DBABC9A00FA1049 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				748223AE2DCCE5EC003C1475 /* XCRemoteSwiftPackageReference "mixpanel-swift" */,
 			);
 			productRefGroup = 1A1A1A1A1A1A1A1A1A1A1A27 /* Products */;
 			projectDirPath = "";
@@ -410,10 +413,10 @@
 				INFOPLIST_FILE = HotWalk/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Hot Girl Steps ";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Hot Girl Steps needs access to your camera to take photos for sharing achievements.";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Hot Girl Steps needs access to your step count to track your daily progress and provide motivation.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hot Girl Steps needs access to your step count to track your daily progress and provide motivation.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use Face ID to securely sign you in to your account.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Hot Girl Steps needs access to your step count to track your progress and send you notifications when you reach your goals.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hot Girl Steps needs access to your step count to track your progress and send you notifications when you reach your goals.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Hot Girl Steps needs access to your photo library to save and share your achievements.";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -454,10 +457,10 @@
 				INFOPLIST_FILE = HotWalk/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Hot Girl Steps ";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Hot Girl Steps needs access to your camera to take photos for sharing achievements.";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Hot Girl Steps needs access to your step count to track your daily progress and provide motivation.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hot Girl Steps needs access to your step count to track your daily progress and provide motivation.";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use Face ID to securely sign you in to your account.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Hot Girl Steps needs access to your step count to track your progress and send you notifications when you reach your goals.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Hot Girl Steps needs access to your step count to track your progress and send you notifications when you reach your goals.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Hot Girl Steps needs access to your photo library to save and share your achievements.";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -506,6 +509,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		748223AE2DCCE5EC003C1475 /* XCRemoteSwiftPackageReference "mixpanel-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mixpanel/mixpanel-swift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		74BC993D2DBABC9A00FA1049 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -517,6 +528,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		748223AF2DCCE5EC003C1475 /* Mixpanel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 748223AE2DCCE5EC003C1475 /* XCRemoteSwiftPackageReference "mixpanel-swift" */;
+			productName = Mixpanel;
+		};
 		74BC993E2DBABC9A00FA1049 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 74BC993D2DBABC9A00FA1049 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

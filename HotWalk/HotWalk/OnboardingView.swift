@@ -375,14 +375,15 @@ struct OnboardingView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background gradient
+                // Updated background gradient to match app
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color(red: 0.9, green: 0.6, blue: 0.9),
-                        Color(red: 0.7, green: 0.3, blue: 0.7)
+                        Color(red: 44/255, green: 8/255, blue: 52/255),
+                        Color(red: 0.4, green: 0.2, blue: 0.4),
+                        Color(hue: 0.83, saturation: 0.4, brightness: 0.8)
                     ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
+                    startPoint: .top,
+                    endPoint: .bottom
                 )
                 .ignoresSafeArea()
                 
@@ -446,9 +447,10 @@ struct SignInView: View {
                     }
                 }
             )
-            .signInWithAppleButtonStyle(.white)
+            .signInWithAppleButtonStyle(.black)
             .frame(height: 50)
-            .cornerRadius(25)
+            .cornerRadius(15)
+            .shadow(color: .black.opacity(0.2), radius: 6, x: 0, y: 3)
             .padding(.horizontal, 40)
             
             if let errorMessage = viewModel.errorMessage {
@@ -494,12 +496,19 @@ struct NameView: View {
                 }
             }) {
                 Text("Next")
-                    .font(.headline)
+                    .font(.system(size: 18, weight: .medium, design: .rounded))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color.purple)
-                    .cornerRadius(25)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.purple.opacity(0.8), Color.purple.opacity(0.6)]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(15)
+                    .shadow(color: .purple.opacity(0.2), radius: 5, x: 0, y: 2)
             }
             .padding(.horizontal, 40)
             .disabled(viewModel.displayName.isEmpty)
@@ -570,12 +579,19 @@ struct EmailView: View {
                 }
             }) {
                 Text("Next")
-                    .font(.headline)
+                    .font(.system(size: 18, weight: .medium, design: .rounded))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color(red: 0.7, green: 0.3, blue: 0.7))
-                    .cornerRadius(25)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.purple.opacity(0.8), Color.purple.opacity(0.6)]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(15)
+                    .shadow(color: .purple.opacity(0.2), radius: 5, x: 0, y: 2)
             }
             .padding(.horizontal, 40)
             .disabled(viewModel.isLoading)
@@ -649,12 +665,19 @@ struct CountryView: View {
                 }
             }) {
                 Text("Next")
-                    .font(.headline)
+                    .font(.system(size: 18, weight: .medium, design: .rounded))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color(red: 0.7, green: 0.3, blue: 0.7))
-                    .cornerRadius(25)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.purple.opacity(0.8), Color.purple.opacity(0.6)]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(15)
+                    .shadow(color: .purple.opacity(0.2), radius: 5, x: 0, y: 2)
             }
             .padding(.horizontal, 40)
             .disabled(viewModel.country.isEmpty)
@@ -722,12 +745,19 @@ struct DateOfBirthView: View {
                 }
             }) {
                 Text("Next")
-                    .font(.headline)
+                    .font(.system(size: 18, weight: .medium, design: .rounded))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color(red: 0.7, green: 0.3, blue: 0.7))
-                    .cornerRadius(25)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.purple.opacity(0.8), Color.purple.opacity(0.6)]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(15)
+                    .shadow(color: .purple.opacity(0.2), radius: 5, x: 0, y: 2)
             }
             .padding(.horizontal, 40)
             
@@ -773,15 +803,19 @@ struct NotificationsView: View {
                 }
             }) {
                 Text("✨ Let's Get Notified! ✨")
-                    .font(.headline)
+                    .font(.system(size: 18, weight: .medium, design: .rounded))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
                     .background(
-                        RoundedRectangle(cornerRadius: 25)
-                            .fill(Color.purple)
-                            .shadow(color: .purple.opacity(0.3), radius: 10, x: 0, y: 5)
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.purple.opacity(0.8), Color.purple.opacity(0.6)]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
                     )
+                    .cornerRadius(15)
+                    .shadow(color: .purple.opacity(0.2), radius: 5, x: 0, y: 2)
             }
             .padding(.horizontal, 40)
             .padding(.bottom, 40)

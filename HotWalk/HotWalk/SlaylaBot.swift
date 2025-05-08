@@ -26,7 +26,7 @@ class ShaylaBot: ObservableObject {
         // Get goal from UserDefaults
         self.userGoal = UserDefaults.standard.integer(forKey: "dailyGoal")
         if self.userGoal == 0 {
-            self.userGoal = 10000 // Default goal
+            self.userGoal = 5000 // Default goal changed from 10000 to 5000
         }
         
         // Start with initial steps

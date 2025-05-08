@@ -319,9 +319,34 @@ struct CalendarView: View {
                             }
                         )
                     }
+                    
+                    // Hot Girl Passes Explanation
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: "sparkles")
+                                .foregroundColor(.white)
+                            Text("Hot Girl Passes")
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                        }
+                        
+                        Text("You have \(HotGirlPassManager.shared.currentPassCount) Hot Girl Passes")
+                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .foregroundColor(.white)
+                        
+                        Text("Hot Girl Passes are your secret weapon for keeping that streak alive when life’s being extra. They kick in automatically if you miss your step goal — and guess what? You can earn more by totally crushing it with 150% of your goal!")
+                            .font(.system(size: 14, weight: .regular, design: .rounded))
+                            .foregroundColor(.white.opacity(0.8))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.white.opacity(0.15))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    .padding(.bottom, 24)
                 }
-                .padding(.top, 32)
-                .padding(.bottom, 24)
+                .padding(.vertical)
             }
             .refreshable {
                 let today = Date()

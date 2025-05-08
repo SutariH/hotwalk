@@ -1,6 +1,7 @@
 import SwiftUI
 import FirebaseCore
 import FirebaseAuth
+import Mixpanel
 
 class AppState: ObservableObject {
     @Published var isAuthenticated = false
@@ -28,6 +29,7 @@ struct HotWalkApp: App {
     
     init() {
         FirebaseApp.configure()
+        Mixpanel.initialize(token: "7e548ac53a395d3a60177f024398bfba", trackAutomaticEvents: true)
     }
     
     var body: some Scene {
