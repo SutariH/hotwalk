@@ -22,8 +22,7 @@ struct RealityShowView: View {
                     Text("""
 You thought you were walking for your health? Sweetie, you're walking for the storyline.
 
-Each day you get to your goal, another episode drops.
-Think fake friends, real betrayal, and love triangles that don't quit.
+Every milestone brings the tea: walk it out, watch it unfold. Think fake friends, real betrayal, and love triangles that don't quit.
 
 Badges are cute. But episodes? Iconic.
 """)

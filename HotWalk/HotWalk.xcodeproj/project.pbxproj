@@ -412,6 +412,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HotWalk/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Hot Girl Steps ";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Hot Girl Steps needs access to your camera to take photos for sharing achievements.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use Face ID to securely sign you in to your account.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Hot Girl Steps needs access to your step count to track your progress and send you notifications when you reach your goals.";
@@ -428,7 +429,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = fi.vimdigital.HotGirlSteps;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -456,6 +457,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HotWalk/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Hot Girl Steps ";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Hot Girl Steps needs access to your camera to take photos for sharing achievements.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "We use Face ID to securely sign you in to your account.";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Hot Girl Steps needs access to your step count to track your progress and send you notifications when you reach your goals.";
@@ -472,7 +474,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = fi.vimdigital.HotGirlSteps;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

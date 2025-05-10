@@ -31,18 +31,18 @@ struct ProfileView: View {
     
     // Review CTA lines
     private let reviewCTALines = [
-        "Put It in Writing, Babe ✍️⭐️⭐️⭐️⭐️⭐️",
-        "Tell the World You Believe in Me 🕊️",
-        "Hype Me Like I'm Your Bestie's Business 🛍️💕",
-        "Tell the App Store We're the Moment 📱✨",
-        "Declare Your Loyalty, Hot Girl Style 👑",
-        "Let's Make It Official 💍 (Write the Review)",
-        "Review Me Like One of Your French Apps 🎨📱",
-        "Tell Apple I Deserve a Raise 🍏💼",
-        "Leave Your Glowing Review, Babe 💅💭",
-        "Give Us Stars or Give Us Drama (We Love Both) 💥⭐️",
-        "Be the Main Character. Write the Review 📝✨",
-        "Tell the App Store I Ate and Left No Crumbs 🍽️⭐️"
+        "Put It in Writing, Babe ✍️⭐️",
+            "You Believe in Me? Prove It 🕊️",
+            "Hype Me Like Your BFF's Biz 🛍️",
+            "We're the Moment. Tell Apple 📱✨",
+            "Declare Loyalty, Hot Girl Style 👑",
+            "Let's Make It Official 💍✨",
+            "Review Me Like French Apps 🎨📱",
+            "Tell Apple I Need a Raise 🍏💼",
+            "Leave That Glowing Review 💅💭",
+            "Stars or Drama? Both Slay 💥⭐️",
+            "Main Character? Leave a Review 📝",
+            "I Ate. No Crumbs. Tell Apple 🍽️⭐️"
     ]
     private let reviewCTAIndexKey = "reviewCTAIndexKey"
     private let reviewCTADateKey = "reviewCTADateKey"

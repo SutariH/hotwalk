@@ -26,7 +26,7 @@ struct ContentView: View {
         "Thirsty for attention? Let your steps speak 💧",
         "Hot girl walk ➡️ Hot girl flex. Tap to share 📸",
         "Steps > drama. Tell the world 🌍",
-        "Sundays are for sparkle recaps ✨ Drop yours!",
+        "Sparkle recap ✨ Drop yours!",
         "Serving walk-core excellence 🏆 Let 'em know",
         "You slayed the sidewalk—now slay the feed 🔥",
         "Got that step drip 💧 Share it loud!",
